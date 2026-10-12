@@ -112,7 +112,6 @@ function rnd(a,b){return a+Math.random()*(b-a);}
 function logLine(t,c){var d=document.createElement('div');if(c)d.className=c;d.textContent=t;logDom.appendChild(d);logDom.scrollTop=logDom.scrollHeight;}
 function story(lines,cls){for(var i=0;i<lines.length;i++){logLine('　　'+lines[i],cls||'story');}}
 
-/* ========== 成就系统 ========== */
 var ACHIEVES={
   'first_ghost':{name:'初次驭鬼',desc:'驾驭第一只鬼'},
   'three_ghosts':{name:'三鬼同行',desc:'同时驾驭3只鬼'},
@@ -154,11 +153,8 @@ function unlockAchieve(id){
   }
 }
 
-/* ========== 道具系统 ========== */
 var ITEMS={
-  blackUmbrella:{name:'黑伞',desc:'雨天免疫雨点鬼',effect:function(){
-    if(S.knownRules['雨点鬼']!==true)S.knownRules['雨点鬼']=true;
-  }},
+  blackUmbrella:{name:'黑伞',desc:'雨天免疫雨点鬼',effect:function(){if(S.knownRules['雨点鬼']!==true)S.knownRules['雨点鬼']=true;}},
   dragonScale:{name:'龙鳞',desc:'战力+5',effect:function(){}},
   oldNote:{name:'旧笔记',desc:'洞悉规律成功率+15%',effect:function(){}},
   bloodPact:{name:'血契',desc:'驾驭鬼成功率+10%',effect:function(){}},
@@ -175,7 +171,6 @@ function addItem(id){
   renderStatus();
 }
 
-/* ========== 战力系统 ========== */
 var PHYSIC_COEF=1.2;
 function ghostPowerSum(){var s=0;for(var i=0;i<S.ghosts.length;i++)s+=S.ghosts[i].power;return s;}
 function partnerPowerSum(){var s=0;for(var i=0;i<S.partners.length;i++){if(S.partners[i].alive&&S.partners[i].side==='player')s+=S.partners[i].power;}return s;}
@@ -246,12 +241,10 @@ function applyMod(m){if(!m)return;
 function die(r){
   if(!S.alive)return;
   if(hasT('fateBreaker')&&!S.usedFate){
-    S.usedFate=true;
-    removeT('fateBreaker');
+    S.usedFate=true;removeT('fateBreaker');
     logLine('【逆命】你的命运被改写——你从死地复活！','god');
     story(['你感到灵魂被拉回。','代价是，你的体质被永久削弱。'],'danger');
-    applyMod({physic:-2});
-    return;
+    applyMod({physic:-2});return;
   }
   if(hasT('godBless')){
     removeT('godBless');
@@ -334,161 +327,95 @@ var TALENTS=[
 {id:'fateBreaker',name:'逆命',type:'god',mod:{},desc:'死亡时50%概率复活一次。'}
 ];
 
-/* ========== 鬼库（13只） ========== */
 var GHOSTS=[
-{name:'哭脸鬼',diff:3,power:6,kind:'normal',
+{name:'哭脸鬼',diff:3,power:15,kind:'normal',
  rule:'不能表现出恐惧',
  hint:'它一边哭，一边用余光打量你的表情。',
- guess:[
-  {text:'不能表现出恐惧',correct:true},
-  {text:'不能直视它',correct:false},
-  {text:'不能与它说话',correct:false},
-  {text:'不能逃跑',correct:false}
- ],
+ guess:[{text:'不能表现出恐惧',correct:true},{text:'不能直视它',correct:false},{text:'不能与它说话',correct:false},{text:'不能逃跑',correct:false}],
  wrongDeath:'你盯着它看——它忽然不哭了。它歪头看着你："你不怕我？"——它不喜欢这个答案。',
  flee:'你转身就跑——脚步出卖了恐惧。你的后背被撕开。'},
 
-{name:'无面鬼',diff:4,power:8,kind:'normal',
+{name:'无面鬼',diff:4,power:16,kind:'normal',
  rule:'不能回应叫你名字的声音',
  hint:'它一遍遍喊你的名字，但它的嘴根本没动。',
- guess:[
-  {text:'不能回应叫你名字的声音',correct:true},
-  {text:'不能看它的脸',correct:false},
-  {text:'不能呼吸',correct:false},
-  {text:'不能碰它',correct:false}
- ],
+ guess:[{text:'不能回应叫你名字的声音',correct:true},{text:'不能看它的脸',correct:false},{text:'不能呼吸',correct:false},{text:'不能碰它',correct:false}],
  wrongDeath:'你试着不去看它的脸——但你的手碰到了门框。它笑了。',
  flee:'"别跑啊，是我。"你下意识应了。你的嘴被撕开。'},
 
-{name:'镜中鬼',diff:5,power:9,kind:'normal',
+{name:'镜中鬼',diff:5,power:17,kind:'normal',
  rule:'不能注视反光表面',
  hint:'它的身影总出现在你身旁的窗户、水洼、刀面里。',
- guess:[
-  {text:'不能注视反光表面',correct:true},
-  {text:'不能说"镜子"两个字',correct:false},
-  {text:'不能背对它',correct:false},
-  {text:'不能眨眼',correct:false}
- ],
+ guess:[{text:'不能注视反光表面',correct:true},{text:'不能说"镜子"两个字',correct:false},{text:'不能背对它',correct:false},{text:'不能眨眼',correct:false}],
  wrongDeath:'你试着背对它——转身时，你正好对上了走廊尽头那面穿衣镜。',
  flee:'你转身就跑——眼角扫到窗户玻璃。它从玻璃里伸出手。'},
 
-{name:'蜂群鬼',diff:6,power:11,kind:'normal',
+{name:'蜂群鬼',diff:5,power:21,kind:'normal',
  rule:'不能出声、不能移动',
  hint:'蜂群环绕你飞舞，但始终没有落在你身上。',
- guess:[
-  {text:'不能出声、不能移动',correct:true},
-  {text:'不能睁眼',correct:false},
-  {text:'不能呼吸',correct:false},
-  {text:'不能想它',correct:false}
- ],
+ guess:[{text:'不能出声、不能移动',correct:true},{text:'不能睁眼',correct:false},{text:'不能呼吸',correct:false},{text:'不能想它',correct:false}],
  wrongDeath:'你试着深呼吸——胸腔的起伏惊动了蜂群。',
  flee:'你转身就跑。脚步声惊动蜂群。你被活活蜇死。'},
 
-{name:'雨点鬼',diff:7,power:12,kind:'normal',
+{name:'雨点鬼',diff:8,power:12,kind:'normal',
  rule:'不能在雨中暴露皮肤',
  hint:'它的雨点落在你面前的地上，像是在测量什么。',
- guess:[
-  {text:'不能在雨中暴露皮肤',correct:true},
-  {text:'不能在雨天出门',correct:false},
-  {text:'不能撑红伞',correct:false},
-  {text:'不能抬头看天',correct:false}
- ],
+ guess:[{text:'不能在雨中暴露皮肤',correct:true},{text:'不能在雨天出门',correct:false},{text:'不能撑红伞',correct:false},{text:'不能抬头看天',correct:false}],
  wrongDeath:'你低头不去看天——但你的手腕露了出来。一滴雨落了上去。',
  flee:'你冲进雨里。雨点落在手背上——那是针。'},
 
 {name:'红衣厉鬼',diff:8,power:15,kind:'normal',
  rule:'必须直视它',
  hint:'她始终背对你。你能感到——她在等。',
- guess:[
-  {text:'必须直视它',correct:true},
-  {text:'必须闭上眼睛',correct:false},
-  {text:'必须转身逃跑',correct:false},
-  {text:'必须喊它的名字',correct:false}
- ],
+ guess:[{text:'必须直视它',correct:true},{text:'必须闭上眼睛',correct:false},{text:'必须转身逃跑',correct:false},{text:'必须喊它的名字',correct:false}],
  wrongDeath:'你闭上眼睛——她的手指已经触到了你的后颈。',
  flee:'你转头的瞬间——她已贴在你面前。'},
 
-{name:'纸人',diff:9,power:18,kind:'normal',
+{name:'纸人',diff:7,power:18,kind:'normal',
  rule:'不能触碰任何纸质物品',
  hint:'它飘过书桌时，绕开了所有纸张。',
- guess:[
-  {text:'不能触碰任何纸质物品',correct:true},
-  {text:'不能看报纸',correct:false},
-  {text:'不能写字',correct:false},
-  {text:'不能说话',correct:false}
- ],
+ guess:[{text:'不能触碰任何纸质物品',correct:true},{text:'不能看报纸',correct:false},{text:'不能写字',correct:false},{text:'不能说话',correct:false}],
  wrongDeath:'你抓起一本书想防身——纸页像刀片一样刺进你的手掌。',
  flee:'你转身就跑——慌乱中你踩到了一张报纸。'},
 
-{name:'教室鬼',diff:10,power:22,kind:'strong',
+{name:'教室鬼',diff:8,power:22,kind:'strong',
  rule:'不可驾驭。坐最后一排靠窗者必死',
  hint:'最后一排靠窗的课桌，永远比其他桌子干净。',
- guess:[
-  {text:'不能坐在最后一排靠窗',correct:true},
-  {text:'不能看黑板',correct:false},
-  {text:'不能答到',correct:false},
-  {text:'不能离开教室',correct:false}
- ],
+ guess:[{text:'不能坐在最后一排靠窗',correct:true},{text:'不能看黑板',correct:false},{text:'不能答到',correct:false},{text:'不能离开教室',correct:false}],
  wrongDeath:'你盯着黑板想找线索——忽然，你发现自己坐在了那个位置。',
  flee:'你转身跑向门口。一脚踩空。你坐下了——坐在最后一排靠窗。'},
 
-{name:'影子鬼',diff:11,power:25,kind:'strong',
+{name:'影子鬼',diff:8,power:25,kind:'strong',
  rule:'不能背对光源。你的影子会杀死你',
  hint:'它从你的影子里爬出来。你一动，它也跟着动。',
- guess:[
-  {text:'不能背对光源',correct:true},
-  {text:'不能照镜子',correct:false},
-  {text:'不能背对它',correct:false},
-  {text:'不能站着',correct:false}
- ],
+ guess:[{text:'不能背对光源',correct:true},{text:'不能照镜子',correct:false},{text:'不能背对它',correct:false},{text:'不能站着',correct:false}],
  wrongDeath:'你背对着窗户——身后的影子站了起来，伸出手。',
  flee:'你转身就跑——背光的那一刻，你的影子握住了你的脖子。'},
 
-{name:'三班之主',diff:12,power:30,kind:'strong',
+{name:'三班之主',diff:9,power:30,kind:'strong',
  rule:'绝对不可驾驭。不能说"三班"',
  hint:'它没有形状。它只是"在"。',
- guess:[
-  {text:'不能说"三班"两个字',correct:true},
-  {text:'不能看它',correct:false},
-  {text:'不能进教室',correct:false},
-  {text:'不能呼吸',correct:false}
- ],
+ guess:[{text:'不能说"三班"两个字',correct:true},{text:'不能看它',correct:false},{text:'不能进教室',correct:false},{text:'不能呼吸',correct:false}],
  wrongDeath:'你试着不看它——但你还在教室里。它把门关上了。',
  flee:'"三班——"你脱口而出。'},
 
-{name:'轮回鬼',diff:14,power:38,kind:'special',
+{name:'轮回鬼',diff:9,power:38,kind:'special',
  rule:'逃跑必死。必须打破循环',
  hint:'你走的是同一条路。见的是同一个人。听的是同一句话。',
- guess:[
-  {text:'必须打破循环（做不一样的选择）',correct:true},
-  {text:'必须原路返回',correct:false},
-  {text:'必须原地不动',correct:false},
-  {text:'必须闭眼一分钟',correct:false}
- ],
+ guess:[{text:'必须打破循环（做不一样的选择）',correct:true},{text:'必须原路返回',correct:false},{text:'必须原地不动',correct:false},{text:'必须闭眼一分钟',correct:false}],
  wrongDeath:'你决定原地不动——和上一次一模一样的动作。世界重置了。',
  flee:'你转身就跑——和昨天一模一样的动作。世界重置。'},
 
-{name:'镜魔',diff:16,power:45,kind:'special',
+{name:'镜魔',diff:10,power:45,kind:'special',
  rule:'必须喊出它的真名，否则每次看它都会损失记忆',
  hint:'它的名字刻在每个镜子的背面，但只有你能读懂。',
- guess:[
-  {text:'必须喊出它的真名',correct:true},
-  {text:'必须闭上眼睛',correct:false},
-  {text:'必须打碎镜子',correct:false},
-  {text:'必须背对它',correct:false}
- ],
+ guess:[{text:'必须喊出它的真名',correct:true},{text:'必须闭上眼睛',correct:false},{text:'必须打碎镜子',correct:false},{text:'必须背对它',correct:false}],
  wrongDeath:'你选择不看它——但镜魔已经借你的眼睛钻进了记忆。',
  flee:'你转身就跑——跑动中你看到了自己的倒影。'},
 
-{name:'龙王之影',diff:18,power:55,kind:'top',
+{name:'龙王之影',diff:10,power:55,kind:'top',
  rule:'只有龙语对话。成功后可驾驭',
  hint:'它从不说人话。它只是"听"。',
- guess:[
-  {text:'必须用龙语与它对话',correct:true},
-  {text:'必须直视它的眼睛',correct:false},
-  {text:'必须跪下来',correct:false},
-  {text:'必须献上鲜血',correct:false}
- ],
+ guess:[{text:'必须用龙语与它对话',correct:true},{text:'必须直视它的眼睛',correct:false},{text:'必须跪下来',correct:false},{text:'必须献上鲜血',correct:false}],
  wrongDeath:'你跪了下来——它低下头看你。你的灵魂被龙焰灼烧。',
  flee:'你喊了龙王的名字。',
  obs:'你抬头直视它。你的灵魂被龙焰灼烧。',
@@ -513,15 +440,21 @@ function fightGhost(g){
   }
   var mp=myPower();
   story(['⚔️ 战斗开始','【我方战力】'+mp+' ｜ 【'+g.name+'战力】'+g.power],'fight');
-  if(mp>=g.power*2){
-    story(['碾压。','你的鬼群将它层层包裹。','它挣扎着，但没有用。','——它认了你。'],'fight');
-    return true;
-  } else if(mp>g.power){
-    if(Math.random()<0.75){
+  if(mp>g.power){
+    story(['你的鬼群压了上去。'],'fight');
+    if(mp>=g.power+15){
+      story(['碾压。','它甚至没有反抗。','——它认了你。'],'fight');
+    } else {
       story(['一场苦战。','你的鬼群与它纠缠了很久。','最后，它低下头。'],'fight');
+    }
+    return true;
+  } else if(mp===g.power){
+    story(['双方战力持平。'],'fight');
+    if(Math.random()<0.5){
+      story(['你在最后一刻压制了它。','它认了你。'],'fight');
       return true;
     } else {
-      story(['你冲上去。','——它比你想象的更强。','你的鬼群被撕碎。'],'fight');
+      story(['它在最后一刻反扑。','你的鬼群被撕碎。'],'fight');
       die('战斗失败，你被【'+g.name+'】吞噬。');return false;
     }
   } else {
@@ -529,17 +462,18 @@ function fightGhost(g){
     die('战力不足，你被【'+g.name+'】碾碎。');return false;
   }
 }
+
 function tryGhost(g){
   if(S.ghosts.length>=maxGhosts()){logLine('【驭鬼】已达上限。','ghost');return false;}
-  var b=(hasT('ghostEye')?2:0)+Math.round(S.intel.length*0.08)+(hasItem('bloodPact')?1:0);
-  var gap=(S.physic+b)-g.diff,r=Math.random();
-  var bonus=hasT('bornGhost')?0.20:0;
-  if(gap>=2){S.ghosts.push(g);logLine('【驭鬼成功】驾驭【'+g.name+'】！','ghost');applyMod({physic:-1});renderStatus();checkGhostAchieves();return true;}
-  if(gap>=-1){
-    if(r<0.50+gap*0.15+intelBonus()+bonus){S.ghosts.push(g);logLine('【险胜】压住【'+g.name+'】。','ghost');applyMod({physic:-1});renderStatus();checkGhostAchieves();return true;}
-    return recovery(g);
+  if(S.physic >= g.diff){
+    S.ghosts.push(g);
+    logLine('【驭鬼成功】驾驭【'+g.name+'】！','ghost');
+    applyMod({physic:-1});
+    renderStatus();
+    checkGhostAchieves();
+    return true;
   }
-  if(r<0.08+intelBonus()+bonus){S.ghosts.push(g);logLine('【奇迹】驾驭【'+g.name+'】！','ghost');applyMod({physic:-2});renderStatus();checkGhostAchieves();return true;}
+  story(['你的体质不足以压制【'+g.name+'】。','它反噬了你。'],'bad');
   return recovery(g);
 }
 function checkGhostAchieves(){
@@ -593,23 +527,33 @@ function checkStar(){
 }
 function checkBetray(){
   if(!S.alive)return;
+  var list=S.partners.slice();
+  var betrayals=[];
+  for(var i=0;i<list.length;i++){
+    var p=list[i];
+    if(!p.alive||p.side!=='player')continue;
+    if(p.key==='guTingyu'&&!p.betrayed&&S.age>=p.joinedAt+6+Math.floor(Math.random()*4)){
+      betrayals.push({p:p,type:'gu'});continue;
+    }
+    if(hasF('xu_active')&&p.trust<45&&Math.random()<0.12){
+      var r=S.intelli*0.8+S.beauty*0.6+(p.trust-50)*0.3+S.intel.length*0.5;
+      if(S.starFormed)r+=5;if(S.xuServant)r+=99;if(r>10)continue;
+      betrayals.push({p:p,type:'xu'});
+    }
+  }
+  if(betrayals.length===0)return;
   if(hasT('ironWill')){
     removeT('ironWill');
     story(['【铁心】你的意志坚定，抵挡了这一次背叛。'],'good');
     return;
   }
-  var list=S.partners.slice();
-  for(var i=0;i<list.length;i++){
-    var p=list[i];
-    if(!p.alive||p.side!=='player')continue;
-    if(p.key==='guTingyu'&&!p.betrayed&&S.age>=p.joinedAt+6+Math.floor(Math.random()*4)){
+  for(var i=0;i<betrayals.length;i++){
+    var p=betrayals[i].p;
+    if(betrayals[i].type==='gu'){
       p.betrayed=true;p.side='xu';S.xuAllies++;
       story(['【'+p.name+'】"对不起。我从来就不是你这边的。"']);
-      applyMod({physic:-1});continue;
-    }
-    if(hasF('xu_active')&&p.trust<45&&Math.random()<0.12){
-      var r=S.intelli*0.8+S.beauty*0.6+(p.trust-50)*0.3+S.intel.length*0.5;
-      if(S.starFormed)r+=5;if(S.xuServant)r+=99;if(r>10)continue;
+      applyMod({physic:-1});
+    } else {
       p.betrayed=true;p.side='xu';S.xuAllies++;
       if(Math.random()<0.35){
         var atk=Math.floor(Math.random()*3);
@@ -704,7 +648,7 @@ function ask(choices){
 
 function askTame(g){
   return ask([
-    {text:'✔ 驾驭它（体质判定）',effect:function(){
+    {text:'✔ 驾驭它',effect:function(){
       if(S.ghosts.length>=maxGhosts()){logLine('【驭鬼】已达上限。','ghost');return;}
       tryGhost(g);
     }},
@@ -749,10 +693,20 @@ function makeEncounter(g,minAge,text){
   var kind=g.kind;
   var choices=[];
 
-  if(kind==='normal'||kind==='strong'){
+  var infoLines=[];
+  infoLines.push('⚠ '+g.name+'　战力 '+g.power+'　驾驭需体质 ≥ '+g.diff+'（你当前体质 '+S.physic+'）');
+  if(S.physic>=g.diff)infoLines.push('→ 你的体质足够驾驭它。');
+  else infoLines.push('→ 你的体质还不足以驾驭它。');
+
+  if(kind==='normal'||kind==='top'){
     choices.push({text:'⚔️ 与它战斗',effect:function(){
       var r=fightGhost(g);
       if(r){return askTame(g);}
+    }});
+  } else if(kind==='strong'){
+    choices.push({text:'⚔️ 与它战斗（不可驾驭）',effect:function(){
+      var r=fightGhost(g);
+      if(r){story(['它认了你。','但它的规则不允许被驾驭。','你只能离开。'],'ghost');}
     }});
   }
 
@@ -769,9 +723,7 @@ function makeEncounter(g,minAge,text){
   }});
 
   choices.push({text:'👁️ 冷静观察，猜测它的规律',effect:function(){
-    if(kind==='top'){
-      die(g.obs);return;
-    }
+    if(kind==='top'){die(g.obs);return;}
     story(['你强迫自己不动，仔细观察它。'],'ghost');
     story(['【提示】'+g.hint],'rule');
     story(['现在，你必须猜测它的杀人规律——猜错会死。'],'danger');
@@ -821,7 +773,7 @@ function makeEncounter(g,minAge,text){
     }
   }});
 
-  return {id:'enc_'+g.name,minAge:minAge,maxAge:MAXAGE,once:true,_isGhost:true,text:text,choices:choices};
+  return {id:'enc_'+g.name,minAge:minAge,maxAge:MAXAGE,once:true,_isGhost:true,text:text,infoLines:infoLines,choices:choices};
 }
 
 GHOST_ENCOUNTERS.push(makeEncounter(GHOSTS[0],8,'深夜，一只【哭脸鬼】从床底爬出来。'));
@@ -838,10 +790,7 @@ GHOST_ENCOUNTERS.push(makeEncounter(GHOSTS[10],20,'今天的一切，和昨天�
 GHOST_ENCOUNTERS.push(makeEncounter(GHOSTS[11],22,'你照镜子，镜中的你正在背诵你早已忘记的童年。'));
 GHOST_ENCOUNTERS.push(makeEncounter(GHOSTS[12],24,'你梦见一条龙形的黑影，盘旋在天空。'));
 
-/* ========== 事件库 ========== */
 var EVENTS=[
-
-/* 背景线 */
 {id:'birth',arc:'intro',stage:1,minAge:1,maxAge:6,once:true,
  text:'你在被反复重启的世界中睁开了眼。',
  effect:function(){addIntel('i_restart','世界重启过很多次。',true);story(['窗外天色灰白。','母亲在你床边轻声哼着一首听不懂的歌。']);}},
@@ -899,7 +848,6 @@ var EVENTS=[
    applyMod({physic:2,intelli:2});
  }},
 
-/* 属性成长 */
 {id:'grow1',minAge:6,maxAge:40,once:true,
  text:'你每天清晨跑步，风雨无阻。',
  effect:function(){applyMod({physic:1});story(['三个月后，你发现自己的体力比同龄人好得多。']);}},
@@ -916,7 +864,6 @@ var EVENTS=[
  text:'你无意中看见了张响的神迹。',
  effect:function(){applyMod({intelli:1});}},
 
-/* 情报线 */
 {id:'i_shop',arc:'intel',stage:1,minAge:12,maxAge:MAXAGE,once:true,
  text:'旧钟表店老板自称能买卖情报。',
  choices:[
@@ -988,7 +935,6 @@ var EVENTS=[
    unlockAchieve('truth_knower');
  }},
 
-/* 龙王真相 */
 {id:'tr_lip',arc:'truth',stage:1,minAge:13,maxAge:MAXAGE,once:true,
  cond:function(){return hasT('lipMagnet')||hasT('radical')||S.intelli>=8;},
  text:'黑衣人出现，嘴唇鲜红——【嘴唇】。',
@@ -1068,7 +1014,6 @@ var EVENTS=[
   }}
 ]},
 
-/* 张响/嘴唇兄弟剧情 */
 {id:'do_1',arc:'dragon_origin',stage:1,minAge:18,maxAge:MAXAGE,once:true,
  cond:function(){return hasF('met_lip')&&hasF('met_zx');},
  text:'你同时收到了两封信。',
@@ -1168,7 +1113,6 @@ var EVENTS=[
    story(['从那天起，你没再见过他。'],'normal');
  }},
 
-/* 张响死 */
 {id:'zx_call',arc:'zx',stage:1,minAge:16,maxAge:MAXAGE,once:true,
  cond:function(){return hasF('met_zx')&&S.zxAlive;},
  text:'你听说只要呼唤张响的名字，就可能得到回应。',
@@ -1264,58 +1208,273 @@ var EVENTS=[
   }}
 ]},
 
-/* 许云汐 */
+/* ==================== 许云汐完整剧情链 ==================== */
 {id:'xu_meet',arc:'xu',stage:1,minAge:13,maxAge:26,once:true,
  text:'许云汐转学来了。她天生是你的敌人。',
  effect:function(){
    setF('xu_active');addP('xuYunxi','xu');
    addIntel('i_xu','许云汐永远不会站在你这边。',true);
    story(['她走进教室的那一刻，所有人都看向她。'],'xu');
-   story(['她也看向你。','微笑。'],'xu');
+   story(['她没有看别人。','她只看你。'],'xu');
+   story(['她的眼睛很黑。','黑得像一口井。'],'xu');
    story(['那一瞬间你懂了——','她在看一个对手，不是看一个陌生人。'],'xu');
  }},
 
 {id:'xu_exp',arc:'xu',stage:2,minAge:18,maxAge:34,once:true,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated;},
  text:'许云汐公开拉拢你身边的人。',
- choices:[
-  {text:'正面回应',effect:function(){
-    if(S.beauty+S.intelli>=14){
-      alivePlayerPartners().forEach(function(p){p.trust+=8;});
-      story(['你走上前一步。'],'good');
-      story(['"我的人。"','"你别碰。"'],'good');
-      story(['她看着你。','很久。'],'xu');
-      story(['"有意思。"'],'xu');
-      story(['她转身走了。','你回头看了看你的伙伴们。','他们都在。'],'good');
-    } else {
-      alivePlayerPartners().forEach(function(p){p.trust-=10;});
-      story(['你想说什么。','但找不到词。'],'danger');
-      story(['她轻轻一笑。'],'xu');
-      story(['"看起来，你的人不太信你。"'],'xu');
-      story(['你听见身后有人小声议论。'],'danger');
-    }
-  }},
-  {text:'稳住基本盘',effect:function(){
-    var m=alivePlayerPartners();if(m.length)m[0].trust+=15;
-    story(['你把你最信任的人叫到一边。'],'normal');
-    story(['"别听她的。"'],'normal');
-    story(['"我知道。"他说。'],'partner');
-    story(['"但你也要知道——人心是会变的。"'],'partner');
-    story(['你沉默。'],'normal');
-  }},
-  {text:'强硬警告',cond:function(){return S.physic>=9||S.ghosts.length>=2;},
-   effect:function(){
-     story(['你召出一只鬼。'],'fight');
-     story(['它从她背后经过。','很慢。'],'fight');
-     story(['她没有回头。'],'xu');
-     story(['但她的手——在抖。'],'xu');
-     story(['"你在威胁我？"','"是。"'],'fight');
-     story(['她沉默了三秒。'],'xu');
-     story(['"好。这一次，算你赢。"'],'xu');
-     story(['她走了。','你的伙伴们松了一口气。'],'good');
-   }}
-]},
+ effect:function(){
+   story(['她做得很直接。'],'xu');
+   story(['没有隐藏。','没有伪装。'],'xu');
+   story(['她当着你的面，一个一个约你的伙伴。'],'xu');
+   story(['有的伙伴拒绝了。','有的伙伴犹豫了。'],'xu');
+   return ask([
+     {text:'正面回应',effect:function(){
+       if(S.beauty+S.intelli>=14){
+         alivePlayerPartners().forEach(function(p){p.trust+=8;});
+         story(['你走上前一步。'],'good');
+         story(['"我的人。"','"你别碰。"'],'good');
+         story(['她看着你。','很久。'],'xu');
+         story(['"有意思。"'],'xu');
+         story(['她转身走了。','你回头看了看你的伙伴们。','他们都在。'],'good');
+       } else {
+         alivePlayerPartners().forEach(function(p){p.trust-=10;});
+         story(['你想说什么。','但找不到词。'],'danger');
+         story(['她轻轻一笑。'],'xu');
+         story(['"看起来，你的人不太信你。"'],'xu');
+         story(['你听见身后有人小声议论。'],'danger');
+       }
+     }},
+     {text:'稳住基本盘',effect:function(){
+       var m=alivePlayerPartners();if(m.length)m[0].trust+=15;
+       story(['你把你最信任的人叫到一边。'],'normal');
+       story(['"别听她的。"'],'normal');
+       story(['"我知道。"他说。'],'partner');
+       story(['"但你也要知道——人心是会变的。"'],'partner');
+       story(['你沉默。'],'normal');
+     }},
+     {text:'强硬警告',cond:function(){return S.physic>=9||S.ghosts.length>=2;},
+      effect:function(){
+        story(['你召出一只鬼。'],'fight');
+        story(['它从她背后经过。','很慢。'],'fight');
+        story(['她没有回头。'],'xu');
+        story(['但她的手——在抖。'],'xu');
+        story(['"你在威胁我？"','"是。"'],'fight');
+        story(['她沉默了三秒。'],'xu');
+        story(['"好。这一次，算你赢。"'],'xu');
+        story(['她走了。','你的伙伴们松了一口气。'],'good');
+      }}
+   ]);
+ }},
 
+/* 主角主动坑害许云汐 → 复仇链 */
+{id:'xu_harm',arc:'xu_revenge',stage:1,minAge:20,maxAge:38,once:true,
+ cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&(S.intelli>=8||S.beauty>=8);},
+ text:'你可以主动出击，给许云汐一个"惊喜"。',
+ effect:function(){
+   story(['你决定不再被动。'],'danger');
+   story(['你收集了她的资料。'],'danger');
+   story(['你找到她私下的会面。'],'danger');
+   story(['你准备动手。'],'danger');
+   return ask([
+     {text:'揭露她的秘密',effect:function(){
+       if(Math.random()<0.6){
+         setF('xu_harmed');
+         S.xuAllies=Math.max(0,S.xuAllies-1);
+         story(['你把她和嘴唇的会面照片，放在了她桌上。'],'good');
+         story(['第二天，她在会议上第一次失态。'],'good');
+         story(['"谁干的？！"'],'xu');
+         story(['她扫视全场。'],'xu');
+         story(['你坐在角落里，什么都没有说。'],'good');
+         story(['但你知道——','她的心，裂了一道缝。'],'good');
+       } else {
+         setF('xu_harm_fail');
+         alivePlayerPartners().forEach(function(p){p.trust-=8;});
+         story(['你以为你抓到了她的把柄。'],'danger');
+         story(['但她早有准备。'],'xu');
+         story(['她反手抖出你的一些旧事。'],'xu');
+         story(['是你年少时做过的错事。'],'danger');
+         story(['伙伴们看着你的眼神——变了。'],'danger');
+       }
+     }},
+     {text:'挖走她的人',effect:function(){
+       if(S.intelli>=9&&S.beauty>=8){
+         var xp=aliveXuPartners().filter(function(p){return p.key!=='xuYunxi';});
+         if(xp.length){
+           xp[0].side='player';xp[0].trust=60;S.xuAllies--;
+           setF('xu_harmed');
+           story(['你找到'+xp[0].name+'。'],'danger');
+           story(['"她从来没真正看过你一眼。"'],'danger');
+           story(['你说。'],'danger');
+           story([''+xp[0].name+'沉默很久。'],'story');
+           story(['"我……知道。"'],'story');
+           story(['第二天，他站在了你的门口。'],'partner');
+         } else {
+           story(['你想挖人。'],'danger');
+           story(['但她身边的人都是死忠。'],'xu');
+         }
+       } else {
+         setF('xu_harm_fail');
+         story(['你的计划失败了。'],'danger');
+         story(['她的人，忠于她。'],'xu');
+       }
+     }},
+     {text:'什么都不做',effect:function(){
+       story(['你按下了心中的冲动。'],'normal');
+       story(['时机未到。'],'normal');
+     }}
+   ]);
+ }},
+
+{id:'xu_revenge_1',arc:'xu_revenge',stage:2,minAge:22,maxAge:42,once:true,
+ cond:function(){return hasF('xu_harmed')&&!S.xuServant&&!S.xuDefeated;},
+ text:'许云汐开始报复。她先试探你的底线。',
+ effect:function(){
+   story(['先是谣言。'],'xu');
+   story(['说你靠邪术驭鬼。'],'xu');
+   story(['说你的人心不稳。'],'xu');
+   story(['说你早晚会失控。'],'xu');
+   story(['然后是行动。'],'xu');
+   story(['你的一个伙伴，失踪了三天。'],'xu');
+   story(['回来时，什么都不肯说。'],'xu');
+   return ask([
+     {text:'正面硬扛',effect:function(){
+       if(S.physic>=7||S.ghosts.length>=2){
+         story(['你站在明处。'],'good');
+         story(['什么也不躲。'],'good');
+         story(['"她要是敢动我的人，我就拆了她的场。"'],'good');
+         story(['你放出话。'],'good');
+         story(['她听到了。'],'xu');
+         story(['然后，收手了。'],'xu');
+         story(['"他不好惹。"她的手下说。'],'xu');
+       } else {
+         alivePlayerPartners().forEach(function(p){p.trust-=5;});
+         story(['你没有正面回应。'],'danger');
+         story(['她得寸进尺。'],'xu');
+         story(['你的人——开始动摇。'],'danger');
+       }
+     }},
+     {text:'暗中转移伙伴',effect:function(){
+       if(S.intelli>=7){
+         story(['你把最亲近的人一个个安置到安全的地方。'],'good');
+         story(['她扑了个空。'],'xu');
+         story(['"他比我想象的聪明。"许云汐说。'],'xu');
+         alivePlayerPartners().forEach(function(p){p.trust+=5;});
+       } else {
+         story(['你想转移。'],'danger');
+         story(['但她早有埋伏。'],'xu');
+         var m=alivePlayerPartners();
+         if(m.length){
+           m[0].side='xu';S.xuAllies++;
+           story(['【'+m[0].name+'】被她截获。'],'xu');
+           story(['你没有挽回的余地。'],'danger');
+         }
+       }
+     }}
+   ]);
+ }},
+
+{id:'xu_revenge_2',arc:'xu_revenge',stage:3,minAge:26,maxAge:48,once:true,
+ cond:function(){return hasF('xu_harmed')&&!S.xuServant&&!S.xuDefeated;},
+ text:'许云汐的报复升级。她开始针对你的鬼。',
+ effect:function(){
+   story(['你不该低估她的狠。'],'xu');
+   if(S.ghosts.length&&Math.random()<0.5){
+     var g=S.ghosts.pop();
+     story(['夜里，一只鬼被引走了。'],'xu');
+     story(['你赶到时，只剩一地灰烬。'],'xu');
+     story(['——【'+g.name+'】被夺走了。'],'blood');
+     story(['她甚至没有留一句话。'],'xu');
+   } else if(alivePlayerPartners().length&&Math.random()<0.6){
+     var m=alivePlayerPartners();
+     var t=m[Math.floor(Math.random()*m.length)];
+     t.trust-=20;
+     story(['【'+t.name+'】在回家的路上被袭击。'],'xu');
+     story(['虽然没有致命伤，但他开始动摇。'],'danger');
+     story(['"她……她怎么会知道我家的地址？"'],'danger');
+   } else {
+     story(['你识破了她的计划。'],'good');
+     story(['反将一军。'],'good');
+     applyMod({intelli:1});
+   }
+ }},
+
+{id:'xu_revenge_3',arc:'xu_revenge',stage:4,minAge:30,maxAge:52,once:true,
+ cond:function(){return hasF('xu_harmed')&&!S.xuServant&&!S.xuDefeated;},
+ text:'许云汐亲自出手，与你正面交锋。',
+ effect:function(){
+   story(['她站在你面前。'],'xu');
+   story(['"我们之间——","该有个了断了。"'],'xu');
+   return ask([
+     {text:'以鬼战之',cond:function(){return S.ghosts.length>=2;},
+      effect:function(){
+        if(S.ghosts.reduce(function(a,g){return a+g.power;},0)>=15){
+          S.xuAllies=Math.max(0,S.xuAllies-3);
+          setF('xu_broken');
+          story(['你召出所有的鬼。'],'fight');
+          story(['它们围住她。'],'fight');
+          story(['她的鬼群——一只一只倒下。'],'fight');
+          story(['她第一次露出慌乱。'],'xu');
+          story(['"不可能……"'],'xu');
+          story(['你走到她面前。'],'fight');
+          story(['"可能。"'],'fight');
+          logLine('【胜利】你重伤了她的势力。','win');
+        } else {
+          applyMod({physic:-2});
+          story(['你召出鬼群。'],'fight');
+          story(['但她的鬼群——比你想象的强。'],'xu');
+          story(['你的鬼被撕碎。'],'blood');
+          story(['你倒在地上。'],'blood');
+          logLine('【失败】你被重伤。','danger');
+        }
+      }},
+     {text:'以智破之',cond:function(){return S.intelli>=9;},
+      effect:function(){
+        story(['你没有动手。'],'normal');
+        story(['你掏出一叠文件。'],'good');
+        story(['"这是你的账户记录。"'],'good');
+        story(['"这是你和嘴唇的会面。"'],'good');
+        story(['"这是你藏在你妈妈家的证据。"'],'good');
+        story(['她脸色变了。'],'xu');
+        story(['"——"'],'xu');
+        story(['"我给你两个选择。"'],'normal');
+        story(['"要么散伙。要么——"'],'normal');
+        story(['"我全都公开。"'],'normal');
+        story(['她沉默了很久。'],'xu');
+        story(['最后她说：'],'xu');
+        story(['"我会考虑。"'],'xu');
+        setF('xu_broken');
+        S.xuAllies=Math.max(0,S.xuAllies-2);
+        logLine('【胜利】你用谋略瓦解了她的阵营。','win');
+      }},
+     {text:'以情动之',cond:function(){return S.beauty>=9;},
+      effect:function(){
+        story(['你看着她。'],'normal');
+        story(['"你真的想这样吗？"'],'normal');
+        story(['"你身边没有一个人是真的。"'],'normal');
+        story(['"你所有的一切——","都是你抢来的。"'],'normal');
+        story(['"你快乐吗？"'],'normal');
+        story(['她愣住。'],'xu');
+        story(['很久。'],'xu');
+        story(['然后她的眼睛——湿了。'],'xu');
+        story(['"你懂什么。"'],'xu');
+        story(['但她转身走了。'],'xu');
+        if(Math.random()<0.5){
+          setF('xu_truce');
+          story(['这一仗，没有打起来。'],'good');
+        }
+      }},
+     {text:'逃',effect:function(){
+       applyMod({physic:-1,beauty:-1});
+       story(['你转身就跑。'],'danger');
+       story(['她冷笑。'],'xu');
+       story(['"记住今天。"'],'xu');
+       logLine('【逃走】你狼狈离开。','danger');
+     }}
+   ]);
+ }},
+
+/* ==================== 许云汐美貌诱拐 ==================== */
 {id:'xu_beauty',arc:'xu',stage:3,minAge:26,maxAge:34,once:true,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&alivePlayerPartners().length>=2;},
  text:'许云汐不再用计策。她开始用她的脸。',
@@ -1325,6 +1484,11 @@ var EVENTS=[
    story(['"许云汐和陆标一起看了场电影。"'],'xu');
    story(['"许云汐送杨开冬一把剑。"'],'xu');
    story(['她不是来收买他们的。','她是来让他们自己走过去。'],'xu');
+   story(['你开始留意她的动作。'],'xu');
+   story(['她每天换一件不同的白裙子。'],'xu');
+   story(['她说话时眼睛会看对方的肩膀。'],'xu');
+   story(['她记得每个人喝什么茶。'],'xu');
+   story(['她从不主动靠近。','她只是站在那儿。'],'xu');
    story(['—— 人心 ——'],'xu');
    var defected=[];
    var mine=alivePlayerPartners();
@@ -1337,12 +1501,17 @@ var EVENTS=[
      if(S.starFormed)charmChance-=0.05;
      if(Math.random()<charmChance){
        p.side='xu';S.xuAllies++;defected.push(p.name);
-       story(['【'+p.name+'】把一封短信放在你桌上。','"对不起。"'],'xu');
+       story(['【'+p.name+'】把一封短信放在你桌上。'],'xu');
+       story(['短信上只有两个字：'],'xu');
+       story(['"对不起。"'],'xu');
+       story(['你看着那两个字。'],'danger');
+       story(['想起了他第一次对你笑的样子。'],'danger');
      }
    }
    if(S.starFormed&&defected.length>0){S.starFormed=false;story(['★【双子星·破碎】'],'danger');}
    if(!defected.length){
      story(['但你的伙伴们，一个都没有走。'],'good');
+     story(['他们看着你的眼神，很平静。'],'partner');
      story(['"她确实漂亮。"'],'partner');
      story(['"但我们又不是为了漂亮才跟着你。"'],'partner');
      logLine('【忠诚】没有人离开。','good');
@@ -1351,21 +1520,27 @@ var EVENTS=[
    logLine('【损失】'+defected.length+'名伙伴被许云汐带走。','xu');
    var mp=myPower();var xp=xuPower();
    return ask([
-     {text:'⚔️ 现在就去抢回他们！（战力对比 '+mp+' vs '+xp+'）',effect:function(){
-       story(['你没有犹豫。','你直接走向她的住处。'],'fight');
+     {text:'⚔️ 现在就去抢回他们！（战力 '+mp+' vs '+xp+'）',effect:function(){
+       story(['你没有犹豫。'],'fight');
+       story(['你直接走向她的住处。'],'fight');
        story(['—— 抢人 ——'],'fight');
        story(['"把他们还给我。"'],'fight');
+       story(['她站在门口。'],'xu');
+       story(['白裙。'],'xu');
        story(['"他们自己选的。"'],'xu');
        story(['"那就问他们敢不敢当着我的面再说一遍。"'],'fight');
        story(['你召出了所有的鬼。'],'fight');
        if(mp>xp){
          story(['战斗只持续了十分钟。'],'fight');
-         story(['你站在她面前，她退了三步。','她的脸第一次失了颜色。'],'xu');
+         story(['你站在她面前。'],'fight');
+         story(['她退了三步。'],'xu');
+         story(['她的脸第一次失了颜色。'],'xu');
          story(['"我输了。"'],'xu');
          for(var i=0;i<S.partners.length;i++){
            if(S.partners[i].side==='xu'&&S.partners[i].key!=='xuYunxi'){
              S.partners[i].side='player';S.partners[i].trust=45;
-             story(['【'+S.partners[i].name+'】低着头走了回来。','"对不起。"'],'partner');
+             story(['【'+S.partners[i].name+'】低着头走了回来。'],'partner');
+             story(['"对不起。"'],'partner');
            }
          }
          S.xuAllies=0;renderStatus();
@@ -1377,6 +1552,8 @@ var EVENTS=[
          }
        } else if(mp>=xp*0.8){
          story(['一场惨烈的战斗。'],'fight');
+         story(['血。'],'fight');
+         story(['灵力的爆炸。'],'fight');
          story(['你没能抢回所有人。','但你抢回了几个。'],'fight');
          var recov=0;
          for(var i=0;i<S.partners.length;i++){
@@ -1394,6 +1571,7 @@ var EVENTS=[
          story(['她的鬼群比你想象的更强。'],'fight');
          story(['你被围住。'],'fight');
          story(['"记住今天。"'],'xu');
+         story(['她转身走了。'],'xu');
          logLine('【失败】你没能抢回任何人。','blood');
          applyMod({physic:-3});
        }
@@ -1401,13 +1579,15 @@ var EVENTS=[
      {text:'💬 先忍下来。君子报仇，十年不晚。',effect:function(){
        story(['你收起了所有的怒气。'],'normal');
        story(['"我会记住的。"你说。'],'xu');
+       story(['她笑。'],'xu');
+       story(['"我等你。"'],'xu');
        story(['你转身走了。'],'xu');
        story(['你心里某个东西——冷了。'],'danger');
      }}
    ]);
  }},
 
-/* 张思恩背刺 */
+/* ==================== 张思恩背刺 ==================== */
 {id:'zs_plot',arc:'zs_betray',stage:1,minAge:24,maxAge:34,once:true,
  cond:function(){return hasF('zs_join')&&getP('张思恩')&&getP('张思恩').alive&&getP('张思恩').side==='player';},
  text:'你察觉到张思恩最近在私下联系你的其他伙伴。',
@@ -1416,6 +1596,8 @@ var EVENTS=[
    story(['他和陆标在巷子里说了很久的话。'],'danger');
    story(['他和杨开冬一起喝过两次酒。'],'danger');
    story(['他有一次翻过你的抽屉。'],'danger');
+   story(['他最近看你的眼神——不对。'],'danger');
+   story(['不是敌意。','是……观察。'],'danger');
    story(['——他在做什么？'],'danger');
  }},
 
@@ -1423,13 +1605,21 @@ var EVENTS=[
  cond:function(){return hasF('zs_join')&&getP('张思恩')&&getP('张思恩').alive&&getP('张思恩').side==='player'&&S.arcs.zs_betray>=1;},
  text:'那天夜里，张思恩来找你。',
  effect:function(){
+   story(['他没有敲门。'],'danger');
+   story(['他直接推门进来。'],'danger');
    story(['"我想跟你谈谈。"'],'danger');
    story(['他坐在你对面的椅子上。'],'danger');
    story(['"你知道我为什么跟你吗？"'],'danger');
    story(['"因为你有用。"'],'danger');
+   story(['"你能驭鬼。"'],'danger');
+   story(['"你能招人。"'],'danger');
+   story(['"你能让许云汐忌惮。"'],'danger');
    story(['"但现在——你不够用了。"'],'danger');
    story(['他站起来。'],'danger');
    story(['外面，你的所有伙伴都站着。'],'danger');
+   story(['月光下。'],'danger');
+   story(['他们的表情——都很平静。'],'danger');
+   story(['像是早就谈过了。'],'danger');
    story(['"我不是来杀你的。"'],'danger');
    story(['"我是来带走他们的。"'],'danger');
  }},
@@ -1437,67 +1627,77 @@ var EVENTS=[
 {id:'zs_decide',arc:'zs_betray',stage:3,minAge:26,maxAge:36,once:true,
  cond:function(){return S.arcs.zs_betray>=2&&getP('张思恩')&&getP('张思恩').alive&&getP('张思恩').side==='player';},
  text:'张思恩站在门口。你的所有伙伴都站在他身后。',
- choices:[
-  {text:'⚔️ 直接动手。杀了他。',cond:function(){return myPower()>=50;},
-   effect:function(){
-     story(['你召出鬼群。'],'fight');
-     story(['—— 战斗 ——'],'fight');
-     story(['他很强。','但你的鬼更多。'],'fight');
-     story(['一道灵力贯穿他的肩膀。'],'fight');
-     story(['他跪在地上。'],'fight');
-     story(['"你赢了。"'],'danger');
-     story(['"但你要杀我——他们就都会恨你。"'],'danger');
-     story(['他笑了。'],'danger');
-     story(['你想了想，最终没有下杀手。'],'normal');
-     story(['"滚。"'],'normal');
-     var p=getP('张思恩');
-     if(p){p.side='independent';p.alive=true;}
-     story(['他爬起来，转身走了。'],'danger');
-     story(['你的伙伴们——都回到了你身边。'],'partner');
-     logLine('【化解】你逼退了张思恩，伙伴未丢失。','good');
-   }},
-  {text:'💬 谈判。你想要什么？',cond:function(){return S.intelli>=8;},
-   effect:function(){
-     story(['"你想要什么？"'],'normal');
-     story(['"我要你的位置。"'],'danger');
-     story(['"我给不了。"'],'normal');
-     story(['"那就别怪我。"'],'danger');
-     story(['他拍了拍手。'],'danger');
-     story(['你的伙伴们——一个接一个转身走了。'],'blood');
-     var mine=alivePlayerPartners();
-     var half=Math.ceil(mine.length/2);
-     for(var i=0;i<half&&i<mine.length;i++){
-       mine[i].side='independent';
-       story(['【'+mine[i].name+'】"对不起。他给我们看的未来更清晰。"'],'blood');
-     }
-     if(S.starFormed){S.starFormed=false;story(['★【双子星·破碎】'],'danger');}
-     var p=getP('张思恩');
-     if(p){p.side='independent';p.trust=0;}
-     logLine('【损失】'+half+'名伙伴离开。','blood');
-     renderStatus();
-   }},
-  {text:'💔 沉默。看着他带走他们。',effect:function(){
-     story(['你什么都没说。'],'danger');
-     story(['他看着你。'],'danger');
-     story(['"你连反抗都不反抗？"'],'danger');
-     story(['你没有回答。'],'danger');
-     story(['你的所有伙伴——一个接一个从他身后走过去。'],'blood');
-     var mine=alivePlayerPartners();
-     for(var i=0;i<mine.length;i++){
-       mine[i].side='independent';
-       story(['【'+mine[i].name+'】"对不起。"'],'blood');
-     }
-     S.starFormed=false;
-     var p=getP('张思恩');
-     if(p){p.side='independent';p.trust=0;}
-     story(['张思恩最后看了你一眼。'],'danger');
-     story(['"你这辈子——注定一个人。"'],'danger');
-     logLine('【惨败】你失去了所有伙伴。','blood');
-     renderStatus();
-   }}
-]},
+ effect:function(){
+   story(['你看着他们。'],'danger');
+   story(['他们也在看你。'],'danger');
+   story(['有的避开视线。'],'danger');
+   story(['有的面无表情。'],'danger');
+   story(['只有陆标——','不敢看你。'],'danger');
+   return ask([
+     {text:'⚔️ 直接动手。杀了他。',cond:function(){return myPower()>=50;},
+      effect:function(){
+        story(['你召出鬼群。'],'fight');
+        story(['—— 战斗 ——'],'fight');
+        story(['他很强。','但你的鬼更多。'],'fight');
+        story(['一道灵力贯穿他的肩膀。'],'fight');
+        story(['他跪在地上。'],'fight');
+        story(['"你赢了。"'],'danger');
+        story(['"但你要杀我——他们就都会恨你。"'],'danger');
+        story(['他笑了。'],'danger');
+        story(['你想了想，最终没有下杀手。'],'normal');
+        story(['"滚。"'],'normal');
+        var p=getP('张思恩');
+        if(p){p.side='independent';p.alive=true;}
+        story(['他爬起来，转身走了。'],'danger');
+        story(['你的伙伴们——都回到了你身边。'],'partner');
+        story(['但你看得出——','他们心里有裂痕。'],'danger');
+        logLine('【化解】你逼退了张思恩，伙伴未丢失。','good');
+      }},
+     {text:'💬 谈判。你想要什么？',cond:function(){return S.intelli>=8;},
+      effect:function(){
+        story(['"你想要什么？"'],'normal');
+        story(['"我要你的位置。"'],'danger');
+        story(['"我给不了。"'],'normal');
+        story(['"那就别怪我。"'],'danger');
+        story(['他拍了拍手。'],'danger');
+        story(['你的伙伴们——一个接一个转身走了。'],'blood');
+        var mine=alivePlayerPartners();
+        var half=Math.ceil(mine.length/2);
+        for(var i=0;i<half&&i<mine.length;i++){
+          mine[i].side='independent';
+          story(['【'+mine[i].name+'】"对不起。他给我们看的未来更清晰。"'],'blood');
+        }
+        if(S.starFormed){S.starFormed=false;story(['★【双子星·破碎】'],'danger');}
+        var p=getP('张思恩');
+        if(p){p.side='independent';p.trust=0;}
+        logLine('【损失】'+half+'名伙伴离开。','blood');
+        renderStatus();
+      }},
+     {text:'💔 沉默。看着他带走他们。',effect:function(){
+        story(['你什么都没说。'],'danger');
+        story(['他看着你。'],'danger');
+        story(['"你连反抗都不反抗？"'],'danger');
+        story(['你没有回答。'],'danger');
+        story(['你的所有伙伴——一个接一个从他身后走过去。'],'blood');
+        var mine=alivePlayerPartners();
+        for(var i=0;i<mine.length;i++){
+          mine[i].side='independent';
+          story(['【'+mine[i].name+'】"对不起。"'],'blood');
+        }
+        S.starFormed=false;
+        var p=getP('张思恩');
+        if(p){p.side='independent';p.trust=0;}
+        story(['张思恩最后看了你一眼。'],'danger');
+        story(['"你这辈子——注定一个人。"'],'danger');
+        story(['他走了。'],'danger');
+        story(['夜风吹过。'],'danger');
+        story(['你站在门口很久。'],'danger');
+        logLine('【惨败】你失去了所有伙伴。','blood');
+        renderStatus();
+      }}
+   ]);
+ }},
 
-/* 35岁决战 */
 {id:'xu_battle35',arc:'xu_battle',stage:1,minAge:35,maxAge:35,once:true,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&!S.battle35Done;},
  text:'35岁那年，许云汐向你下了战书。',
@@ -1551,7 +1751,7 @@ var EVENTS=[
    story(['她轻轻抬起手。'],'xu');
    story(['"最后一次机会。"'],'xu');
    story(['"加入我。"'],'xu');
-   if(mp>xp+10){
+   if(mp>xp){
      story(['你没有回答。','你召出了所有的鬼。'],'fight');
      story(['战场炸开。','灵力像刀。','你的鬼群撕开她的阵型。'],'fight');
      story(['第一只鬼倒下——她的。','第二只鬼倒下——她的。','第三只——'],'fight');
@@ -1567,7 +1767,7 @@ var EVENTS=[
      var xx=getP('许云汐');if(xx){xx.alive=false;}
      S.xuAllies=0;
      unlockAchieve('xu_defeat');
-   } else if(mp>=xp-5){
+   } else if(mp===xp){
      story(['你冲上去。','她的鬼群挡住你的第一波攻势。'],'fight');
      story(['两方绞杀。'],'fight');
      story(['血。烟。灵力的爆炸。'],'fight');
@@ -1594,7 +1794,6 @@ var EVENTS=[
    }
  }},
 
-/* 招募线 */
 {id:'zs_meet',arc:'zs',stage:1,minAge:12,maxAge:24,once:true,
  text:'你遇到眼神锐利的张思恩。',
  choices:[
@@ -1656,7 +1855,6 @@ var EVENTS=[
   {text:'拒绝',effect:function(){}}
 ]},
 
-/* 许云汐道歉（原侍奉剧情替换） */
 {id:'zz_servant',arc:'zz',stage:2,minAge:18,maxAge:MAXAGE,once:true,
  cond:function(){return !S.xuServant&&S.zzPraise>=3&&getP('周芷卉')&&getP('周芷卉').alive&&getP('周芷卉').side==='player';},
  text:'周芷卉："许云汐她……已经动摇很久了。"',
@@ -1710,7 +1908,6 @@ var EVENTS=[
   }}
 ]},
 
-/* 45岁决战 */
 {id:'ch_youhe',arc:'final',stage:1,minAge:45,maxAge:45,once:true,
  cond:function(){return getP('陆建成')&&getP('陆建成').alive&&getP('陆建成').side==='player'&&hasI('i_youhe')&&hasI('i_twin')&&trueIntelCount()>=10;},
  text:'45岁那年，陆建成跑来拉着你的衣角："我带你去看龙。"',
@@ -1740,7 +1937,6 @@ var EVENTS=[
  text:'决战的钟声敲响。',
  effect:function(){resolveFinal();}},
 
-/* 凡王之血 */
 {id:'bk1',arc:'bloodking',stage:1,minAge:45,maxAge:45,once:true,
  cond:function(){return !(getP('陆建成')&&getP('陆建成').alive&&getP('陆建成').side==='player');},
  text:'45岁那年，嘴唇不再沉默。',
@@ -1856,7 +2052,6 @@ var EVENTS=[
    }
  }},
 
-/* 道具事件 */
 {id:'item_umbrella',minAge:12,maxAge:MAXAGE,once:true,
  text:'你在旧货摊上看到一把黑色的旧伞。老板说："雨天别用别的伞。"',
  effect:function(){addItem('blackUmbrella');}},
@@ -1880,7 +2075,6 @@ var EVENTS=[
  text:'你在梦里得到一枚龙纹戒指。',
  effect:function(){addItem('dragonRing');}},
 
-/* 新结局 */
 {id:'end_lip_ally',minAge:60,maxAge:MAXAGE,once:true,
  cond:function(){return hasF('lip_ally')&&S.alive&&!S.ended&&S.zxAlive===false;},
  text:'嘴唇找到你。',
@@ -1926,12 +2120,33 @@ var EVENTS=[
    story(['你的血在烧。'],'god');
    story(['你的骨在改。'],'god');
    story(['你的魂在鸣。'],'god');
-   story(['—— 你不再是人类。'],'god');
-   story(['你成为新一任龙王。'],'god');
-   story(['你盘踞在海南中心校的上空。'],'god');
-   story(['俯视着这座轮回过千百次的城市。'],'god');
-   logLine('🏆【结局·新龙王】你超脱了人类之身，成为新的龙王。轮回将继续，但这一次由你守护。','win');
-   S.ended=true;
+   story(['你醒来时，发现自己正站在海南中心校的最高处。'],'god');
+   story(['楼下，城市安静地呼吸。'],'god');
+   story(['你听见有人在呼唤你——','呼唤你成为新的龙王。'],'god');
+   return ask([
+     {text:'🐉 接受。我愿成为龙王。',effect:function(){
+       story(['你不再抗拒。'],'god');
+       story(['你张开双臂。'],'god');
+       story(['龙血冲天而起。'],'god');
+       story(['—— 你不再是人类。'],'god');
+       story(['你成为新一任龙王。'],'god');
+       story(['你盘踞在海南中心校的上空。'],'god');
+       story(['俯视着这座轮回过千百次的城市。'],'god');
+       story(['优呵远在星空之外。','张响与嘴唇的残魂与你擦肩而过。'],'god');
+       story(['他们没有说什么。','但你懂——','他们终于放心了。'],'god');
+       logLine('🏆【结局·新龙王】你超脱了人类之身，成为新的龙王。轮回将继续，但这一次由你守护。','win');
+       S.ended=true;
+     }},
+     {text:'✖ 拒绝。我是人。',effect:function(){
+       story(['你摇摇头。'],'normal');
+       story(['"不。"'],'normal');
+       story(['"我不想成为神。"'],'normal');
+       story(['"我只想做个普通人。"'],'normal');
+       story(['龙血慢慢平息。'],'good');
+       story(['你回到人间。','继续你的人生。'],'normal');
+       setF('rejected_dragon');
+     }}
+   ]);
  }},
 
 {id:'xu_end_revenge',minAge:70,maxAge:95,once:true,
@@ -2066,6 +2281,7 @@ function runEvent(e){
   if(ev.repeatable)S.usedYearAll[ev.id]=S.age;
   var text=typeof ev.text==='function'?ev.text(S):ev.text;
   logLine('【'+S.age+'岁】'+text);
+  if(ev.infoLines){for(var li=0;li<ev.infoLines.length;li++){logLine('　　'+ev.infoLines[li],'intel');}}
   return new Promise(function(res){
     try{
       if(ev.effect&&!ev.choices){
@@ -2148,7 +2364,7 @@ function startGame(){
   startBtn.disabled=true;rollBtn.disabled=true;restartBtn.disabled=true;
   logLine('══════ 轮回开始 ══════','epic');renderStatus();
   logLine('　战力 = 体质×1.2 + 鬼力 + 队友 + 情报加成','rule');
-  logLine('　⚠ 张思恩可能背刺；许云汐会用美貌诱拐你的伙伴','rule');
+  logLine('　驾驭鬼：体质 ≥ 鬼的驾驭难度，必定成功','rule');
   sleep(SPEED).then(function(){return gameLoop();})
   .then(function(){
     if(!S.alive&&!S.ended)logLine('【结局】你的轮回就此终结。','dead');
