@@ -693,10 +693,12 @@ function makeEncounter(g,minAge,text){
   var kind=g.kind;
   var choices=[];
 
-  var infoLines=[];
-  infoLines.push('⚠ '+g.name+'　战力 '+g.power+'　驾驭需体质 ≥ '+g.diff+'（你当前体质 '+S.physic+'）');
-  if(S.physic>=g.diff)infoLines.push('→ 你的体质足够驾驭它。');
-  else infoLines.push('→ 你的体质还不足以驾驭它。');
+  var infoLines=function(){
+  var arr=[];
+  arr.push('⚠ '+g.name+'　战力 '+g.power+'　驾驭需体质 ≥ '+g.diff+'（你当前体质 '+S.physic+'）');
+  arr.push('→ 我方战力 '+myPower()+'　｜　'+(S.physic>=g.diff?'你的体质足够驾驭它':'你的体质还不足以驾驭它'));
+  return arr;
+};
 
   if(kind==='normal'||kind==='top'){
     choices.push({text:'⚔️ 与它战斗',effect:function(){
@@ -2281,7 +2283,10 @@ function runEvent(e){
   if(ev.repeatable)S.usedYearAll[ev.id]=S.age;
   var text=typeof ev.text==='function'?ev.text(S):ev.text;
   logLine('【'+S.age+'岁】'+text);
-  if(ev.infoLines){for(var li=0;li<ev.infoLines.length;li++){logLine('　　'+ev.infoLines[li],'intel');}}
+  if(ev.infoLines){
+  var lines = (typeof ev.infoLines==='function') ? ev.infoLines() : ev.infoLines;
+  for(var li=0;li<lines.length;li++){logLine('　　'+lines[li],'intel');}
+}
   return new Promise(function(res){
     try{
       if(ev.effect&&!ev.choices){
