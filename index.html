@@ -306,9 +306,8 @@ randomBtn.addEventListener('click',function(){
   enforce();
 });
 
-/* ============ 天赋库（清理重复，增强核心） ============ */
+/* ============ 天赋库 ============ */
 var TALENTS=[
-/* --- 核心属性系 --- */
 {id:'ghostEye',name:'鬼眼',type:'good',mod:{intelli:2},desc:'你的眼睛能看穿鬼的伪装。规律洞悉成功率+15%，智力+2。'},
 {id:'yinBody',name:'阴煞之体',type:'good',mod:{physic:3},desc:'你出生时天有异象，从小与阴气亲和。体质+3。'},
 {id:'soulAnchor',name:'镇魂',type:'good',mod:{physic:1},desc:'你体内有某种镇魂之力。厉鬼复苏时，有一次机会免疫。体质+1。'},
@@ -316,25 +315,17 @@ var TALENTS=[
 {id:'photographic',name:'过目不忘',type:'good',mod:{intelli:3},desc:'你看过的每本书、每张脸，都刻在脑海里。智力+3。'},
 {id:'intuition',name:'直觉敏锐',type:'good',mod:{intelli:2,physic:1},desc:'危险发生前0.5秒你就能感知到。'},
 {id:'richFamily',name:'神秘家世',type:'god',mod:{family:5},desc:'你的家族有不为人知的历史。家境+5。'},
-
-/* --- 神系 --- */
 {id:'godBless',name:'神明眷顾',type:'god',mod:{family:3},desc:'张响对你多看了一眼。可豁免一次死亡。'},
 {id:'zhiban',name:'智板眷顾',type:'god',mod:{physic:2,intelli:1},desc:'智板会在暗处守护你。庇护一次。'},
 {id:'twinSoul',name:'双生残魂',type:'epic',mod:{intelli:2,family:2},desc:'你能听懂龙语。智力+2，家境+2。'},
 {id:'trueName',name:'真名感知',type:'god',mod:{intelli:3},desc:'你能看到事物真正的名字。识破一切谎言。'},
 {id:'dragonBlood',name:'龙王血裔',type:'god',mod:{beauty:2,physic:2},desc:'你体内有龙血。战力+10。'},
-
-/* --- 伙伴系 --- */
 {id:'charisma',name:'领袖气质',type:'god',mod:{beauty:3},desc:'你天生会带人。招募成功率翻倍。'},
 {id:'network',name:'人脉广',type:'good',mod:{beauty:2},desc:'你擅长与人打交道。颜值+2。'},
 {id:'ordinary',name:'平凡路人',type:'normal',mod:{},desc:'你是个普通人。与陆标天然相识。'},
-
-/* --- 情报系 --- */
 {id:'strategist',name:'谋主',type:'epic',mod:{intelli:3},desc:'你能识破一切假情报。智力+3。'},
 {id:'mindReader',name:'读心',type:'epic',mod:{intelli:2,beauty:1},desc:'你能看到别人在想什么。猜测规律时减少错误选项。'},
 {id:'timeLoop',name:'轮回记忆',type:'epic',mod:{intelli:2},desc:'你隐约记得前世。开局已知2条情报。智力+2。'},
-
-/* --- 特殊系 --- */
 {id:'ironWill',name:'铁心',type:'good',mod:{physic:2},desc:'你的意志坚不可摧。免疫一次伙伴背叛。'},
 {id:'charmer',name:'魅惑',type:'god',mod:{beauty:4},desc:'你的眼神能让人沉沦。50%概率魅惑他人。被魅惑者会替你去死。'},
 {id:'bornGhost',name:'天生鬼种',type:'god',mod:{physic:3,intelli:3},desc:'你出生时与鬼同啼。遇鬼概率翻倍，驾驭成功率+20%。'},
@@ -348,8 +339,6 @@ var TALENTS=[
 {id:'sacrifice',name:'献祭',type:'epic',mod:{physic:1},desc:'你懂得用血换真相。可主动牺牲1点体质，换取一条真情报。'},
 {id:'nightEye',name:'夜眼',type:'good',mod:{intelli:2},desc:'在黑暗中你看得更清楚。鬼遭遇时，必定排除1个错误选项。'},
 {id:'ancientBlood',name:'古龙之血',type:'god',mod:{physic:3,intelli:2},desc:'隐藏天赋。真情报≥10时，战力+20。可能触发隐藏结局。'},
-
-/* --- 危险系 --- */
 {id:'curious',name:'好奇心重',type:'bad',mod:{intelli:2},desc:'你克制不住触碰禁忌的冲动。'},
 {id:'kindCurse',name:'善良执念',type:'bad',mod:{beauty:2},desc:'你想做个绝对的好人。但这个世界不允许。'},
 {id:'doomed',name:'厄运体质',type:'bad',mod:{physic:-1,intelli:1},desc:'你靠近禁忌之地，就会遭厄运。'},
@@ -358,7 +347,7 @@ var TALENTS=[
 {id:'radical',name:'激进',type:'epic',mod:{intelli:3,physic:-1},desc:'你执念探寻真相。'}
 ];
 
-/* ============ 鬼库（战力增强版） ============ */
+/* ============ 鬼库 ============ */
 var GHOSTS=[
 {name:'哭脸鬼',diff:3,power:12,kind:'normal',
  rule:'不能表现出恐惧',
@@ -366,84 +355,72 @@ var GHOSTS=[
  guess:[{text:'不能表现出恐惧',correct:true},{text:'不能直视它',correct:false},{text:'不能与它说话',correct:false},{text:'不能逃跑',correct:false}],
  wrongDeath:'你盯着它看——它忽然不哭了。它歪头看着你："你不怕我？"——它不喜欢这个答案。',
  flee:'你转身就跑——脚步出卖了恐惧。你的后背被撕开。'},
-
 {name:'无面鬼',diff:4,power:16,kind:'normal',
  rule:'不能回应叫你名字的声音',
  hint:'它一遍遍喊你的名字，但它的嘴根本没动。',
  guess:[{text:'不能回应叫你名字的声音',correct:true},{text:'不能看它的脸',correct:false},{text:'不能呼吸',correct:false},{text:'不能碰它',correct:false}],
  wrongDeath:'你试着不去看它的脸——但你的手碰到了门框。它笑了。',
  flee:'"别跑啊，是我。"你下意识应了。你的嘴被撕开。'},
-
 {name:'镜中鬼',diff:5,power:20,kind:'normal',
  rule:'不能注视反光表面',
  hint:'它的身影总出现在你身旁的窗户、水洼、刀面里。',
  guess:[{text:'不能注视反光表面',correct:true},{text:'不能说"镜子"两个字',correct:false},{text:'不能背对它',correct:false},{text:'不能眨眼',correct:false}],
  wrongDeath:'你试着背对它——转身时，你正好对上了走廊尽头那面穿衣镜。',
  flee:'你转身就跑——眼角扫到窗户玻璃。它从玻璃里伸出手。'},
-
 {name:'蜂群鬼',diff:5,power:25,kind:'normal',
  rule:'不能出声、不能移动',
  hint:'蜂群环绕你飞舞，但始终没有落在你身上。',
  guess:[{text:'不能出声、不能移动',correct:true},{text:'不能睁眼',correct:false},{text:'不能呼吸',correct:false},{text:'不能想它',correct:false}],
  wrongDeath:'你试着深呼吸——胸腔的起伏惊动了蜂群。',
  flee:'你转身就跑。脚步声惊动蜂群。你被活活蜇死。'},
-
 {name:'雨点鬼',diff:6,power:30,kind:'normal',
  rule:'不能在雨中暴露皮肤',
  hint:'它的雨点落在你面前的地上，像是在测量什么。',
  guess:[{text:'不能在雨中暴露皮肤',correct:true},{text:'不能在雨天出门',correct:false},{text:'不能撑红伞',correct:false},{text:'不能抬头看天',correct:false}],
  wrongDeath:'你低头不去看天——但你的手腕露了出来。一滴雨落了上去。',
  flee:'你冲进雨里。雨点落在手背上——那是针。'},
-
 {name:'红衣厉鬼',diff:6,power:35,kind:'normal',
  rule:'必须直视它',
  hint:'她始终背对你。你能感到——她在等。',
  guess:[{text:'必须直视它',correct:true},{text:'必须闭上眼睛',correct:false},{text:'必须转身逃跑',correct:false},{text:'必须喊它的名字',correct:false}],
  wrongDeath:'你闭上眼睛——她的手指已经触到了你的后颈。',
  flee:'你转头的瞬间——她已贴在你面前。'},
-
 {name:'纸人',diff:7,power:42,kind:'normal',
  rule:'不能触碰任何纸质物品',
  hint:'它飘过书桌时，绕开了所有纸张。',
  guess:[{text:'不能触碰任何纸质物品',correct:true},{text:'不能看报纸',correct:false},{text:'不能写字',correct:false},{text:'不能说话',correct:false}],
  wrongDeath:'你抓起一本书想防身——纸页像刀片一样刺进你的手掌。',
  flee:'你转身就跑——慌乱中你踩到了一张报纸。'},
-
 {name:'教室鬼',diff:8,power:55,kind:'strong',
  rule:'不可驾驭。坐最后一排靠窗者必死',
  hint:'最后一排靠窗的课桌，永远比其他桌子干净。',
  guess:[{text:'不能坐在最后一排靠窗',correct:true},{text:'不能看黑板',correct:false},{text:'不能答到',correct:false},{text:'不能离开教室',correct:false}],
  wrongDeath:'你盯着黑板想找线索——忽然，你发现自己坐在了那个位置。',
  flee:'你转身跑向门口。一脚踩空。你坐下了——坐在最后一排靠窗。'},
-
 {name:'影子鬼',diff:8,power:65,kind:'strong',
  rule:'不能背对光源。你的影子会杀死你',
  hint:'它从你的影子里爬出来。你一动，它也跟着动。',
  guess:[{text:'不能背对光源',correct:true},{text:'不能照镜子',correct:false},{text:'不能背对它',correct:false},{text:'不能站着',correct:false}],
  wrongDeath:'你背对着窗户——身后的影子站了起来，伸出手。',
  flee:'你转身就跑——背光的那一刻，你的影子握住了你的脖子。'},
-
 {name:'三班之主',diff:99,power:180,kind:'strong',
  rule:'不可驾驭。需要先识破它的规则和弱点',
  hint:'它没有形状。它只是"在"。',
  guess:[{text:'它怕"三班"这个词本身——念出来它就会短暂失能',correct:true},{text:'它怕光',correct:false},{text:'它怕火',correct:false},{text:'它怕任何人的名字',correct:false}],
  wrongDeath:'你的猜测是错误的。它吞噬了你的一部分力量。',
  flee:'它不允许任何存在逃离它的领域。'},
-
 {name:'轮回鬼',diff:9,power:80,kind:'special',
  rule:'逃跑必死。必须打破循环',
  hint:'你走的是同一条路。见的是同一个人。听的是同一句话。',
  guess:[{text:'必须打破循环（做不一样的选择）',correct:true},{text:'必须原路返回',correct:false},{text:'必须原地不动',correct:false},{text:'必须闭眼一分钟',correct:false}],
  wrongDeath:'你决定原地不动——和上一次一模一样的动作。世界重置了。',
  flee:'你转身就跑——和昨天一模一样的动作。世界重置。'},
-
 {name:'镜魔',diff:10,power:100,kind:'special',
  rule:'必须喊出它的真名，否则每次看它都会损失记忆',
  hint:'它的名字刻在每个镜子的背面，但只有你能读懂。',
  guess:[{text:'必须喊出它的真名',correct:true},{text:'必须闭上眼睛',correct:false},{text:'必须打碎镜子',correct:false},{text:'必须背对它',correct:false}],
  wrongDeath:'你选择不看它——但镜魔已经借你的眼睛钻进了记忆。',
  flee:'你转身就跑——跑动中你看到了自己的倒影。'},
-
 {name:'龙王之影',diff:10,power:120,kind:'top',
  rule:'只有龙语对话。成功后可驾驭',
  hint:'它从不说人话。它只是"听"。',
@@ -466,7 +443,7 @@ guTingyu:{name:'顾庭雨',power:9,diff:18},
 zhouZhihui:{name:'周芷卉',power:7,diff:12}
 };
 
-/* ============ 魅惑系统（50%） ============ */
+/* ============ 魅惑系统 ============ */
 function tryCharm(target){
   if(!hasT('charmer'))return false;
   if(!target)return false;
@@ -581,6 +558,7 @@ function checkBetray(){
     var p=list[i];
     if(!p.alive||p.side!=='player')continue;
     if(p.charmed)continue;
+    if(p.key==='luJiancheng')continue;/* ★ 陆建成保护 */
     if(p.key==='guTingyu'&&!p.betrayed&&S.age>=p.joinedAt+6+Math.floor(Math.random()*4)){
       betrayals.push({p:p,type:'gu'});continue;
     }
@@ -623,6 +601,7 @@ function xuRecruit(){
   if(!target)target=mine[Math.floor(Math.random()*mine.length)];
   if(target.charmed)return;
   if(hasItem('jadePendant'))return;
+  if(target.key==='luJiancheng')return;/* ★ 陆建成保护 */
   var resist=S.intelli*0.8+S.intel.length*0.5+(S.starFormed?8:0)+(target.trust-50)*0.4;
   if(resist>12)return;
   target.side='xu';S.xuAllies++;
@@ -637,6 +616,7 @@ function xuInfl(){
     if(Math.random()<0.05){
       var p=m[i];
       if(p.charmed)continue;
+      if(p.key==='luJiancheng')continue;/* ★ 陆建成保护 */
       var r=S.intelli*0.8+S.beauty*0.6+(p.trust-50)*0.3+S.intel.length*0.4+(S.starFormed?5:0);
       if(r>10)continue;p.trust-=15;
     }
@@ -657,7 +637,6 @@ function partnerEffect(){
     else if(p.key==='zhouZhihui'&&Math.random()<0.15){applyMod({beauty:1});S.zzPraise++;}
   }
   if(S.starFormed){applyMod({physic:1,beauty:1});}
-  /* 魂灯道具：每年5%概率带来情报 */
   if(hasItem('soulLantern')&&Math.random()<0.05){
     addIntel('i_lantern_'+S.age,'魂灯照亮了一条被隐藏的真相。',true);
     story(['【魂灯】灯芯忽然亮了一下。','——你看见了一段被抹去的记忆。'],'epic');
@@ -780,7 +759,7 @@ function makeGuessChoices(g, onCorrect){
   return guessChoices;
 }
 
-/* ============ 鬼遭遇（精简权重，但保留详细描写） ============ */
+/* ============ 鬼遭遇 ============ */
 var GHOST_ENCOUNTERS=[];
 function makeEncounter(g,minAge,text,intro){
   var kind=g.kind;
@@ -900,8 +879,8 @@ var EVENTS=[
    addIntel('i_zhiban','智板完全可信。',true);
    story(['他递给你一块糖。','"吃吧，没毒。"','你犹豫了一下，还是接过来。','糖是甜的。','这是你记忆里这个世界第一次有甜味。','他笑了。','那种笑——','像很久没有笑过。','"记住，"他说。','"规则比善意更保命。"','你点头。','他转身离开。','你忽然注意到——','他走路的时候，','没有脚步声。']);}},
 
-/* ==== 许云汐必然登场 ==== */
-{id:'xu_meet',arc:'xu',stage:1,minAge:13,maxAge:14,once:true,
+/* ==== 许云汐必然登场（★放宽 13-32岁 + weight 6） ==== */
+{id:'xu_meet',arc:'xu',stage:1,minAge:13,maxAge:32,once:true,weight:6,
  text:'许云汐转学来了。',
  effect:function(){
    setF('xu_active');addP('xuYunxi','xu');
@@ -923,8 +902,9 @@ var EVENTS=[
    story(['不是看一个陌生人。'],'xu');
  }},
 
-/* ==== 顾庭雨登场（初始许云汐阵营） ==== */
-{id:'gt_meet',arc:'gt',stage:1,minAge:14,maxAge:15,once:true,
+/* ==== 顾庭雨登场（★放宽 14-34岁 + weight 5 + cond 需要 xu_active） ==== */
+{id:'gt_meet',arc:'gt',stage:1,minAge:14,maxAge:34,once:true,weight:5,
+ cond:function(){return hasF('xu_active');},
  text:'你在许云汐身边看见了一个女孩——顾庭雨。',
  effect:function(){
    addP('guTingyu','xu');
@@ -940,8 +920,9 @@ var EVENTS=[
    addIntel('i_gt','顾庭雨善于伪装，她总是站在强者一边。',true);
  }},
 
-/* ==== 阮柔登场（初始许云汐阵营） ==== */
-{id:'rr_meet',arc:'rr',stage:1,minAge:15,maxAge:16,once:true,
+/* ==== 阮柔登场（★放宽 15-36岁 + weight 5 + cond 需要 xu_active） ==== */
+{id:'rr_meet',arc:'rr',stage:1,minAge:15,maxAge:36,once:true,weight:5,
+ cond:function(){return hasF('xu_active');},
  text:'许云汐身边又多了一个人——阮柔。',
  effect:function(){
    addP('ruanRou','xu');
@@ -956,7 +937,7 @@ var EVENTS=[
  }},
 
 /* ==== 周芷卉登场 ==== */
-{id:'zz_meet',arc:'zz',stage:1,minAge:16,maxAge:18,once:true,
+{id:'zz_meet',arc:'zz',stage:1,minAge:16,maxAge:26,once:true,weight:4,
  text:'自称"中立"的女生——周芷卉。',
  effect:function(){
    story(['"我不站队。"'],'story');
@@ -975,8 +956,8 @@ var EVENTS=[
   {text:'拒绝',effect:function(){addP('zhouZhihui','independent');story(['她耸耸肩走了。'],'normal');}}
 ]},
 
-/* ==== 许云汐干扰事件1：学校日常 ==== */
-{id:'xu_interfere_1',arc:'xu_interfere',stage:1,minAge:15,maxAge:20,once:true,
+/* ==== 许云汐干扰事件群 ==== */
+{id:'xu_interfere_1',arc:'xu_interfere',stage:1,minAge:15,maxAge:28,once:true,weight:4,
  cond:function(){return hasF('xu_active')&&!S.xuDefeated;},
  text:'学校里在传一件事——关于你的。',
  effect:function(){
@@ -995,8 +976,7 @@ var EVENTS=[
    story(['今天你听见——','有人在你背后议论。'],'danger');
  }},
 
-/* ==== 许云汐干扰事件2：伙伴动摇 ==== */
-{id:'xu_interfere_2',arc:'xu_interfere',stage:2,minAge:18,maxAge:24,once:true,
+{id:'xu_interfere_2',arc:'xu_interfere',stage:2,minAge:18,maxAge:32,once:true,weight:4,
  cond:function(){return hasF('xu_active')&&!S.xuDefeated&&alivePlayerPartners().length>0;},
  text:'你的一个伙伴最近总是走神。',
  effect:function(){
@@ -1015,8 +995,7 @@ var EVENTS=[
    if(m.length){m[0].trust-=8;}
  }},
 
-/* ==== 许云汐干扰事件3：假情报 ==== */
-{id:'xu_interfere_3',arc:'xu_interfere',stage:3,minAge:22,maxAge:28,once:true,
+{id:'xu_interfere_3',arc:'xu_interfere',stage:3,minAge:22,maxAge:36,once:true,weight:4,
  cond:function(){return hasF('xu_active')&&!S.xuDefeated&&S.intel.length>=5;},
  text:'你收到一封匿名信。',
  effect:function(){
@@ -1031,8 +1010,8 @@ var EVENTS=[
    addIntel('i_xu_lie','这封信可能是许云汐的陷阱。',false);
  }},
 
-/* ==== 顾庭雨背叛链 ==== */
-{id:'gt_betray',arc:'gt',stage:2,minAge:20,maxAge:30,once:true,
+/* ==== 顾庭雨背叛链（★放宽至 20-60岁） ==== */
+{id:'gt_betray',arc:'gt',stage:2,minAge:20,maxAge:60,once:true,weight:5,
  cond:function(){return hasF('xu_active')&&!S.xuDefeated&&getP('顾庭雨')&&getP('顾庭雨').alive;},
  text:'那天晚上——顾庭雨来找你。',
  effect:function(){
@@ -1050,7 +1029,7 @@ var EVENTS=[
  choices:[
   {text:'原谅她',effect:function(){
     var p=getP('顾庭雨');
-    if(p){p.side='player';p.trust=50;S.xuAllies=Math.max(0,S.xuAllies-1);}
+    if(p){p.side='player';p.trust=50;p.betrayed=false;S.xuAllies=Math.max(0,S.xuAllies-1);}
     story(['"我信你。"你说。'],'partner');
     story(['她扑进你怀里。'],'partner');
     story(['哭得更凶了。'],'partner');
@@ -1080,9 +1059,12 @@ var EVENTS=[
    }}
 ]},
 
-/* ==== 阮柔策反链 ==== */
-{id:'rr_persuade',arc:'rr',stage:2,minAge:18,maxAge:26,once:true,
- cond:function(){return hasF('xu_active')&&!S.xuDefeated&&getP('阮柔')&&getP('阮柔').alive&&getP('阮柔').side==='xu';},
+/* ==== 阮柔策反链（★放宽至 18-60岁 + cond 放宽） ==== */
+{id:'rr_persuade',arc:'rr',stage:2,minAge:18,maxAge:60,once:true,weight:5,
+ cond:function(){
+   var p=getP('阮柔');
+   return hasF('xu_active')&&!S.xuDefeated&&p&&p.alive&&p.side!=='player';
+ },
  text:'你找到阮柔单独谈了一次。',
  effect:function(){
    story(['"你为她杀过人。"'],'normal');
@@ -1119,8 +1101,8 @@ var EVENTS=[
   }}
 ]},
 
-/* ==== 张思恩 ==== */
-{id:'zs_meet',arc:'zs',stage:1,minAge:12,maxAge:16,once:true,
+/* ==== 张思恩/爽唔/杨开冬/陆标/陆建成 ==== */
+{id:'zs_meet',arc:'zs',stage:1,minAge:12,maxAge:20,once:true,weight:4,
  text:'你遇到眼神锐利的张思恩。',
  effect:function(){
    story(['他站在人群外。'],'story');
@@ -1135,7 +1117,7 @@ var EVENTS=[
   {text:'离开',effect:function(){story(['你转身走了。'],'normal');story(['他的目光一直跟着你。'],'normal');}}
 ]},
 
-{id:'sw_meet',arc:'sw',stage:1,minAge:12,maxAge:16,once:true,
+{id:'sw_meet',arc:'sw',stage:1,minAge:12,maxAge:20,once:true,weight:4,
  text:'衣着考究的男生喊住你——爽唔。',
  effect:function(){
    story(['"你叫什么？"'],'story');
@@ -1149,7 +1131,7 @@ var EVENTS=[
   {text:'不理',effect:function(){story(['你摇了摇头。'],'normal');story(['他耸耸肩走了。'],'normal');}}
 ]},
 
-{id:'yk_meet',arc:'yk',stage:1,minAge:12,maxAge:16,once:true,
+{id:'yk_meet',arc:'yk',stage:1,minAge:12,maxAge:20,once:true,weight:4,
  text:'操场上，一个高壮男生撂倒三个混混。',
  effect:function(){
    story(['他叫杨开冬。'],'story');
@@ -1165,7 +1147,7 @@ var EVENTS=[
   {text:'离开',effect:function(){}}
 ]},
 
-{id:'yk_grow',arc:'yk',stage:2,minAge:20,maxAge:MAXAGE,once:true,
+{id:'yk_grow',arc:'yk',stage:2,minAge:20,maxAge:MAXAGE,once:true,weight:4,
  cond:function(){return hasF('yk_join')&&getP('杨开冬')&&getP('杨开冬').alive&&getP('杨开冬').side==='player';},
  text:'杨开冬想驭鬼，担心撑不住。',
  choices:[
@@ -1174,7 +1156,7 @@ var EVENTS=[
   {text:'劝退',effect:function(){}}
 ]},
 
-{id:'lj_meet',arc:'lj',stage:1,minAge:9,maxAge:14,once:true,
+{id:'lj_meet',arc:'lj',stage:1,minAge:9,maxAge:18,once:true,weight:4,
  text:'你遇到一个普通、胆小、善良的男孩——陆标。',
  effect:function(){
    story(['他蹲在墙角。'],'story');
@@ -1188,7 +1170,7 @@ var EVENTS=[
   {text:'保持距离',effect:function(){}}
 ]},
 
-{id:'lj_grow',arc:'lj',stage:2,minAge:16,maxAge:MAXAGE,once:true,
+{id:'lj_grow',arc:'lj',stage:2,minAge:16,maxAge:MAXAGE,once:true,weight:4,
  cond:function(){var p=getP('陆标');return p&&p.alive&&p.side==='player';},
  text:'陆标想变强。',
  effect:function(){
@@ -1202,7 +1184,7 @@ var EVENTS=[
   {text:'疏远他',effect:function(){var p=getP('陆标');if(p)p.trust-=10;}}
 ]},
 
-{id:'ljc_meet',arc:'ljc',stage:1,minAge:9,maxAge:14,once:true,
+{id:'ljc_meet',arc:'ljc',stage:1,minAge:9,maxAge:18,once:true,weight:4,
  text:'墙角画圈的男孩抬头冲你傻笑——陆建成。',
  effect:function(){
    story(['他在地上画了一个圈。'],'story');
@@ -1218,9 +1200,24 @@ var EVENTS=[
   {text:'无视',effect:function(){}}
 ]},
 
-/* ==== 日常事件（增加大量非撞鬼剧情） ==== */
+/* ★ 新增：陆建成成长事件 */
+{id:'ljc_grow',arc:'ljc',stage:2,minAge:18,maxAge:MAXAGE,once:true,weight:4,
+ cond:function(){var p=getP('陆建成');return p&&p.alive&&p.side==='player';},
+ text:'陆建成还是那样傻笑，但你发现他画的圈——',
+ effect:function(){
+   story(['越来越圆。'],'partner');
+   story(['一圈。'],'partner');
+   story(['两圈。'],'partner');
+   story(['十圈。'],'partner');
+   story(['"我在练。"他说。'],'partner');
+   var p=getP('陆建成');if(p){p.power+=8;p.trust=100;}
+   story(['你不知道他在练什么。'],'partner');
+   story(['但你知道——'],'partner');
+   story(['他从来不会骗你。'],'partner');
+ }},
 
-{id:'daily_1',minAge:6,maxAge:12,once:true,
+/* ==== 日常事件 ==== */
+{id:'daily_1',minAge:6,maxAge:12,once:true,weight:2,
  text:'你在学校里交到了第一个朋友。',
  effect:function(){
    story(['他叫小凯。'],'partner');
@@ -1233,7 +1230,7 @@ var EVENTS=[
    applyMod({beauty:1});
  }},
 
-{id:'daily_2',minAge:10,maxAge:18,once:true,
+{id:'daily_2',minAge:10,maxAge:18,once:true,weight:2,
  text:'你在旧书店发现了一本书。',
  effect:function(){
    story(['书名叫《人间鬼话》。'],'intel');
@@ -1248,7 +1245,7 @@ var EVENTS=[
    addIntel('i_daily_1','有一本《人间鬼话》在流传。',true);
  }},
 
-{id:'daily_3',minAge:12,maxAge:20,once:true,
+{id:'daily_3',minAge:12,maxAge:20,once:true,weight:2,
  text:'你和陆标一起去河边钓鱼。',
  effect:function(){
    story(['河水很静。'],'partner');
@@ -1261,7 +1258,7 @@ var EVENTS=[
    var p=getP('陆标');if(p)p.trust+=10;
  }},
 
-{id:'daily_4',minAge:14,maxAge:24,once:true,
+{id:'daily_4',minAge:14,maxAge:24,once:true,weight:2,
  text:'深夜。你在阳台上看见了一个影子。',
  effect:function(){
    story(['对面楼顶——'],'story');
@@ -1274,7 +1271,7 @@ var EVENTS=[
    applyMod({intelli:1});
  }},
 
-{id:'daily_5',minAge:16,maxAge:30,once:true,
+{id:'daily_5',minAge:16,maxAge:30,once:true,weight:2,
  text:'你在梦里学到了一句话。',
  effect:function(){
    story(['那句话没有声音。'],'zx');
@@ -1284,7 +1281,7 @@ var EVENTS=[
    addIntel('i_daily_2','凡王之血，必以剑终。',true);
  }},
 
-{id:'daily_6',minAge:18,maxAge:35,once:true,
+{id:'daily_6',minAge:18,maxAge:35,once:true,weight:2,
  text:'你在街上看到一对母子。',
  effect:function(){
    story(['小男孩大概三四岁。'],'normal');
@@ -1296,7 +1293,7 @@ var EVENTS=[
    applyMod({intelli:1});
  }},
 
-{id:'daily_7',minAge:20,maxAge:40,once:true,
+{id:'daily_7',minAge:20,maxAge:40,once:true,weight:2,
  text:'许云汐的生日。',
  effect:function(){
    story(['你听说今天是许云汐的生日。'],'xu');
@@ -1310,7 +1307,7 @@ var EVENTS=[
    addIntel('i_xu_family','许云汐也曾有过家人。',true);
  }},
 
-{id:'daily_8',minAge:22,maxAge:45,once:true,
+{id:'daily_8',minAge:22,maxAge:45,once:true,weight:2,
  text:'你去海南中心校门口看了一眼。',
  effect:function(){
    story(['铁门锈了。'],'story');
@@ -1326,7 +1323,7 @@ var EVENTS=[
    applyMod({intelli:1});
  }},
 
-{id:'daily_9',minAge:25,maxAge:50,once:true,
+{id:'daily_9',minAge:25,maxAge:50,once:true,weight:2,
  text:'周芷卉请你去她家喝茶。',
  effect:function(){
    story(['她泡的是茉莉花茶。'],'partner');
@@ -1340,7 +1337,7 @@ var EVENTS=[
    S.zzPraise++;
  }},
 
-{id:'daily_10',minAge:30,maxAge:60,once:true,
+{id:'daily_10',minAge:30,maxAge:60,once:true,weight:2,
  text:'你老了。',
  effect:function(){
    story(['你的头发白了。'],'old');
@@ -1351,7 +1348,7 @@ var EVENTS=[
  }},
 
 /* ==== 苏叶青 ==== */
-{id:'dog_suye',minAge:8,maxAge:MAXAGE,once:true,
+{id:'dog_suye',minAge:8,maxAge:MAXAGE,once:true,weight:3,
  text:'路边蹲着一只小狗。脖子上挂着牌子，写着"苏叶青"。',
  effect:function(){
    story(['小狗不大。'],'story');
@@ -1393,7 +1390,7 @@ var EVENTS=[
 ]},
 
 /* ==== 主线剧情 ==== */
-{id:'bg_1',arc:'bg',stage:1,minAge:8,maxAge:14,once:true,
+{id:'bg_1',arc:'bg',stage:1,minAge:8,maxAge:16,once:true,weight:3,
  text:'你做了一场奇怪的梦。',
  effect:function(){
    story(['梦里有一个女人抱着你。'],'zx');
@@ -1405,7 +1402,7 @@ var EVENTS=[
    addIntel('i_bg_mother','你梦见过一个唱着歌的女人。',true);
  }},
 
-{id:'bg_2',arc:'bg',stage:2,minAge:14,maxAge:22,once:true,
+{id:'bg_2',arc:'bg',stage:2,minAge:14,maxAge:26,once:true,weight:3,
  text:'你翻母亲遗物时，找到一张照片。',
  effect:function(){
    story(['那是一个旧木盒。'],'zx');
@@ -1423,7 +1420,7 @@ var EVENTS=[
    addIntel('i_bg_photo','你有一张母亲、张响、嘴唇的合影。背面写着"我们三个，总有一个要死"。',true);
  }},
 
-{id:'bg_3',arc:'bg',stage:3,minAge:22,maxAge:35,once:true,
+{id:'bg_3',arc:'bg',stage:3,minAge:22,maxAge:40,once:true,weight:3,
  cond:function(){return hasI('i_bg_photo')&&(hasF('met_zx')||hasF('met_lip'));},
  text:'你梦见张响。',
  effect:function(){
@@ -1440,7 +1437,7 @@ var EVENTS=[
    applyMod({physic:2,intelli:2});
  }},
 
-{id:'bg_4',arc:'bg',stage:4,minAge:35,maxAge:MAXAGE,once:true,
+{id:'bg_4',arc:'bg',stage:4,minAge:35,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return hasI('i_bg_dragon');},
  text:'你在梦里见到了母亲。',
  effect:function(){
@@ -1462,7 +1459,7 @@ var EVENTS=[
  }},
 
 /* ==== 情报线 ==== */
-{id:'i_shop',arc:'intel',stage:1,minAge:12,maxAge:MAXAGE,once:true,
+{id:'i_shop',arc:'intel',stage:1,minAge:12,maxAge:MAXAGE,once:true,weight:5,
  text:'旧钟表店老板自称能买卖情报。',
  effect:function(){
    story(['那家店在巷子深处。'],'intel');
@@ -1479,12 +1476,12 @@ var EVENTS=[
   {text:'离开',effect:function(){story(['你走出店门。'],'normal');}}
 ]},
 
-{id:'i_deep',arc:'intel',stage:2,minAge:18,maxAge:MAXAGE,once:true,
+{id:'i_deep',arc:'intel',stage:2,minAge:18,maxAge:MAXAGE,once:true,weight:4,
  cond:function(){return hasI('i_youhe');},
  text:'优呵重启世界，是为了养鬼。',
  effect:function(){addIntel('i_youhe_g','优呵重启世界是为了养鬼。',true);story(['你把所有情报摊在桌上。','线越来越多。','最后连成一个圆。','圆的中心——','只有一个词。','养鬼。'],'intel');}},
 
-{id:'i_truth',arc:'intel',stage:3,minAge:22,maxAge:MAXAGE,once:true,
+{id:'i_truth',arc:'intel',stage:3,minAge:22,maxAge:MAXAGE,once:true,weight:4,
  cond:function(){return hasI('i_youhe')&&hasI('i_twin');},
  text:'优呵占领地球，屠杀苍生，死者怨气追至人间化作厉鬼。',
  effect:function(){
@@ -1496,7 +1493,7 @@ var EVENTS=[
  }},
 
 /* ==== 龙王真相 ==== */
-{id:'tr_lip',arc:'truth',stage:1,minAge:13,maxAge:MAXAGE,once:true,
+{id:'tr_lip',arc:'truth',stage:1,minAge:13,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return hasT('lipMagnet')||hasT('radical')||S.intelli>=8;},
  text:'黑衣人出现，嘴唇鲜红——【嘴唇】。',
  choices:[
@@ -1505,11 +1502,11 @@ var EVENTS=[
   {text:'提及同源',cond:function(){return hasI('i_twin');},effect:function(){addIntel('i_lip_zx','嘴唇沉默："……你懂什么。"',true);story(['"你们本是同源。"你平静地说。','他停住了。','"你懂什么。"'],'blood');}}
 ]},
 
-{id:'tr_zx',arc:'truth',stage:2,minAge:14,maxAge:MAXAGE,once:true,
+{id:'tr_zx',arc:'truth',stage:2,minAge:14,maxAge:MAXAGE,once:true,weight:3,
  text:'你目睹"神迹"——张响抬手，风雨静止。',
  effect:function(){addIntel('i_zx','张响拥有绝对力量，是一名强大的君王。',true);setF('met_zx');story(['雨滴悬在半空。','像无数颗透明的宝石。','"别怕。"','你注意到他的手指在抖。','不是虚弱。','是克制。'],'zx');}},
 
-{id:'tr_youhe',arc:'truth',stage:4,minAge:20,maxAge:MAXAGE,once:true,
+{id:'tr_youhe',arc:'truth',stage:4,minAge:20,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return hasI('i_youhe');},
  text:'你触碰到"优呵"——它的恶意像一座山。',
  choices:[
@@ -1519,8 +1516,7 @@ var EVENTS=[
   {text:'沉默离开',effect:function(){story(['"明智。"你听见那声音。','"活着，比反抗更难。"'],'youhe');}}
 ]},
 
-/* ==== 张响/嘴唇兄弟线 ==== */
-{id:'do_1',arc:'dragon_origin',stage:1,minAge:18,maxAge:MAXAGE,once:true,
+{id:'do_1',arc:'dragon_origin',stage:1,minAge:18,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return hasF('met_lip')&&hasF('met_zx');},
  text:'你同时收到了两封信。',
  effect:function(){
@@ -1528,7 +1524,7 @@ var EVENTS=[
    story(['一封来自嘴唇：','"别信他。"','"他会用契约控制你。"'],'blood');
  }},
 
-{id:'do_2',arc:'dragon_origin',stage:2,minAge:18,maxAge:MAXAGE,once:true,
+{id:'do_2',arc:'dragon_origin',stage:2,minAge:18,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return S.arcs.dragon_origin>=1;},
  text:'张响和嘴唇站在你面前——龙王双生子，第一次面对面。',
  effect:function(){
@@ -1542,7 +1538,7 @@ var EVENTS=[
    ]);
  }},
 
-{id:'zx_call',arc:'zx',stage:1,minAge:16,maxAge:MAXAGE,once:true,
+{id:'zx_call',arc:'zx',stage:1,minAge:16,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return hasF('met_zx')&&S.zxAlive;},
  text:'你听说只要呼唤张响的名字，就可能得到回应。',
  choices:[
@@ -1557,7 +1553,7 @@ var EVENTS=[
   {text:'不呼唤',effect:function(){story(['你隐约觉得——','欠君王的债不会轻。'],'normal');}}
 ]},
 
-{id:'zx_death',arc:'zx',stage:3,minAge:24,maxAge:MAXAGE,once:true,
+{id:'zx_death',arc:'zx',stage:3,minAge:24,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return S.zxAlive&&S.zxGrant>=1&&hasF('met_zx');},
  text:'有人用从张响那里得到的力量，趁张响力竭时偷袭了他。',
  effect:function(){
@@ -1576,7 +1572,7 @@ var EVENTS=[
    unlockAchieve('fk_zx_witness');
  }},
 
-{id:'zx_lip_grief',arc:'zx',stage:4,minAge:24,maxAge:MAXAGE,once:true,
+{id:'zx_lip_grief',arc:'zx',stage:4,minAge:24,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return !S.zxAlive&&hasF('met_lip');},
  text:'张响死后，你再次遇到嘴唇。',
  effect:function(){
@@ -1590,7 +1586,7 @@ var EVENTS=[
  }},
 
 /* ==== 许云汐线 ==== */
-{id:'xu_exp',arc:'xu',stage:2,minAge:18,maxAge:34,once:true,
+{id:'xu_exp',arc:'xu',stage:2,minAge:18,maxAge:44,once:true,weight:3,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated;},
  text:'许云汐公开拉拢你身边的人。',
  effect:function(){
@@ -1601,7 +1597,7 @@ var EVENTS=[
    ]);
  }},
 
-{id:'xu_contract',arc:'xu',stage:3,minAge:24,maxAge:36,once:true,
+{id:'xu_contract',arc:'xu',stage:3,minAge:24,maxAge:46,once:true,weight:3,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&S.zxAlive&&S.xuAllies>=2;},
  text:'你听说——许云汐去找张响了。',
  effect:function(){
@@ -1612,7 +1608,7 @@ var EVENTS=[
    addIntel('i_xu_contract','许云汐与张响签订契约，执念是杀死主角。',true);
  }},
 
-{id:'xu_beauty',arc:'xu',stage:4,minAge:26,maxAge:34,once:true,
+{id:'xu_beauty',arc:'xu',stage:4,minAge:26,maxAge:44,once:true,weight:3,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&alivePlayerPartners().length>=2;},
  text:'许云汐不再用计策。她开始用她的脸。',
  effect:function(){
@@ -1622,6 +1618,7 @@ var EVENTS=[
      var p=mine[i];
      if(p.charmed)continue;
      if(hasItem('jadePendant'))continue;
+     if(p.key==='luJiancheng')continue;/* ★ 陆建成保护 */
      var charmChance=0.45+S.beauty*0.02-p.trust*0.005;
      if(hasT('charmer'))charmChance*=0.5;
      if(p.key==='yangKaidong')charmChance-=0.1;
@@ -1668,9 +1665,9 @@ var EVENTS=[
    ]);
  }},
 
-{id:'xu_battle35',arc:'xu_battle',stage:1,minAge:35,maxAge:35,once:true,
+{id:'xu_battle35',arc:'xu_battle',stage:1,minAge:35,maxAge:48,once:true,weight:6,
  cond:function(){return hasF('xu_active')&&!S.xuServant&&!S.xuDefeated&&!S.battle35Done;},
- text:'35岁那年，许云汐向你下了战书。',
+ text:'许云汐向你下了战书。',
  effect:function(){
    S.battle35Done=true;
    var mp=myPower();var xp=xuPower();
@@ -1709,7 +1706,7 @@ var EVENTS=[
    }
  }},
 
-{id:'xu_save',arc:'xu_save',stage:1,minAge:36,maxAge:42,once:true,
+{id:'xu_save',arc:'xu_save',stage:1,minAge:36,maxAge:55,once:true,weight:5,
  cond:function(){return S.xuDefeated&&!S.xuSaved&&S.alive&&hasI('i_xu_contract');},
  text:'你听说——许云汐没有死。',
  effect:function(){
@@ -1736,7 +1733,7 @@ var EVENTS=[
    ]);
  }},
 
-{id:'zz_servant',arc:'zz',stage:2,minAge:18,maxAge:MAXAGE,once:true,
+{id:'zz_servant',arc:'zz',stage:2,minAge:18,maxAge:MAXAGE,once:true,weight:3,
  cond:function(){return !S.xuServant&&S.zzPraise>=3&&getP('周芷卉')&&getP('周芷卉').alive&&getP('周芷卉').side==='player';},
  text:'周芷卉："许云汐她……已经动摇很久了。"',
  choices:[
@@ -1759,39 +1756,48 @@ var EVENTS=[
   {text:'拒绝',effect:function(){var xp=getP('许云汐');if(xp)xp.alive=false;story(['"不。","我要你彻底消失。"'],'danger');}}
 ]},
 
-/* ==== 45岁决战 ==== */
-{id:'ch_youhe',arc:'final',stage:1,minAge:45,maxAge:45,once:true,
- cond:function(){return getP('陆建成')&&getP('陆建成').alive&&getP('陆建成').side==='player'&&hasI('i_youhe')&&hasI('i_twin')&&trueIntelCount()>=10;},
- text:'45岁那年，陆建成跑来拉着你的衣角："我带你去看龙。"',
+/* ============================================ */
+/* ★★★ 决战线与 凡王之血线（互斥条件） ★★★ */
+/* ============================================ */
+
+/* --- 决战线：ch_youhe 45-60岁，需要陆建成在队伍 --- */
+{id:'ch_youhe',arc:'final',stage:1,minAge:45,maxAge:60,once:true,weight:5,
+ cond:function(){
+   var p=getP('陆建成');
+   return p&&p.alive&&p.side==='player'
+     &&hasI('i_youhe')&&hasI('i_twin')&&trueIntelCount()>=10;
+ },
+ text:'45岁后，陆建成跑来拉着你的衣角："我带你去看龙。"',
  effect:function(){
    setF('ch_go');
    story(['陆建成傻笑着。','他推开了三班那扇"活着的门"。','门后——','是优呵。'],'god');
  }},
 
-{id:'ch_inv',arc:'final',stage:2,minAge:45,maxAge:MAXAGE,once:true,
+/* ★ ch_inv + ch_dec 合并 */
+{id:'ch_inv',arc:'final',stage:2,minAge:45,maxAge:MAXAGE,once:true,weight:8,
  cond:function(){return hasF('ch_go');},
  text:'最深处，一行反复刻下的字。',
  effect:function(){story(['"成王者——","须手刃所爱。"'],'blood');},
  choices:[
-  {text:'追问细节',effect:function(){addIntel('i_king','成王代价：亲手杀死所有伙伴。',true);}},
+  {text:'追问细节',effect:function(){
+    addIntel('i_king','成王代价：亲手杀死所有伙伴。',true);
+    return ask([
+      {text:'✖ 杀死所有伙伴，用他们的血浇筑祭坛',
+       effect:function(){setF('path_blood');unlockAchieve('king_blood');}},
+      {text:'✖ 与伙伴并肩，牺牲自己',
+       effect:function(){setF('path_together');unlockAchieve('king_saint');}}
+    ]);
+  }},
   {text:'退出',effect:function(){setF('ch_back');}}
 ]},
 
-{id:'ch_dec',arc:'final',stage:3,minAge:45,maxAge:MAXAGE,once:true,
- cond:function(){return hasF('ch_go')&&hasI('i_king');},
- text:'决战之前，你必须做出选择。',
- choices:[
-  {text:'✖ 杀死所有伙伴，用他们的血浇筑祭坛',effect:function(){setF('path_blood');unlockAchieve('king_blood');}},
-  {text:'✖ 与伙伴并肩，牺牲自己',effect:function(){setF('path_together');unlockAchieve('king_saint');}}
-]},
-
-{id:'battle',arc:'final',stage:4,minAge:45,maxAge:MAXAGE,once:true,
+{id:'battle',arc:'final',stage:3,minAge:45,maxAge:MAXAGE,once:true,weight:10,
  cond:function(){return hasF('ch_go')&&(hasF('path_blood')||hasF('path_together'));},
  text:'决战的钟声敲响。',
  effect:function(){resolveFinal();}},
 
-/* ==== 凡王之血 ==== */
-{id:'bk1',arc:'bloodking',stage:1,minAge:45,maxAge:45,once:true,
+/* --- 凡王之血线：bk1 45-60岁，需要陆建成不在队伍 --- */
+{id:'bk1',arc:'bloodking',stage:1,minAge:45,maxAge:60,once:true,weight:5,
  cond:function(){return !(getP('陆建成')&&getP('陆建成').alive&&getP('陆建成').side==='player');},
  text:'45岁那年，嘴唇不再沉默。',
  effect:function(){
@@ -1803,7 +1809,7 @@ var EVENTS=[
    story(['"我是君王。","君王不能软弱。"','他消失了。'],'zx');
  }},
 
-{id:'bk2',arc:'bloodking',stage:2,minAge:45,maxAge:MAXAGE,once:true,
+{id:'bk2',arc:'bloodking',stage:2,minAge:45,maxAge:MAXAGE,once:true,weight:6,
  cond:function(){return S.arcs.bloodking>=1;},
  text:'你站在陆标的墓前。',
  choices:[
@@ -1811,30 +1817,188 @@ var EVENTS=[
   {text:'💔 放弃。',effect:function(){setF('revenge_no');logLine('【结局·残生】你没有为陆标复仇。此后余生，你活在愧疚中。','danger');S.ended=true;}}
 ]},
 
-{id:'bk_boss',arc:'bloodking',stage:3,minAge:45,maxAge:MAXAGE,once:true,
+{id:'bk_boss',arc:'bloodking',stage:3,minAge:45,maxAge:MAXAGE,once:true,weight:10,
  cond:function(){return hasF('revenge_go');},
  text:'你走进海南中心校。教学楼已经空了。只剩九年级三班。',
  effect:function(){
    story(['门虚掩着。','你推开门。','里面——','一个没有形状的东西。','三班之主。','它的气息——','压得你几乎喘不过气。'],'blood');
    return ask([
      {text:'【猜测一】它的弱点在"三班"这个词本身',effect:function(){story(['"三班。"','空气静止了一瞬。','它虚弱了三分。'],'win');S.knownRules['三班之主']=true;return bossFight();}},
-     {text:'【猜测二】它的弱点是火焰',effect:function(){story(['没有用。','你的鬼群被吞噬了一半。'],'bad');applyMod({physic:-3});return bossFight();}},
-     {text:'【猜测三】它的弱点是光',effect:function(){story(['它甚至更亮了。'],'bad');applyMod({physic:-3});return bossFight();}},
-     {text:'【猜测四】它害怕任何人的名字',effect:function(){story(['它把那些名字一个一个念了回来。'],'blood');applyMod({physic:-5});return bossFight();}},
+     {text:'【猜测二】它的弱点是火焰',effect:function(){story(['没有用。','你的鬼群被吞噬了一半。'],'bad');applyMod({physic:-2});return bossFight();}},
+     {text:'【猜测三】它的弱点是光',effect:function(){story(['它甚至更亮了。'],'bad');applyMod({physic:-2});return bossFight();}},
+     {text:'【猜测四】它害怕任何人的名字',effect:function(){story(['它把那些名字一个一个念了回来。'],'blood');applyMod({physic:-3});return bossFight();}},
      {text:'【我有真名感知】直接看破',cond:function(){return hasT('trueName')||hasT('mindReader');},effect:function(){story(['"三班。"你轻声念出来。','它失能了。'],'win');S.knownRules['三班之主']=true;return bossFight();}}
    ]);
  }},
 
-{id:'item_umbrella',minAge:12,maxAge:MAXAGE,once:true,text:'你在旧货摊上看到一把黑色的旧伞。',effect:function(){story(['老板说：','"雨天别用别的伞。"'],'intel');addItem('blackUmbrella');}},
-{id:'item_dragon',minAge:25,maxAge:MAXAGE,once:true,cond:function(){return hasI('i_twin')||hasI('i_dshadow');},text:'你在三班门口捡到一片龙鳞。',effect:function(){story(['温热如初。','像是刚刚被撕下来。'],'god');addItem('dragonScale');}},
-{id:'item_note',minAge:14,maxAge:MAXAGE,once:true,text:'旧钟表店老板送了你一本笔记。',effect:function(){addItem('oldNote');}},
-{id:'item_pact',minAge:20,maxAge:MAXAGE,once:true,cond:function(){return S.ghosts.length>=1;},text:'你在梦里咬破手指，在一张看不见的契约上按下手印。',effect:function(){addItem('bloodPact');}},
-{id:'item_ring',minAge:28,maxAge:MAXAGE,once:true,cond:function(){return hasT('dragonBlood')||hasI('i_bg_dragon');},text:'你在梦里得到一枚龙纹戒指。',effect:function(){addItem('dragonRing');}},
-{id:'item_lantern',minAge:22,maxAge:MAXAGE,once:true,text:'你梦到一盏魂灯。',effect:function(){story(['"拿着它。","它会替你看见真相。"'],'epic');addItem('soulLantern');}},
-{id:'item_jade',minAge:30,maxAge:MAXAGE,once:true,cond:function(){return hasF('xu_active')&&!S.xuDefeated;},text:'你从一位老婆婆手中得到一块血玉坠。',effect:function(){story(['"戴上它。","你的伙伴就不会被迷惑。"'],'epic');addItem('jadePendant');}},
+/* ==== 道具 ==== */
+{id:'item_umbrella',minAge:12,maxAge:MAXAGE,once:true,weight:2,text:'你在旧货摊上看到一把黑色的旧伞。',effect:function(){story(['老板说：','"雨天别用别的伞。"'],'intel');addItem('blackUmbrella');}},
+{id:'item_dragon',minAge:25,maxAge:MAXAGE,once:true,weight:2,cond:function(){return hasI('i_twin')||hasI('i_dshadow');},text:'你在三班门口捡到一片龙鳞。',effect:function(){story(['温热如初。','像是刚刚被撕下来。'],'god');addItem('dragonScale');}},
+{id:'item_note',minAge:14,maxAge:MAXAGE,once:true,weight:2,text:'旧钟表店老板送了你一本笔记。',effect:function(){addItem('oldNote');}},
+{id:'item_pact',minAge:20,maxAge:MAXAGE,once:true,weight:2,cond:function(){return S.ghosts.length>=1;},text:'你在梦里咬破手指，在一张看不见的契约上按下手印。',effect:function(){addItem('bloodPact');}},
+{id:'item_ring',minAge:28,maxAge:MAXAGE,once:true,weight:2,cond:function(){return hasT('dragonBlood')||hasI('i_bg_dragon');},text:'你在梦里得到一枚龙纹戒指。',effect:function(){addItem('dragonRing');}},
+{id:'item_lantern',minAge:22,maxAge:MAXAGE,once:true,weight:2,text:'你梦到一盏魂灯。',effect:function(){story(['"拿着它。","它会替你看见真相。"'],'epic');addItem('soulLantern');}},
+{id:'item_jade',minAge:30,maxAge:MAXAGE,once:true,weight:2,cond:function(){return hasF('xu_active')&&!S.xuDefeated;},text:'你从一位老婆婆手中得到一块血玉坠。',effect:function(){story(['"戴上它。","你的伙伴就不会被迷惑。"'],'epic');addItem('jadePendant');}},
 
-/* ============ 老年结局群 ============ */
-{id:'old_60',minAge:60,maxAge:62,once:true,
+/* ============================================ */
+/* ★★★ 晚年剧情线（★全部新增） ★★★ */
+/* ============================================ */
+
+{id:'late_1',arc:'late',stage:1,minAge:55,maxAge:70,once:true,weight:6,
+ text:'你在公园长椅上，看见一个年轻人。',
+ effect:function(){
+   story(['他蹲在树下。'],'story');
+   story(['手里捏着一张黄纸。'],'story');
+   story(['纸上画着——一只鬼的眼睛。'],'story');
+   story(['"你是……"'],'story');
+   story(['"您是那位——"'],'story');
+   story(['他认出了你。'],'story');
+   addIntel('i_late_student','有个年轻人想拜你为师。',true);
+ },
+ choices:[
+  {text:'收他为徒',effect:function(){
+    setF('took_student');applyMod({intelli:1});
+    story(['"我教你。"','"但记住——"','"规则比善意更保命。"'],'good');
+  }},
+  {text:'拒绝',effect:function(){story(['"你找错人了。"','他低下头走了。'],'normal');}},
+  {text:'先观察',effect:function(){applyMod({intelli:1});story(['你看了他很久。','然后点点头。'],'normal');}}
+ ]},
+
+{id:'late_2',arc:'late',stage:2,minAge:60,maxAge:78,once:true,weight:6,
+ cond:function(){return hasF('took_student');},
+ text:'你的徒弟出师了。',
+ effect:function(){
+   story(['他站在你面前。'],'partner');
+   story(['三年前，他连一只哭脸鬼都怕。'],'partner');
+   story(['现在他手里——'],'partner');
+   story(['握着一只鬼。'],'partner');
+   story(['"师父。"'],'partner');
+   story(['"我要走了。"'],'partner');
+   story(['"去哪里？"'],'normal');
+   story(['"去海南中心校。"'],'partner');
+   story(['"去看看您说过的那个班。"'],'partner');
+   setF('student_departed');
+   unlockAchieve('old_sage');
+ }},
+
+{id:'late_3',arc:'late',stage:3,minAge:65,maxAge:85,once:true,weight:6,
+ cond:function(){return hasF('student_departed');},
+ text:'五年后，你收到一封信。',
+ effect:function(){
+   story(['信上只有一行字：'],'partner');
+   story(['"师父，我活着回来了。"'],'partner');
+   story(['"三班没有鬼了。"'],'partner');
+   story(['"因为我知道它怕什么。"'],'partner');
+   story(['"是您告诉我的。"'],'partner');
+   story(['"谢谢您。"'],'partner');
+   setF('student_returned');
+   applyMod({beauty:1,intelli:1});
+ }},
+
+{id:'late_rival_1',arc:'late_rival',stage:1,minAge:58,maxAge:78,once:true,weight:5,
+ cond:function(){return S.alive&&!S.ended&&!S.xuDefeated&&!S.xuSaved&&hasF('xu_active');},
+ text:'许云汐来了。',
+ effect:function(){
+   story(['她比你先老了。'],'xu');
+   story(['头发全白，穿了一身黑。'],'xu');
+   story(['"我来看看你。"'],'xu');
+   story(['"我快死了。"'],'xu');
+   story(['"你赢了。"'],'xu');
+   story(['"我从头到尾——都是错的。"'],'xu');
+   setF('xu_old_visit');
+ },
+ choices:[
+  {text:'原谅她',effect:function(){
+    S.xuSaved=true;
+    var xp=getP('许云汐');if(xp){xp.side='player';xp.alive=true;xp.trust=90;}
+    story(['"我原谅你。"','她哭了。','"谢谢你。"','"我终于——"','"可以睡个好觉了。"'],'good');
+    unlockAchieve('xu_saved');
+  }},
+  {text:'赶走她',effect:function(){
+    story(['"你走吧。"','"我不想看见你。"','她笑了。','"好。","那我走。"'],'danger');
+    var xp=getP('许云汐');if(xp)xp.alive=false;
+  }},
+  {text:'一句话都不说',effect:function(){
+    story(['你看着她。','她看着你。','很久。','她转身走了。','背影很小。'],'normal');
+  }}
+ ]},
+
+{id:'late_reunion',arc:'late_reunion',stage:1,minAge:62,maxAge:85,once:true,weight:5,
+ cond:function(){return S.alive&&!S.ended&&alivePlayerPartners().length>=1;},
+ text:'多年未见的老伙伴，来找你了。',
+ effect:function(){
+   var m=alivePlayerPartners();
+   var p=m[Math.floor(Math.random()*m.length)];
+   story(['他/她拄着拐杖。'],'partner');
+   story(['"还记得吗？"'],'partner');
+   story(['"那时候你说——"'],'partner');
+   story(['"规则比善意更保命。"'],'partner');
+   story(['"我现在才明白。"'],'partner');
+   p.trust=100;
+   story(['你笑了。'],'good');
+   story(['你给他/她倒了一杯茶。'],'good');
+ }},
+
+{id:'late_confess',arc:'late_confess',stage:1,minAge:68,maxAge:90,once:true,weight:4,
+ cond:function(){return S.alive&&!S.ended;},
+ text:'你开始写回忆录。',
+ effect:function(){
+   story(['第一页：','"我叫……"'],'old');
+   story(['你写下自己的名字。'],'old');
+   story(['然后你愣住了。'],'old');
+   story(['你想了很久。'],'old');
+   story(['最后你写：'],'old');
+   story(['"我这一生，杀过鬼，驭过鬼，爱过人，被人恨过。"'],'old');
+   story(['"我做过对的选择，也做过错的选择。"'],'old');
+   story(['"但我从来没有背叛过我的伙伴。"'],'good');
+   story(['"这就够了。"'],'good');
+   applyMod({intelli:1});
+ }},
+
+{id:'late_crisis',arc:'late_crisis',stage:1,minAge:66,maxAge:88,once:true,weight:4,
+ cond:function(){return S.alive&&!S.ended&&S.ghosts.length>=1;},
+ text:'你养了一辈子的鬼，开始失控。',
+ effect:function(){
+   story(['它们老了。'],'ghost');
+   story(['它们和你一样老。'],'ghost');
+   story(['它们的规律开始混乱。'],'ghost');
+   story(['一只哭脸鬼——'],'ghost');
+   story(['在你面前哭。'],'ghost');
+   story(['不是演戏。'],'ghost');
+   story(['是真的哭。'],'ghost');
+   story(['你忽然明白了——'],'ghost');
+   story(['它们也不想死。'],'ghost');
+ },
+ choices:[
+  {text:'安抚它们（体≥6）',cond:function(){return S.physic>=6;},
+   effect:function(){
+     story(['你伸出手。'],'ghost');
+     story(['它们围过来。'],'ghost');
+     story(['然后——','安静了。'],'good');
+     S.ghosts.forEach(function(g){g.power+=2;});
+     applyMod({beauty:1});
+   }},
+  {text:'放它们走',effect:function(){
+    story(['"走吧。"你说。'],'ghost');
+    story(['它们没有动。'],'ghost');
+    story(['"走吧。"'],'ghost');
+    story(['它们散了。'],'ghost');
+    S.ghosts=[];
+    applyMod({intelli:2});
+    renderStatus();
+  }},
+  {text:'强行压制',effect:function(){
+    if(S.physic>=8){
+      story(['你压住了它们。'],'ghost');
+    } else {
+      story(['你失败了。'],'danger');
+      applyMod({physic:-2});
+    }
+  }}
+ ]},
+
+/* ==== 老年结局群（★全部放宽窗口） ==== */
+{id:'old_60',minAge:60,maxAge:75,once:true,weight:6,
  cond:function(){return S.alive&&!S.ended;},
  text:'你60岁了。',
  effect:function(){
@@ -1848,7 +2012,7 @@ var EVENTS=[
    story(['有的死了。','有的走了。','有的还在。'],'old');
  }},
 
-{id:'old_75',minAge:75,maxAge:78,once:true,
+{id:'old_75',minAge:72,maxAge:88,once:true,weight:6,
  cond:function(){return S.alive&&!S.ended;},
  text:'你75岁了。',
  effect:function(){
@@ -1869,7 +2033,7 @@ var EVENTS=[
    }
  }},
 
-{id:'old_85',minAge:85,maxAge:87,once:true,
+{id:'old_85',minAge:82,maxAge:98,once:true,weight:6,
  cond:function(){return S.alive&&!S.ended;},
  text:'你85岁了。',
  effect:function(){
@@ -1879,8 +2043,8 @@ var EVENTS=[
    story(['你永远不会忘。'],'old');
  }},
 
-{id:'old_end_family',minAge:80,maxAge:95,once:true,
- cond:function(){return S.alive&&!S.ended&&alivePlayerPartners().length>=3;},
+{id:'old_end_family',minAge:75,maxAge:100,once:true,weight:4,
+ cond:function(){return S.alive&&!S.ended&&alivePlayerPartners().length>=2;},
  text:'你做了一个决定。',
  effect:function(){
    story(['你把你所有的情报整理成册。'],'good');
@@ -1907,7 +2071,7 @@ var EVENTS=[
    S.ended=true;
  }},
 
-{id:'old_end_alone',minAge:80,maxAge:95,once:true,
+{id:'old_end_alone',minAge:75,maxAge:100,once:true,weight:3,
  cond:function(){return S.alive&&!S.ended&&alivePlayerPartners().length===0;},
  text:'你80岁了。',
  effect:function(){
@@ -1930,9 +2094,9 @@ var EVENTS=[
    S.ended=true;
  }},
 
-{id:'old_end_sage',minAge:70,maxAge:90,once:true,
- cond:function(){return S.alive&&!S.ended&&S.ghosts.length>=3&&hasI('i_t1');},
- text:'70岁那年，你开始教人。',
+{id:'old_end_sage',minAge:68,maxAge:95,once:true,weight:3,
+ cond:function(){return S.alive&&!S.ended&&(S.ghosts.length>=2||hasF('student_returned'))&&hasI('i_t1');},
+ text:'你开始教人。',
  effect:function(){
    story(['你把你的知识——'],'good');
    story(['你的经验——'],'good');
@@ -1951,101 +2115,101 @@ var EVENTS=[
    S.ended=true;
  }},
 
-{id:'old_end_legend',minAge:75,maxAge:100,once:true,
- cond:function(){return S.alive&&!S.ended&&myPower()>=200;},
- text:'75岁那年——',
+{id:'old_end_legend',minAge:72,maxAge:100,once:true,weight:3,
+ cond:function(){return S.alive&&!S.ended&&myPower()>=150;},
+ text:'你的名字传遍了整座城市。',
  effect:function(){
-   story(['你的名字传遍了整座城市。'],'win');
    story(['"驭鬼者之王。"'],'win');
    story(['他们这么叫你。'],'win');
    story(['孩子们在街上传唱你的故事。'],'win');
    story(['老人们以你为榜样。'],'win');
    story(['那些藏在暗处的鬼——'],'win');
    story(['听到你的名字就——'],'win');
-      story(['退避三舍。'],'win');
-      story(['你的一生——'],'win');
-      story(['成为了一段传说。'],'win');
-      story(['而传说——'],'win');
-      story(['永远不会死。'],'win');
-      logLine('🏆【结局·传说终章】你的故事成为传说。后世每一个驭鬼者，都会记住你的名字。','win');
-      unlockAchieve('old_legend');
-      S.ended=true;
-    }},
-{id:'old_end_king',minAge:65,maxAge:85,once:true,
-  cond:function(){return S.alive&&!S.ended&&S.beauty>=9&&S.intelli>=9&&S.physic>=9&&S.family>=9;},
-  text:'你65岁了。',
-  effect:function(){
-    story(['你站在海南中心校的最高处。'],'god');
-    story(['你回头看了一眼这座城市。'],'god');
-    story(['这座城市——'],'god');
-    story(['重启过千百次。'],'god');
-    story(['但你——'],'god');
-    story(['是第一个把它们都记下来的人。'],'god');
-    story(['你把手按在墙上。'],'god');
-    story(['一道光——'],'god');
-    story(['从你的掌心流向整座城市。'],'god');
-    story(['从今以后——'],'god');
-    story(['轮回不再。'],'god');
-    story(['因为——'],'god');
-    story(['这个世界，是你重启的。'],'god');
-    story(['你成为了新的"优呵"。'],'god');
-    story(['但你不会孤独。'],'god');
-    story(['因为你的伙伴——'],'partner');
-    story(['都还在。'],'partner');
-    logLine('🏆【隐藏结局·万王之王】你集齐了所有的真相、所有的力量、所有的伙伴。你超越了优呵，成为了真正的万王之王。','win');
-    unlockAchieve('hidden_king');
-    S.hiddenEnd='king';
-    S.ended=true;
-  }},
-{id:'old_end_redemption',minAge:70,maxAge:90,once:true,
-  cond:function(){return S.alive&&!S.ended&&S.xuSaved===true;},
-  text:'70岁那年，许云汐来了。',
-  effect:function(){
-    story(['她带着一个孩子。'],'xu');
-    story(['"这是我儿子。"'],'xu');
-    story(['她笑得——'],'xu');
-    story(['不像以前了。'],'xu');
-    story(['"谢谢你救我。"'],'xu');
-    story(['"谢谢你——"'],'xu');
-    story(['"没有杀我。"'],'xu');
-    story(['你把孩子抱起来。'],'good');
-    story(['"他叫什么？"'],'good');
-    story(['"陆标。"'],'xu');
-    story(['——她给孩子起的名字。'],'xu');
-    story(['你愣住了。'],'good');
-    story(['很久。'],'good');
-    story(['然后你笑了。'],'good');
-    story(['"好名字。"'],'good');
-    logLine('🏆【结局·救赎】你救下了许云汐。多年后，她带着以陆标为名的孩子来看你。善恶终有报，人间值得。','win');
-    S.ended=true;
-  }},
-{id:'battle_final',arc:'final',stage:4,minAge:45,maxAge:MAXAGE,once:true,
-  cond:function(){return hasF('ch_go')&&(hasF('path_blood')||hasF('path_together'));},
-  text:'决战的钟声敲响。',
-  effect:function(){resolveFinal();}},
-{id:'xu_end_revenge',minAge:70,maxAge:95,once:true,
-  cond:function(){return S.alive&&!S.ended&&S.xuDefeated;},
-  text:'你击败了许云汐。',
-  effect:function(){
-    story(['此后的几十年——'],'good');
-    story(['你安稳地活着。'],'good');
-    story(['你再也没有梦到过那些鬼。'],'good');
-    story(['再也没有人半夜喊你的名字。'],'good');
-    logLine('🏆【结局·不留遗憾】你完成了对许云汐的复仇。这个世界，再也没有你的敌人。你安然老死。','win');
-    unlockAchieve('no_regret');
-    S.ended=true;
-  }},
-{id:'nend',minAge:95,maxAge:110,once:true,
-  cond:function(){return S.alive&&!S.ended;},
-  text:'你走完了平淡且诡异的一生。',
-  effect:function(){logLine('【平安结局】','win');S.ended=true;}}
+   story(['退避三舍。'],'win');
+   story(['你的一生——'],'win');
+   story(['成为了一段传说。'],'win');
+   story(['而传说——'],'win');
+   story(['永远不会死。'],'win');
+   logLine('🏆【结局·传说终章】你的故事成为传说。后世每一个驭鬼者，都会记住你的名字。','win');
+   unlockAchieve('old_legend');
+   S.ended=true;
+ }},
+
+{id:'old_end_king',minAge:65,maxAge:95,once:true,weight:2,
+ cond:function(){return S.alive&&!S.ended&&S.beauty>=8&&S.intelli>=8&&S.physic>=8&&S.family>=8;},
+ text:'你老了。',
+ effect:function(){
+   story(['你站在海南中心校的最高处。'],'god');
+   story(['你回头看了一眼这座城市。'],'god');
+   story(['这座城市——'],'god');
+   story(['重启过千百次。'],'god');
+   story(['但你——'],'god');
+   story(['是第一个把它们都记下来的人。'],'god');
+   story(['你把手按在墙上。'],'god');
+   story(['一道光——'],'god');
+   story(['从你的掌心流向整座城市。'],'god');
+   story(['从今以后——'],'god');
+   story(['轮回不再。'],'god');
+   story(['因为——'],'god');
+   story(['这个世界，是你重启的。'],'god');
+   story(['你成为了新的"优呵"。'],'god');
+   story(['但你不会孤独。'],'god');
+   story(['因为你的伙伴——'],'partner');
+   story(['都还在。'],'partner');
+   logLine('🏆【隐藏结局·万王之王】你集齐了所有的真相、所有的力量、所有的伙伴。你超越了优呵，成为了真正的万王之王。','win');
+   unlockAchieve('hidden_king');
+   S.hiddenEnd='king';
+   S.ended=true;
+ }},
+
+{id:'old_end_redemption',minAge:68,maxAge:95,once:true,weight:3,
+ cond:function(){return S.alive&&!S.ended&&S.xuSaved===true;},
+ text:'70岁那年，许云汐来了。',
+ effect:function(){
+   story(['她带着一个孩子。'],'xu');
+   story(['"这是我儿子。"'],'xu');
+   story(['她笑得——'],'xu');
+   story(['不像以前了。'],'xu');
+   story(['"谢谢你救我。"'],'xu');
+   story(['"谢谢你——"'],'xu');
+   story(['"没有杀我。"'],'xu');
+   story(['你把孩子抱起来。'],'good');
+   story(['"他叫什么？"'],'good');
+   story(['"陆标。"'],'xu');
+   story(['——她给孩子起的名字。'],'xu');
+   story(['你愣住了。'],'good');
+   story(['很久。'],'good');
+   story(['然后你笑了。'],'good');
+   story(['"好名字。"'],'good');
+   logLine('🏆【结局·救赎】你救下了许云汐。多年后，她带着以陆标为名的孩子来看你。善恶终有报，人间值得。','win');
+   S.ended=true;
+ }},
+
+{id:'xu_end_revenge',minAge:68,maxAge:98,once:true,weight:3,
+ cond:function(){return S.alive&&!S.ended&&S.xuDefeated;},
+ text:'你击败了许云汐。',
+ effect:function(){
+   story(['此后的几十年——'],'good');
+   story(['你安稳地活着。'],'good');
+   story(['你再也没有梦到过那些鬼。'],'good');
+   story(['再也没有人半夜喊你的名字。'],'good');
+   logLine('🏆【结局·不留遗憾】你完成了对许云汐的复仇。这个世界，再也没有你的敌人。你安然老死。','win');
+   unlockAchieve('no_regret');
+   S.ended=true;
+ }},
+
+{id:'nend',minAge:95,maxAge:120,once:true,weight:2,
+ cond:function(){return S.alive&&!S.ended;},
+ text:'你走完了平淡且诡异的一生。',
+ effect:function(){logLine('【平安结局】','win');S.ended=true;}}
 ];
 
 /* ============ 三班之主最终战 ============ */
 function bossFight(){
   var mp=myPower();
   story(['⚔️ 战斗开始','【我方战力】'+mp+' ｜ 三班之主 180'],'fight');
-  if(mp>=180){
+  /* ★ 阈值从 180/150 降到 150/120 */
+  if(mp>=150){
     story(['你的鬼群铺天盖地。'],'fight');
     story(['三班之主没有形状——'],'win');
     story(['但你已识破它的规则。'],'win');
@@ -2061,10 +2225,10 @@ function bossFight(){
     addIntel('i_kill_zx','杀死张响的方法：让他撕毁所有契约。',true);
     setF('boss_done');
     return bkFinal();
-  } else if(mp>=150){
+  } else if(mp>=120){
     story(['一场惨烈的战斗。'],'fight');
     story(['你损失了一半的鬼力。'],'danger');
-    applyMod({physic:-5});
+    applyMod({physic:-4});
     story(['但你念出"三班"。'],'rule');
     story(['它散了。'],'win');
     story(['黑板上显出两行字——'],'blood');
@@ -2098,7 +2262,8 @@ function bkFinal(){
   story(['他们腾空而起。'],'blood');
   story(['龙焰铺天盖地。'],'blood');
   story(['【战力对比】我方 '+mp+' ｜ 龙王 999'],'fight');
-  if(mp>=130){
+  /* ★ 阈值从 130 降到 100 */
+  if(mp>=100){
     story(['你没有躲。'],'fight');
     story(['你冲进龙焰里。'],'fight');
     story(['龙语短剑——'],'win');
@@ -2156,7 +2321,7 @@ function bkFinal(){
   }
 }
 
-/* ============ 随机事件池 ============ */
+/* ============ 重复事件池 ============ */
 var RP=[
 {id:'rp1',repeatable:true,minAge:5,maxAge:22,weight:1,
  variants:[
@@ -2164,7 +2329,7 @@ var RP=[
   {text:'图书馆旧报里，有一页被涂黑。',effect:function(){addIntel('i_r2','有人在系统性掩盖。',true);}},
   {text:'你在课桌里发现一张纸条。',effect:function(){applyMod({intelli:1});}}
 ]},
-{id:'rp_street',repeatable:true,minAge:5,maxAge:MAXAGE,weight:1,
+{id:'rp_street',repeatable:true,minAge:5,maxAge:59,weight:1,
  variants:[
   {text:'邻居家传出奇怪声响。',effect:function(){}},
   {text:'路灯下有个看不清面容的人影。',effect:function(){applyMod({physic:1});}},
@@ -2172,7 +2337,7 @@ var RP=[
   {text:'你在街角看到了智板。',effect:function(){applyMod({intelli:1});}},
   {text:'一个穿黑衣的男人和你擦肩而过。',effect:function(){addIntel('i_r_black','黑衣人的事你听说过。',true);}}
 ]},
-{id:'rp_study',repeatable:true,minAge:10,maxAge:60,weight:1,
+{id:'rp_study',repeatable:true,minAge:10,maxAge:59,weight:1,
  variants:[
   {text:'你在旧书店翻到一本《驭鬼杂谈》。',effect:function(){applyMod({intelli:1});}},
   {text:'你跟着一位老人学了一套拳。',effect:function(){applyMod({physic:1});}},
@@ -2180,7 +2345,7 @@ var RP=[
   {text:'你抄了一晚上的旧书。',effect:function(){applyMod({intelli:1});}},
   {text:'你练了一套心法。',effect:function(){applyMod({physic:1});}}
 ]},
-{id:'rp_partner',repeatable:true,minAge:12,maxAge:MAXAGE,weight:0.8,
+{id:'rp_partner',repeatable:true,minAge:12,maxAge:59,weight:0.8,
  cond:function(){return alivePlayerPartners().length>0;},
  variants:[
   {text:'你和伙伴聊了很久。',effect:function(){var m=alivePlayerPartners();if(m.length)m[Math.floor(Math.random()*m.length)].trust+=5;}},
@@ -2206,7 +2371,7 @@ var RP=[
   {text:'你梦到许云汐站在你身后。',effect:function(){}},
   {text:'你梦到一条龙在天上飞。',effect:function(){addIntel('i_dream_dragon','龙真实存在。',true);}}
 ]},
-{id:'rp_training',repeatable:true,minAge:15,maxAge:60,weight:0.8,
+{id:'rp_training',repeatable:true,minAge:15,maxAge:59,weight:0.8,
  variants:[
   {text:'你在深夜独自练习驭鬼。',effect:function(){applyMod({physic:1});}},
   {text:'你研究了三天三夜的契约书。',effect:function(){applyMod({intelli:1});}},
@@ -2216,7 +2381,28 @@ var RP=[
 ]}
 ];
 
-var ALL=EVENTS.concat(RP).concat(GHOST_ENCOUNTERS);
+/* ★★★ 老年专属重复事件池 ★★★ */
+var RP_OLD=[
+{id:'rpo_1',repeatable:true,minAge:60,maxAge:MAXAGE,weight:2,
+ variants:[
+  {text:'你在公园里喂鸽子。',effect:function(){applyMod({intelli:1});}},
+  {text:'邻居家的小孩跑来听你讲故事。',effect:function(){applyMod({beauty:1});}},
+  {text:'你梦见年轻时的伙伴。',effect:function(){var m=alivePlayerPartners();if(m.length)m[0].trust+=5;}},
+  {text:'你在阳台上晒了一下午太阳。',effect:function(){applyMod({physic:1});}},
+  {text:'一个陌生年轻人来问你问题。',effect:function(){applyMod({intelli:1});}},
+  {text:'你翻出旧照片。',effect:function(){applyMod({beauty:1});}},
+  {text:'你养了一只猫。',effect:function(){applyMod({beauty:1});}},
+  {text:'你去陆标的墓前坐了一天。',effect:function(){applyMod({intelli:1});}},
+  {text:'老同学聚会，只有三个人来了。',effect:function(){}},
+  {text:'你在梦里又见到了许云汐。',effect:function(){}},
+  {text:'你写了一封没人收的信。',effect:function(){applyMod({beauty:1});}}
+]}
+];
+
+RP.forEach(function(e){e._isRP=true;});
+RP_OLD.forEach(function(e){e._isRPOld=true;});
+
+var ALL=EVENTS.concat(RP).concat(RP_OLD).concat(GHOST_ENCOUNTERS);
 
 /* ============ 最终决战结算 ============ */
 function resolveFinal(){
@@ -2259,10 +2445,10 @@ function resolveFinal(){
   if(hasF('path_together')){
     var yk=getP('杨开冬');
     var ykOK=yk&&yk.alive&&yk.side==='player';
-    var gOK=S.ghosts.length>=3;
+    var gOK=S.ghosts.length>=2;/* ★ 从 3 降到 2 */
     if(!ykOK){die('杨开冬不在。');return;}
     if(!gOK){die('你的鬼不够多。');return;}
-    if(tp<100){die('力量差距太大。');return;}
+    if(tp<80){die('力量差距太大。');return;}/* ★ 从 100 降到 80 */
     story(['优呵的恶意如山。'],'youhe');
     story(['每一秒——'],'youhe');
     story(['都有人在倒下。'],'youhe');
@@ -2305,7 +2491,7 @@ function resolveFinal(){
   die('你的力量不足以撼动优呵。');
 }
 
-/* ============ 事件过滤 ============ */
+/* ============ 事件过滤与优先级 ============ */
 function checkReq(e,usedArcs){
   if(e.once&&S.usedEvents[e.id])return false;
   if(S.age<e.minAge||S.age>e.maxAge)return false;
@@ -2318,13 +2504,29 @@ function checkReq(e,usedArcs){
 
 function pick(usedArcs,usedYear,usedGlobal){
   try{
+    var isOld=S.age>=60;
     var pool=[];
     ALL.forEach(function(e){
       if(usedYear&&usedYear[e.id])return;
+      if(isOld&&e._isRP)return;
+      if(!isOld&&e._isRPOld)return;
       if(e.repeatable&&usedGlobal&&usedGlobal[e.id]&&(S.age-usedGlobal[e.id])<10)return;
       if(checkReq(e,usedArcs))pool.push(e);
     });
     if(!pool.length)return null;
+
+    /* ★ arc 优先：正在进行的 arc 优先推进 */
+    var urgent=[];
+    pool.forEach(function(e){
+      if(!e.arc||!e.stage)return;
+      var cur=S.arcs[e.arc]||0;
+      if(e.stage===cur+1)urgent.push(e);
+    });
+    if(urgent.length && Math.random()<0.55){
+      urgent.sort(function(a,b){return (a.minAge||0)-(b.minAge||0);});
+      return urgent[Math.floor(Math.random()*Math.min(2,urgent.length))];
+    }
+
     var isGM=hasT('ghostMagnet');
     var bornG=hasT('bornGhost');
     var ghostPool=pool.filter(function(e){return e._isGhost;});
@@ -2336,9 +2538,16 @@ function pick(usedArcs,usedYear,usedGlobal){
     else if(normalPool.length)arr=normalPool;
     else if(ghostPool.length)arr=ghostPool;
     else arr=pool;
-    var total=arr.reduce(function(a,e){return a+(e.weight||1);},0);
+
+    /* ★ urgent 权重 ×5（避免关键剧情被日常事件挤掉） */
+    var urgentSet={};
+    urgent.forEach(function(u){urgentSet[u.id]=true;});
+    var total=arr.reduce(function(a,e){return a+(e.weight||1)*(urgentSet[e.id]?5:1);},0);
     var rr=Math.random()*total;
-    for(var i=0;i<arr.length;i++){var w=arr[i].weight||1;rr-=w;if(rr<=0)return arr[i];}
+    for(var i=0;i<arr.length;i++){
+      var w=(arr[i].weight||1)*(urgentSet[arr[i].id]?5:1);
+      rr-=w;if(rr<=0)return arr[i];
+    }
     return arr[arr.length-1];
   }catch(err){return null;}
 }
@@ -2382,7 +2591,8 @@ function gameLoop(){
       try{
         if(!S.alive||S.ended||S.age>=120){res();return;}
         S.age++;renderStatus();
-        if(S.age>85&&Math.random()<0.15){story(['你在睡梦中安然离世。']);S.alive=false;res();return;}
+        /* ★ 死亡年龄从 85 岁延后到 90 岁 */
+        if(S.age>90&&Math.random()<0.08){story(['你在睡梦中安然离世。']);S.alive=false;res();return;}
         var hasEvent=Math.random()<0.65;
         if(!hasEvent){
           logLine('【'+S.age+'岁】这一年平平安安，什么都没有发生。','good');
@@ -2407,6 +2617,18 @@ function gameLoop(){
       if(!S.alive||S.ended){res();return;}
       partnerEffect();checkBetray();xuRecruit();
       if(Math.random()<0.4)xuInfl();
+
+      /* ★★★ 老年渐进衰老 ★★★ */
+      if(S.age>=60&&S.age<=100){
+        if(S.age%3===0)applyMod({physic:-1});
+        if(S.age%5===0)applyMod({intelli:1});
+        if(S.age>=80&&S.age%4===0)applyMod({beauty:-1});
+        if(S.age>=90&&Math.random()<0.15){
+          story(['你记不清昨天的事了。'],'old');
+          applyMod({intelli:-1});
+        }
+      }
+
       if(S.alive&&S.ghosts.length>=maxGhosts()&&Math.random()<0.05){
         if(hasT('soulAnchor')){removeT('soulAnchor');logLine('【镇魂】挡下复苏！','good');}
         else if(S.physic<=3){die('多只厉鬼同时复苏，你被撕碎。');}
