@@ -1,3341 +1,964 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>规则怪谈·驭鬼者与龙王·终章</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0a0a10;color:#dcdce6;font-family:system-ui,sans-serif;max-width:860px;margin:0 auto;padding:12px 12px 60px;}
-.box{background:#15151f;padding:14px 16px;border-radius:10px;margin-bottom:10px;border:1px solid #2a2a3a;}
-h2{color:#c99eff;font-size:18px;margin-bottom:6px;}
-button{padding:9px 16px;border:none;border-radius:6px;background:#6b4bd0;color:#fff;font-size:15px;margin:3px 4px 3px 0;cursor:pointer;font-family:inherit;transition:background .15s;}
-button:hover:not(:disabled){background:#7e5ce8;}
-button:disabled{background:#2c2c3a;color:#6a6a7a;cursor:not-allowed;}
-input[type=number]{width:62px;padding:6px;font-size:15px;background:#20202e;color:#fff;border:1px solid #3d3d52;border-radius:4px;text-align:center;}
-.row{display:flex;align-items:center;gap:8px;margin:7px 0;flex-wrap:wrap;}
-.row label{width:60px;color:#a8a8bd;font-size:14px;}
-.tip{font-size:12px;color:#7a7a92;line-height:1.6;}
-#log{min-height:240px;max-height:460px;overflow-y:auto;line-height:1.85;font-size:14.5px;padding-right:6px;}
-#log>div{margin:2px 0;}
-.good{color:#7dff9b;}.bad{color:#ff7a7a;}.god{color:#ffdf6e;}.epic{color:#ffb3ff;font-weight:700;}
-.normal{color:#c9c9d8;}.dead{color:#ff5252;font-weight:700;}
-.win{color:#3dffb0;font-weight:700;font-size:15px;}
-.intel{color:#a0e5ff;}.ghost{color:#c58aff;}.partner{color:#ffb37a;}
-.xu{color:#ff8ac7;font-weight:700;}.danger{color:#ff9d5c;}.blood{color:#c00020;font-weight:700;font-size:15px;}
-.star{color:#ffe066;font-weight:700;}.zx{color:#ffcc44;font-weight:700;}
-.story{color:#c8b8ff;}.youhe{color:#ff4444;font-weight:700;}
-.rule{color:#88ffe0;font-weight:700;}.fight{color:#ffb060;font-weight:700;}
-.charm{color:#ff8fd0;font-weight:700;}.old{color:#e0c8a0;}
-.talent{color:#ffcc44;font-weight:700;}
-.talent-god{color:#ff8fd0;font-weight:700;}
-#statusBar{font-size:12.5px;color:#9aa0b5;line-height:1.9;}
-#statusBar b{color:#c9c9d8;font-weight:600;}
-#choiceBox{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #4a4a66;}
-#choiceBox .title{color:#c9a9ff;font-size:14px;font-weight:600;margin-bottom:8px;}
-.choice-btn{display:block;width:100%;text-align:left;background:#28284a;color:#dfe0ff;padding:11px 13px;margin:7px 0;border-radius:6px;font-size:14.5px;line-height:1.55;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .15s;}
-.choice-btn:hover:not(:disabled){background:#3a3a6a;border-color:#7e5ce8;}
-.choice-btn:disabled{opacity:.45;cursor:not-allowed;background:#1a1a26;}
-.choice-btn.action{background:#1e3a2e;color:#9fffa8;border:1px solid #2e6a4a;}
-.choice-btn.action:hover:not(:disabled){background:#2a5a44;border-color:#7dff9b;}
-.choice-btn.mainline{background:#3a1e3a;color:#ffb3ff;border:1px solid #6a3a6a;}
-.choice-btn.mainline:hover:not(:disabled){background:#5a2a5a;border-color:#ffb3ff;}
-.choice-btn.danger{background:#3a1a1a;color:#ff8a8a;border:1px solid #6a2a2a;}
-.choice-btn.danger:hover:not(:disabled){background:#5a2a2a;border-color:#ff5252;}
-#achievePopup{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a3a7a,#2a2a4a);border:2px solid #ffe066;border-radius:10px;padding:14px 22px;box-shadow:0 0 30px rgba(255,224,102,.5);z-index:9999;display:none;color:#ffe066;font-size:15px;font-weight:700;text-align:center;animation:achPulse .5s ease;max-width:90vw;}
-@keyframes achPulse{0%{transform:translateX(-50%) scale(.7);opacity:0;}100%{transform:translateX(-50%) scale(1);opacity:1;}}
-#achievePopup .sub{color:#c8b8ff;font-size:12px;font-weight:400;margin-top:4px;}
-#achieveCount{color:#ffe066;font-weight:700;}
-.talent-chip{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;display:inline-block;}
-.talent-chip.normal{background:#2a2a3a;color:#c9c9d8;border:1px solid #3a3a4a;}
-.talent-chip.rare{background:#1e2a4a;color:#7db3ff;border:1px solid #2e4a7a;}
-.talent-chip.epic{background:#3a1e5a;color:#c58aff;border:1px solid #5a3a8a;}
-.talent-chip.god{background:#4a1e2a;color:#ffdf6e;border:1px solid #7a3a4a;box-shadow:0 0 8px rgba(255,223,110,.3);}
-.stat-bar{display:inline-block;width:100px;height:8px;background:#1a1a26;border-radius:4px;overflow:hidden;vertical-align:middle;margin:0 6px;}
-.stat-bar>span{display:block;height:100%;transition:width .3s;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝖘𝖚𝖓𝖘𝖊𝖙 | 个人主页</title>
+    <style>
+        /* ================= 基础设置 ================= */
+        :root {
+            --bg-color: #050505;
+            --gold: #d4af37;
+            --amber: #ffb300;
+            --text-color: #e0e0e0;
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* 隐藏默认鼠标 */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            user-select: none;
+        }
+
+        /* ================= 背景与特效层 ================= */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ================= 可拖拽的月亮 ================= */
+        .moon {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            z-index: 50; /* 层级高于主内容 */
+            background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd54f 40%, #ffb300 80%, #ff8f00 100%);
+            box-shadow: 
+                0 0 50px 15px rgba(255, 179, 0, 0.3),
+                0 0 100px 40px rgba(255, 179, 0, 0.1),
+                inset -20px -20px 40px rgba(0, 0, 0, 0.7),
+                inset 10px 10px 20px rgba(255, 255, 255, 0.5);
+            cursor: grab;
+            touch-action: none;
+            transition: box-shadow 0.3s, transform 0.3s;
+            transform: scale(1);
+            top: 50px;
+            left: 50px;
+        }
+
+        /* 月亮表面的陨石坑纹理 */
+        .moon::before {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 20%;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.12);
+            box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.4);
+        }
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 60%;
+            left: 65%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.15);
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .moon-crater {
+            position: absolute;
+            top: 65%;
+            left: 25%;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 拖拽时的月亮状态反馈 */
+        .moon.dragging {
+            transform: scale(1.08);
+            box-shadow: 
+                0 0 80px 25px rgba(255, 179, 0, 0.5),
+                0 0 150px 60px rgba(255, 179, 0, 0.2),
+                inset -20px -20px 40px rgba(0, 0, 0, 0.7),
+                inset 10px 10px 20px rgba(255, 255, 255, 0.5);
+            cursor: grabbing;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        /* ================= 音乐播放器 (精简版) ================= */
+        .music-player {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .music-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .music-btn:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        .music-icon {
+            font-size: 1.3rem;
+            transition: transform 0.3s;
+        }
+
+        /* 播放时唱片旋转 */
+        .music-btn.playing .music-icon {
+            animation: spin 3s linear infinite;
+        }
+
+        /* 播放时的发光效果 */
+        .music-btn.playing {
+            border-color: var(--amber);
+            box-shadow: 0 0 20px rgba(255, 179, 0, 0.5);
+            color: var(--amber);
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ================= 自定义鼠标指针 ================= */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.9) 0%, rgba(212, 175, 55, 0) 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            transition: width 0.2s, height 0.2s;
+        }
+        body.moon-hover .cursor {
+            width: 40px;
+            height: 40px;
+        }
+
+        .trail-particle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--amber);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            animation: fadeOut 0.8s ease-out forwards;
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) translateY(20px) scale(0.2); }
+        }
+
+        /* ================= 主容器 ================= */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            perspective: 1000px;
+            pointer-events: none;
+        }
+        
+        .avatar-wrapper, .info-section, .btn, .qq-card {
+            pointer-events: auto;
+        }
+
+        /* ================= 头像区域 ================= */
+        .avatar-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2), inset 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 2;
+            filter: contrast(1.1) brightness(0.9);
+            transition: filter 0.3s ease;
+        }
+
+        .avatar:hover {
+            filter: contrast(1.2) brightness(1.1) drop-shadow(0 0 15px var(--amber));
+        }
+
+        .glow-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, var(--gold), transparent, var(--amber), transparent);
+            animation: rotate 4s linear infinite;
+            z-index: 1;
+            filter: blur(15px);
+            opacity: 0.6;
+        }
+
+        /* ================= 信息区域 ================= */
+        .info-section {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            transform: translateZ(30px);
+        }
+
+        .name-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: transparent;
+            background: linear-gradient(90deg, #fff, var(--gold), var(--amber), var(--gold));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+            letter-spacing: 5px;
+            font-family: 'Times New Roman', serif;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            min-height: 60px;
+        }
+
+        /* ================= 按钮组 ================= */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn {
+            position: relative;
+            padding: 12px 28px;
+            border-radius: 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(212, 175, 55, 0.1);
+            transform: translateY(-4px);
+            color: var(--gold);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn:hover::before { left: 100%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 179, 0, 0.1));
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--gold), var(--amber));
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 179, 0, 0.6);
+        }
+
+        /* QQ 卡片 */
+        .qq-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 12px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .qq-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .qq-label {
+            color: var(--gold);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .qq-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .toast {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show { opacity: 1; }
+
+        /* ================= 模态框通用样式 ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            border: 1px solid var(--gold);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.2);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-content h2 {
+            color: var(--gold);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+        }
+
+        .modal-content p {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* ================= 游戏选择菜单特有样式 ================= */
+        .game-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .game-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-option::after {
+            content: '▶';
+            color: var(--gold);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .game-option:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            transform: translateX(5px);
+        }
+
+        .game-option:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .game-tag {
+            color: var(--amber);
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        .close-btn {
+            padding: 8px 25px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: #aaa;
+            border-radius: 5px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .close-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        /* ================= 全局提示框 ================= */
+        .global-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 25px 40px;
+            color: #fff;
+            text-align: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+            backdrop-filter: blur(15px);
+        }
+        
+        .global-toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .global-toast h3 {
+            color: var(--amber);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+        }
+
+        .global-toast .group-num {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 2px;
+            margin: 10px 0;
+            text-shadow: 0 0 10px var(--amber);
+        }
+
+        /* ================= 动画 ================= */
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .name-title { font-size: 2.2rem; }
+            .avatar-wrapper { width: 180px; height: 180px; }
+            .container { gap: 20px; }
+            * { cursor: auto; } 
+            .cursor, .trail-particle { display: none; }
+            .action-buttons { flex-direction: column; width: 100%; max-width: 250px; }
+            .modal-content { padding: 25px; }
+            .game-option { padding: 12px 15px; font-size: 1rem; }
+            .global-toast { width: 90%; padding: 20px; }
+            .moon { width: 90px; height: 90px; top: 20px; left: 20px; }
+            .music-player { top: 20px; right: 20px; }
+            .music-btn { width: 40px; height: 40px; }
+        }
+    </style>
 </head>
 <body>
 
-<div id="achievePopup"></div>
+    <div class="cursor" id="cursor"></div>
+    <canvas id="particle-canvas"></canvas>
 
-<div class="box" id="setupBox">
-  <h2>👁️ 规则怪谈·驭鬼者与龙王·终章</h2>
-  <p class="tip">每只鬼都有杀人规律。每一次选择都在改变你的命运。</p>
-  <p class="tip" style="color:#ffe066;margin-top:6px;">🏆 已解锁成就：<span id="achieveCount">0</span>/25</p>
-  <div class="row"><label>颜值</label><input type="number" id="beauty" min="0" max="10" value="0"></div>
-  <div class="row"><label>智力</label><input type="number" id="intelli" min="0" max="10" value="0"></div>
-  <div class="row"><label>体质</label><input type="number" id="physic" min="0" max="10" value="0"></div>
-  <div class="row"><label>家境</label><input type="number" id="family" min="0" max="10" value="0"></div>
-  <p style="margin:8px 0;">剩余点数：<b id="remain" style="color:#9fffa8;">20</b></p>
-  <p class="tip" style="color:#c58aff;">属性影响天赋池。≥6 触发对应属性天赋；≤3 移除对应属性天赋；=10 必出对应传说天赋。</p>
-  <button type="button" id="randomBtn" style="background:#3a8f6b;">🎲 随机分配20点</button>
-  <button type="button" id="rollBtn">🎲 抽取3个怪谈天赋</button>
-  <div id="talentShow" style="margin:8px 0;"></div>
-  <button type="button" id="startBtn" disabled>🔁 开启怪谈人生</button>
-</div>
+    <!-- 音乐播放器 (精简版，一键播放/暂停) -->
+    <div class="music-player">
+        <div class="music-btn" id="musicBtn" title="播放/暂停">
+            <span class="music-icon">🎵</span>
+        </div>
+        <!-- 默认加载 music.FLAC -->
+        <audio id="audioPlayer" loop src="music.mp3"></audio>
+    </div>
 
-<div class="box" id="statusBox" style="display:none;">
-  <div class="row" style="margin:0;">
-    <span>年龄：<b id="ageText" style="color:#c99eff;">0</b> 岁</span>
-    <span style="margin-left:14px;">状态：<b id="aliveText" style="color:#7dff9b;">存活</b></span>
-    <span style="margin-left:14px;">流派：<b id="routeText" style="color:#7a7a92;">未定</b></span>
-  </div>
-  <div id="statusBar"></div>
-</div>
+    <!-- 可拖拽的鎏金月亮 -->
+    <div class="moon" id="moon">
+        <div class="moon-crater"></div>
+    </div>
 
-<div class="box" id="mainBox" style="display:none;">
-  <div id="log"></div>
-  <div id="choiceBox">
-    <div class="title" id="choiceTitle">⚡ 抉择</div>
-    <div id="choiceList"></div>
-  </div>
-</div>
+    <div class="container">
+        <!-- 头像区域 -->
+        <div class="avatar-wrapper" id="avatar-wrapper">
+            <div class="glow-ring"></div>
+            <img src="avatar.jpg" alt="Sunset Avatar" class="avatar" onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=sunset&backgroundColor=111111'">
+        </div>
 
-<div class="box" id="ctrlBox" style="display:none;display:flex;gap:8px;flex-wrap:wrap;">
-  <button type="button" id="restartBtn">🔄 重新轮回</button>
-  <button type="button" id="skipBtn" style="background:#444;">⏩ 跳过等待</button>
-</div>
+        <!-- 信息区域 -->
+        <div class="info-section">
+            <h1 class="name-title" id="typewriter"></h1>
+            
+            <div class="qq-card" onclick="copyQQ()">
+                <span class="qq-label">Contact QQ</span>
+                <span class="qq-number">3168565832</span>
+                <div class="toast" id="toast">已复制到剪贴板</div>
+            </div>
 
-<script>
-window.addEventListener('DOMContentLoaded', function(){
-"use strict";
+            <!-- 功能按钮组 -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="toggleGameModal(true)">
+                    🎮 进入游戏
+                </button>
+                <button class="btn" onclick="toggleAboutModal(true)">
+                    💡 关于我
+                </button>
+                <button class="btn" onclick="joinQQGroup()">
+                    👥 加入QQ群
+                </button>
+            </div>
+        </div>
+    </div>
 
-/* ============================================================
-   工具函数
-   ============================================================ */
-function $(id){return document.getElementById(id);}
-function rnd(a,b){return a+Math.random()*(b-a);}
-function ri(a,b){return Math.floor(rnd(a,b+1));}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function has(arr,v){return arr.indexOf(v)>=0;}
+    <!-- ================= 游戏选择模态框 ================= -->
+    <div class="modal-overlay" id="gameModal">
+        <div class="modal-content">
+            <h2>选择游戏</h2>
+            <p>请选择你要进入的游戏世界</p>
+            <div class="game-options">
+                <a href="game1.html" class="game-option">
+                    <span><span class="game-tag">[01]</span>Game 1</span>
+                </a>
+                <a href="game2.html" class="game-option">
+                    <span><span class="game-tag">[02]</span>Game 2</span>
+                </a>
+                <a href="game3.html" class="game-option">
+                    <span><span class="game-tag">[03]</span>Game 3</span>
+                </a>
+            </div>
+            <button class="close-btn" onclick="toggleGameModal(false)">取消返回</button>
+        </div>
+    </div>
 
-var SPEED=1400;
-var ATTR_MAX=10, POINT_MAX=20;
+    <!-- ================= 关于我模态框 ================= -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-content">
+            <h2>关于 𝖘𝖚𝖓𝖘𝖊𝖙</h2>
+            <p>这里是暗夜的边缘，也是代码与创意的交汇处。<br>热爱游戏，热爱编程。<br>欢迎来到我的世界。</p>
+            <button class="close-btn" onclick="toggleAboutModal(false)">返回主页</button>
+        </div>
+    </div>
 
-/* ============================================================
-   核心状态
-   ============================================================ */
-var S = null;
+    <!-- ================= 全局提示框 (加入QQ群) ================= -->
+    <div class="global-toast" id="globalToast">
+        <h3>✨ 群号已复制 ✨</h3>
+        <p>请打开手机或电脑 QQ 搜索加入</p>
+        <div class="group-num">1128453039</div>
+    </div>
 
-function newState(){
-  return {
-    beauty:0, intelli:0, physic:0, family:0,
-    age:0,
-    talents:[], talentIds:{},
-    route:null,
-    ghosts:[],
-    knownRules:{},
-    partners:[],
-    intel:[], intelIds:{},
-    items:[],
-    ghostIncense:0,
-    ren:50,
-    wei:30,
-    routesUnlocked:{balance:false, freeze:false, hetero:false},
-    activeRoute:null,
-    ghostNature:0,
-    flags:{},
-    arcs:{},
-    usedEvents:{},
-    alive:true,
-    ended:false,
-    skip:false,
-    running:false,
-    ending:null,
-    logLines:0
-  };
-}
+    <script>
+        // --- 1. 打字机效果 ---
+        const nameText = "𝖘𝖚𝖓𝖘𝖊𝖙";
+        const typewriterElement = document.getElementById("typewriter");
+        let charIndex = 0;
 
-/* ============================================================
-   成就系统（25个）
-   ============================================================ */
-var ACHIEVES={
-  'first_ghost':{name:'初次驭鬼',desc:'驾驭第一只鬼'},
-  'three_ghosts':{name:'三鬼同行',desc:'同时驾驭3只鬼'},
-  'ghost_master':{name:'驭鬼者',desc:'同时驾驭5只鬼'},
-  'know_all_rules':{name:'鬼律通晓',desc:'洞悉所有鬼的杀人规律'},
-  'star_form':{name:'双子星',desc:'陆标与杨开冬并肩'},
-  'xu_servant':{name:'王者气度',desc:'让许云汐真诚道歉'},
-  'xu_defeat':{name:'宿敌终章',desc:'击败许云汐'},
-  'xu_saved':{name:'救赎',desc:'拯救许云汐'},
-  'truth_knower':{name:'真相窥探者',desc:'获知世界终极真相'},
-  'dragon_rider':{name:'驭龙者',desc:'驾驭龙王之影'},
-  'blood_king':{name:'凡王之血，必以剑终',desc:'为陆标复仇成功'},
-  'king_blood':{name:'孤独的王',desc:'献祭所有伙伴成王'},
-  'king_saint':{name:'欲与天公试比高',desc:'与伙伴并肩，牺牲自己'},
-  'no_regret':{name:'不留遗憾',desc:'击败许云汐后安老'},
-  'fk_zx_witness':{name:'龙的见证',desc:'亲眼目睹张响陨落'},
-  'old_family':{name:'天伦之乐',desc:'儿孙绕膝，安然终老'},
-  'old_alone':{name:'孤影成灰',desc:'孤独终老，无人送终'},
-  'old_sage':{name:'一代宗师',desc:'教授后人，传承不断'},
-  'old_legend':{name:'传说终章',desc:'你的故事成为传说'},
-  'hidden_king':{name:'万王之王',desc:'解锁隐藏成王结局'},
-  'suye_friend':{name:'苏叶青的朋友',desc:'蹲下来，问它为什么哭'},
-  'talent_awaken':{name:'觉醒者',desc:'第一个天赋觉醒'},
-  'balance_master':{name:'平衡之道',desc:'走完平衡法路线'},
-  'freeze_master':{name:'死机',desc:'成功让一只鬼死机'},
-  'hetero_master':{name:'异类',desc:'走完异类法路线'}
-};
-function loadAchieves(){try{var a=localStorage.getItem('gz_v3_achieves');if(a)return JSON.parse(a);}catch(e){}return {};}
-function saveAchieves(a){try{localStorage.setItem('gz_v3_achieves',JSON.stringify(a));}catch(e){}}
-var unlockedAchieves=loadAchieves();
-function updateAchCount(){var el=$('achieveCount');if(el)el.textContent=String(Object.keys(unlockedAchieves).length);}
-function unlockAchieve(id){
-  if(unlockedAchieves[id])return;
-  unlockedAchieves[id]=true;saveAchieves(unlockedAchieves);updateAchCount();
-  var a=ACHIEVES[id];if(!a)return;
-  var p=$('achievePopup');
-  if(p){p.innerHTML='🏆 成就解锁：'+a.name+'<div class="sub">'+a.desc+'</div>';p.style.display='block';
-    clearTimeout(p._t);p._t=setTimeout(function(){p.style.display='none';},3000);}
-}
-
-/* ============================================================
-   日志系统
-   ============================================================ */
-function log(t,cls){
-  var d=document.createElement('div');
-  if(cls)d.className=cls;
-  d.textContent=t;
-  var lg=$('log');
-  lg.appendChild(d);
-  lg.scrollTop=lg.scrollHeight;
-  S.logLines++;
-}
-function logStory(lines,cls){
-  for(var i=0;i<lines.length;i++)log('　　'+lines[i],cls||'story');
-}
-function logChoice(t){log('　→ '+t,'intel');}
-function logTalent(t){log('　【'+t+'】','talent');}
-function logAwaken(t){log('　✦ 天赋觉醒：'+t+' ✦','talent-god');}
-
-/* ============================================================
-   天赋库（60 个）
-   ============================================================ */
-var TALENTS=[
-  // ===== 普通（8） =====
-  {id:'photographic',name:'过目不忘',rarity:'normal',tag:'intelli',desc:'智力+3。',effect:function(){S.intelli+=3;}},
-  {id:'network',name:'人脉广',rarity:'normal',tag:'beauty',desc:'颜值+2。招募成功率+5%。',effect:function(){S.beauty+=2;S.flags.networkBonus=true;}},
-  {id:'ironWill',name:'铁心',rarity:'normal',tag:'physic',desc:'体质+2。免疫一次伙伴背叛。',effect:function(){S.physic+=2;S.flags.ironWill=true;}},
-  {id:'intuition',name:'直觉敏锐',rarity:'normal',tag:'intelli',desc:'智力+2，体质+1。',effect:function(){S.intelli+=2;S.physic+=1;}},
-  {id:'ordinary',name:'平凡路人',rarity:'normal',tag:'none',desc:'与陆标天然相识。',effect:function(){S.flags.ordinary=true;}},
-  {id:'doomed',name:'厄运体质',rarity:'normal',tag:'curse',desc:'体质-1，智力+1。',effect:function(){S.physic=Math.max(0,S.physic-1);S.intelli+=1;}},
-  {id:'curious',name:'好奇心重',rarity:'normal',tag:'curse',desc:'智力+2。',effect:function(){S.intelli+=2;}},
-  {id:'kindCurse',name:'善良执念',rarity:'normal',tag:'curse',desc:'颜值+2。',effect:function(){S.beauty+=2;}},
-
-  // ===== 稀有（15） =====
-  {id:'ghostEye',name:'鬼眼',rarity:'rare',tag:'intelli',desc:'智力+2。遇鬼时排除1个错误选项。',effect:function(){S.intelli+=2;},awaken:{cond:'ghost3',desc:'见过3只鬼',effect:function(){S.flags.ghostEyeAwaken=true;}}},
-  {id:'yinBody',name:'阴煞之体',rarity:'rare',tag:'physic',desc:'体质+3。',effect:function(){S.physic+=3;},awaken:{cond:'physic8',desc:'体质≥8',effect:function(){S.flags.yinAwaken=true;}}},
-  {id:'soulAnchor',name:'镇魂',rarity:'rare',tag:'physic',desc:'体质+1。复苏时免疫一次。',effect:function(){S.physic+=1;S.flags.soulAnchor=true;}},
-  {id:'nightEye',name:'夜眼',rarity:'rare',tag:'intelli',desc:'智力+2。黑暗中遇鬼必排除1个错误选项。',effect:function(){S.intelli+=2;}},
-  {id:'empathy',name:'共感',rarity:'rare',tag:'none',desc:'能感知鬼/人的情绪。每年10%概率情绪失控。',effect:function(){S.flags.empathy=true;}},
-  {id:'resonance',name:'共鸣',rarity:'rare',tag:'none',desc:'每招募1个伙伴，所有伙伴战力+5。',effect:function(){S.flags.resonance=true;},awaken:{cond:'partner5',desc:'共鸣5个伙伴',effect:function(){S.flags.resonanceAwaken=true;}}},
-  {id:'fragmentSense',name:'碎片感知',rarity:'rare',tag:'none',desc:'每年自动获得1条随机碎片。',effect:function(){S.flags.fragmentSense=true;}},
-  {id:'memoryShare',name:'记忆共享',rarity:'rare',tag:'none',desc:'每年获得伙伴的1条情报。',effect:function(){S.flags.memoryShare=true;}},
-  {id:'ferryman',name:'替死鬼',rarity:'rare',tag:'none',desc:'死亡时弃一只鬼，你活下来。',effect:function(){S.flags.ferryman=true;}},
-  {id:'warIntent',name:'战意',rarity:'rare',tag:'none',desc:'战斗前3回合战力+30%。',effect:function(){S.flags.warIntent=true;}},
-  {id:'language',name:'言灵',rarity:'rare',tag:'none',desc:'每年1次，说一句话影响剧情。',effect:function(){S.flags.language=true;},awaken:{cond:'language5',desc:'言灵成功5次',effect:function(){S.flags.languageAwaken=true;}}},
-  {id:'cannibal',name:'饲鬼人',rarity:'rare',tag:'none',desc:'喂1点体质→该鬼复苏度-10。每年2次。',effect:function(){S.flags.cannibal=true;},awaken:{cond:'feed5',desc:'喂食5次',effect:function(){S.flags.cannibalAwaken=true;}}},
-  {id:'silent',name:'无言',rarity:'rare',tag:'none',desc:'50%概率被鬼忽略（每局一次）。',effect:function(){S.flags.silent=true;}},
-  {id:'soulTrade',name:'魂契',rarity:'rare',tag:'none',desc:'付出1点体质直接驾驭一只鬼。',effect:function(){S.flags.soulTrade=true;}},
-  {id:'echo',name:'回声',rarity:'rare',tag:'none',desc:'伙伴死后50%战力转化你的鬼力。',effect:function(){S.flags.echo=true;}},
-
-  // ===== 史诗（19） =====
-  {id:'ghostBlood',name:'鬼血',rarity:'epic',tag:'physic',desc:'体质+2，智力+2，鬼上限+1。',effect:function(){S.physic+=2;S.intelli+=2;S.flags.ghostLimitPlus=true;}},
-  {id:'twinSoul',name:'双生残魂',rarity:'epic',tag:'intelli',desc:'智力+2，家境+2，懂龙语。',effect:function(){S.intelli+=2;S.family+=2;S.flags.dragonTongue=true;}},
-  {id:'bloodRage',name:'血怒',rarity:'epic',tag:'physic',desc:'体质+2。体质≤3时战力+30。',effect:function(){S.physic+=2;S.flags.bloodRage=true;}},
-  {id:'strategist',name:'谋主',rarity:'epic',tag:'intelli',desc:'智力+3。情报收益翻倍。',effect:function(){S.intelli+=3;S.flags.strategist=true;}},
-  {id:'contractor',name:'契约师',rarity:'epic',tag:'none',desc:'招募成功率翻倍。',effect:function(){S.flags.contractor=true;}},
-  {id:'ghostWhisper',name:'鬼语者',rarity:'epic',tag:'none',desc:'可与鬼对话，不猜规律。',effect:function(){S.flags.ghostWhisper=true;},awaken:{cond:'talk3',desc:'对话3只鬼',effect:function(){S.flags.ghostWhisperAwaken=true;}}},
-  {id:'emptyHand',name:'空手驭鬼',rarity:'epic',tag:'none',desc:'驾驭鬼体质门槛-3。',effect:function(){S.flags.emptyHand=true;}},
-  {id:'bloodContract',name:'血契师',rarity:'epic',tag:'none',desc:'平衡法自动解锁。',effect:function(){S.routesUnlocked.balance=true;S.flags.bloodContract=true;}},
-  {id:'ghostOverload',name:'驭鬼过量',rarity:'epic',tag:'none',desc:'驭鬼上限+2。所有鬼复苏增长+10%。',effect:function(){S.flags.ghostOverload=true;}},
-  {id:'ghostSwap',name:'鬼替',rarity:'epic',tag:'none',desc:'可将鬼转移给别人，对方会死。',effect:function(){S.flags.ghostSwap=true;}},
-  {id:'corpseTalk',name:'尸语',rarity:'epic',tag:'none',desc:'每杀一人/鬼，获得1条碎片。仁-5。',effect:function(){S.flags.corpseTalk=true;S.ren=Math.max(0,S.ren-5);}},
-  {id:'undying',name:'不灭战意',rarity:'epic',tag:'none',desc:'战败不死，保留1点生命。战后昏迷3年。',effect:function(){S.flags.undying=true;}},
-  {id:'timeShift',name:'时间错位',rarity:'epic',tag:'none',desc:'暂停时间1回合。复苏度+15。',effect:function(){S.flags.timeShift=true;}},
-  {id:'contractLord',name:'契约主',rarity:'epic',tag:'none',desc:'契约伙伴战力×1.5。',effect:function(){S.flags.contractLord=true;}},
-  {id:'sharedLife',name:'共享生命',rarity:'epic',tag:'none',desc:'伙伴受伤时你分担一半。',effect:function(){S.flags.sharedLife=true;}},
-  {id:'shadowStrike',name:'影袭',rarity:'epic',tag:'none',desc:'首次攻击战力×2。',effect:function(){S.flags.shadowStrike=true;}},
-  {id:'symbiosis',name:'共生',rarity:'epic',tag:'none',desc:'两只鬼复苏度共享。',effect:function(){S.flags.symbiosis=true;}},
-  {id:'soulVessel',name:'魂器',rarity:'epic',tag:'none',desc:'可将鬼封入物体，复苏冻结。',effect:function(){S.flags.soulVessel=true;}},
-  {id:'mindRead',name:'读心',rarity:'epic',tag:'intelli',desc:'智力+2，颜值+1。猜规律时减少错误选项。',effect:function(){S.intelli+=2;S.beauty+=1;}},
-
-  // ===== 传说（18） =====
-  {id:'dragonBlood',name:'龙王血裔',rarity:'god',tag:'physic',desc:'颜值+2，体质+2，战力+10。',effect:function(){S.beauty+=2;S.physic+=2;S.flags.dragonBlood=true;},awaken:{cond:'i_bg_dragon',desc:'获得龙血真相',effect:function(){S.flags.dragonBloodAwaken=true;}}},
-  {id:'charmer',name:'魅惑',rarity:'god',tag:'beauty',desc:'颜值+4。50%概率魅惑他人。',effect:function(){S.beauty+=4;S.flags.charmer=true;},awaken:{cond:'charm1',desc:'成功魅惑1人',effect:function(){S.flags.charmerAwaken=true;}}},
-  {id:'godBless',name:'神明眷顾',rarity:'god',tag:'family',desc:'家境+3，免疫一次死亡。',effect:function(){S.family+=3;S.flags.godBless=true;}},
-  {id:'trueName',name:'真名感知',rarity:'god',tag:'intelli',desc:'智力+3，识破一切谎言。',effect:function(){S.intelli+=3;S.flags.trueName=true;}},
-  {id:'prophet',name:'先知',rarity:'god',tag:'intelli',desc:'智力+3。30%概率直接看到鬼的规律。',effect:function(){S.intelli+=3;S.flags.prophet=true;}},
-  {id:'ancientBlood',name:'古龙之血',rarity:'god',tag:'physic',desc:'体质+3，智力+2。真情报≥10时战力+20。',effect:function(){S.physic+=3;S.intelli+=2;S.flags.ancientBlood=true;}},
-  {id:'dragonTrue',name:'龙裔真血',rarity:'god',tag:'physic',desc:'战力+20。每年+3鬼性。异类法自动解锁。',effect:function(){S.flags.dragonTrue=true;S.routesUnlocked.hetero=true;}},
-  {id:'twinSpirit',name:'双生灵魂',rarity:'god',tag:'none',desc:'平衡法自动解锁。可同时驾驭两只冲突鬼。',effect:function(){S.routesUnlocked.balance=true;S.flags.twinSpirit=true;}},
-  {id:'reincarnate',name:'轮回记忆',rarity:'god',tag:'none',desc:'开局5条情报。死亡保留1条进入下一局。',effect:function(){S.flags.reincarnate=true;}},
-  {id:'resurrect',name:'死而复生',rarity:'god',tag:'none',desc:'死亡时自动复活，随机失去一个伙伴。',effect:function(){S.flags.resurrect=true;}},
-  {id:'timePerception',name:'时间感知',rarity:'god',tag:'intelli',desc:'智力+3。猜规律排除2个错误选项。',effect:function(){S.intelli+=3;S.flags.timePerception=true;},awaken:{cond:'guess1',desc:'第一次猜对规律',effect:function(){S.flags.timePerceptionAwaken=true;}}},
-  {id:'godslayer',name:'弑神者',rarity:'god',tag:'none',desc:'对优呵伤害×2。见到优呵后×3。',effect:function(){S.flags.godslayer=true;}},
-  {id:'nameless',name:'不可名状',rarity:'god',tag:'none',desc:'优呵看不见你。你也不能攻击他。',effect:function(){S.flags.nameless=true;}},
-  {id:'beyondTime',name:'时间之外',rarity:'god',tag:'none',desc:'80岁后不会死。每年+3鬼性。',effect:function(){S.flags.beyondTime=true;}},
-  {id:'ghostBride',name:'鬼新娘',rarity:'god',tag:'none',desc:'与一只鬼结婚，复苏度永远为0。每年+2鬼性。',effect:function(){S.flags.ghostBride=true;}},
-  {id:'substitute',name:'替代者',rarity:'god',tag:'none',desc:'每年1次，放弃一个身份获得另一个。',effect:function(){S.flags.substitute=true;}},
-  {id:'leaderAura',name:'领袖气质',rarity:'god',tag:'beauty',desc:'颜值+3。招募成功率翻倍。',effect:function(){S.beauty+=3;S.flags.leaderAura=true;}},
-  {id:'nightmare',name:'通灵眼',rarity:'god',tag:'none',desc:'见鬼自动播放死亡记忆。每年5%精神崩溃。',effect:function(){S.flags.nightmare=true;},awaken:{cond:'ghost5',desc:'见过5只鬼',effect:function(){S.flags.nightmareAwaken=true;}}}
-];
-
-function hasT(id){return !!S.talentIds[id];}
-
-function rollTalents(){
-  var pool=TALENTS.slice();
-  pool=pool.filter(function(t){
-    if(t.tag==='physic'&&S.physic<=3)return false;
-    if(t.tag==='intelli'&&S.intelli<=3)return false;
-    if(t.tag==='beauty'&&S.beauty<=3)return false;
-    if(t.tag==='family'&&S.family<=3)return false;
-    return true;
-  });
-  var weighted=[];
-  pool.forEach(function(t){
-    var w=1;
-    if(t.tag==='physic'&&S.physic>=6)w+=2;
-    if(t.tag==='intelli'&&S.intelli>=6)w+=2;
-    if(t.tag==='beauty'&&S.beauty>=6)w+=2;
-    if(t.tag==='family'&&S.family>=6)w+=2;
-    if(t.tag==='curse')w=0.5;
-    for(var i=0;i<w;i++)weighted.push(t);
-  });
-  var picked=[];
-  var chosenIds={};
-  while(picked.length<3&&weighted.length>0){
-    var idx=Math.floor(Math.random()*weighted.length);
-    var t=weighted[idx];
-    if(chosenIds[t.id]){weighted.splice(idx,1);continue;}
-    chosenIds[t.id]=true;
-    picked.push(t);
-    weighted=weighted.filter(function(x){return x.id!==t.id;});
-  }
-  if(S.physic===10&&!picked.some(function(t){return t.rarity==='god'&&t.tag==='physic';})){
-    var gods=TALENTS.filter(function(t){return t.rarity==='god'&&t.tag==='physic'&&!chosenIds[t.id];});
-    if(gods.length){chosenIds[picked[0].id]=false;picked[0]=gods[0];}
-  }
-  if(S.intelli===10&&!picked.some(function(t){return t.rarity==='god'&&t.tag==='intelli';})){
-    var gods=TALENTS.filter(function(t){return t.rarity==='god'&&t.tag==='intelli'&&!chosenIds[t.id];});
-    if(gods.length){chosenIds[picked[1].id]=false;picked[1]=gods[0];}
-  }
-  if(S.beauty===10&&!picked.some(function(t){return t.rarity==='god'&&t.tag==='beauty';})){
-    var gods=TALENTS.filter(function(t){return t.rarity==='god'&&t.tag==='beauty'&&!chosenIds[t.id];});
-    if(gods.length){chosenIds[picked[2].id]=false;picked[2]=gods[0];}
-  }
-  return picked;
-}
-
-function renderTalents(list){
-  var el=$('talentShow');
-  el.innerHTML='';
-  list.forEach(function(t){
-    var d=document.createElement('div');
-    var cls={normal:'normal',rare:'rare',epic:'epic',god:'god'}[t.rarity];
-    d.style.margin='4px 0';
-    var rarityName={normal:'普通',rare:'稀有',epic:'史诗',god:'传说'}[t.rarity];
-    d.innerHTML='<span class="talent-chip '+cls+'">'+rarityName+'</span> <b>'+t.name+'</b>：'+t.desc;
-    el.appendChild(d);
-  });
-}
-
-/* ============================================================
-   鬼库（13 只）
-   ============================================================ */
-var GHOSTS=[
-  {name:'哭脸鬼',diff:3,power:12,kind:'normal',
-   rule:'不能表现出恐惧',
-   hint:'它一边哭，一边用余光打量你的表情。',
-   guess:[
-     {text:'不能表现出恐惧',correct:true},
-     {text:'不能直视它',correct:false},
-     {text:'不能与它说话',correct:false},
-     {text:'不能逃跑',correct:false}
-   ],
-   wrongDeath:'你盯着它看——它忽然不哭了。它歪头看着你："你不怕我？"',
-   flee:'你转身就跑——脚步出卖了恐惧。',
-   skill:{name:'哀嚎',effect:'敌-15',revive:12}},
-
-  {name:'无面鬼',diff:4,power:16,kind:'normal',
-   rule:'不能回应叫你名字的声音',
-   hint:'它一遍遍喊你的名字，但它的嘴根本没动。',
-   guess:[
-     {text:'不能回应叫你名字的声音',correct:true},
-     {text:'不能看它的脸',correct:false},
-     {text:'不能呼吸',correct:false},
-     {text:'不能碰它',correct:false}
-   ],
-   wrongDeath:'你试着不去看它的脸——但你的手碰到了门框。',
-   flee:'"别跑啊，是我。"你下意识应了。',
-   skill:{name:'无声',effect:'敌不能行动1回合',revive:12}},
-
-  {name:'镜中鬼',diff:5,power:20,kind:'normal',
-   rule:'不能注视反光表面',
-   hint:'它的身影总出现在你身旁的窗户、水洼、刀面里。',
-   guess:[
-     {text:'不能注视反光表面',correct:true},
-     {text:'不能说"镜子"两个字',correct:false},
-     {text:'不能背对它',correct:false},
-     {text:'不能眨眼',correct:false}
-   ],
-   wrongDeath:'你试着背对它——转身时，你正好对上了走廊尽头那面穿衣镜。',
-   flee:'你转身就跑——眼角扫到窗户玻璃。',
-   skill:{name:'镜影',effect:'复制敌20%战力',revive:12}},
-
-  {name:'蜂群鬼',diff:5,power:25,kind:'normal',
-   rule:'不能出声、不能移动',
-   hint:'蜂群环绕你飞舞，但始终没有落在你身上。',
-   guess:[
-     {text:'不能出声、不能移动',correct:true},
-     {text:'不能睁眼',correct:false},
-     {text:'不能呼吸',correct:false},
-     {text:'不能想它',correct:false}
-   ],
-   wrongDeath:'你试着深呼吸——胸腔的起伏惊动了蜂群。',
-   flee:'你转身就跑。脚步声惊动蜂群。',
-   skill:{name:'蜂噬',effect:'敌-20',revive:16}},
-
-  {name:'雨点鬼',diff:6,power:30,kind:'normal',
-   rule:'不能在雨中暴露皮肤',
-   hint:'它的雨点落在你面前的地上，像是在测量什么。',
-   guess:[
-     {text:'不能在雨中暴露皮肤',correct:true},
-     {text:'不能在雨天出门',correct:false},
-     {text:'不能撑红伞',correct:false},
-     {text:'不能抬头看天',correct:false}
-   ],
-   wrongDeath:'你低头不去看天——但你的手腕露了出来。',
-   flee:'你冲进雨里。雨点落在手背上——那是针。',
-   skill:{name:'潮涌',effect:'我+30',revive:16}},
-
-  {name:'红衣厉鬼',diff:6,power:35,kind:'normal',
-   rule:'必须直视它',
-   hint:'她始终背对你。你能感到——她在等。',
-   guess:[
-     {text:'必须直视它',correct:true},
-     {text:'必须闭上眼睛',correct:false},
-     {text:'必须转身逃跑',correct:false},
-     {text:'必须喊它的名字',correct:false}
-   ],
-   wrongDeath:'你闭上眼睛——她的手指已经触到了你的后颈。',
-   flee:'你转头的瞬间——她已贴在你面前。',
-   skill:{name:'凝视',effect:'暴露敌规律',revive:16}},
-
-  {name:'纸人',diff:7,power:42,kind:'normal',
-   rule:'不能触碰任何纸质物品',
-   hint:'它飘过书桌时，绕开了所有纸张。',
-   guess:[
-     {text:'不能触碰任何纸质物品',correct:true},
-     {text:'不能看报纸',correct:false},
-     {text:'不能写字',correct:false},
-     {text:'不能说话',correct:false}
-   ],
-   wrongDeath:'你抓起一本书想防身——纸页像刀片一样刺进你的手掌。',
-   flee:'你转身就跑——慌乱中你踩到了一张报纸。',
-   skill:{name:'替身',effect:'抵消一次死亡',revive:20}},
-
-  {name:'教室鬼',diff:8,power:55,kind:'strong',
-   rule:'不可驾驭。坐最后一排靠窗者必死',
-   hint:'最后一排靠窗的课桌，永远比其他桌子干净。',
-   guess:[
-     {text:'不能坐在最后一排靠窗',correct:true},
-     {text:'不能看黑板',correct:false},
-     {text:'不能答到',correct:false},
-     {text:'不能离开教室',correct:false}
-   ],
-   wrongDeath:'你盯着黑板想找线索——忽然，你发现自己坐在了那个位置。',
-   flee:'你转身跑向门口。一脚踩空。',
-   skill:null},
-
-  {name:'影子鬼',diff:8,power:65,kind:'strong',
-   rule:'不能背对光源',
-   hint:'它从你的影子里爬出来。你一动，它也跟着动。',
-   guess:[
-     {text:'不能背对光源',correct:true},
-     {text:'不能照镜子',correct:false},
-     {text:'不能背对它',correct:false},
-     {text:'不能站着',correct:false}
-   ],
-   wrongDeath:'你背对着窗户——身后的影子站了起来。',
-   flee:'你转身就跑——背光的那一刻，你的影子握住了你的脖子。',
-   skill:null},
-
-  {name:'轮回鬼',diff:9,power:80,kind:'special',
-   rule:'逃跑必死。必须打破循环',
-   hint:'你走的是同一条路。见的是同一个人。',
-   guess:[
-     {text:'必须打破循环（做不一样的选择）',correct:true},
-     {text:'必须原路返回',correct:false},
-     {text:'必须原地不动',correct:false},
-     {text:'必须闭眼一分钟',correct:false}
-   ],
-   wrongDeath:'你决定原地不动——和上一次一模一样的动作。',
-   flee:'你转身就跑——和昨天一模一样的动作。',
-   skill:{name:'重来',effect:'本场可重投一次',revive:20}},
-
-  {name:'镜魔',diff:10,power:100,kind:'special',
-   rule:'必须喊出它的真名',
-   hint:'它的名字刻在每个镜子的背面。',
-   guess:[
-     {text:'必须喊出它的真名',correct:true},
-     {text:'必须闭上眼睛',correct:false},
-     {text:'必须打碎镜子',correct:false},
-     {text:'必须背对它',correct:false}
-   ],
-   wrongDeath:'你选择不看它——但镜魔已经借你的眼睛钻进了记忆。',
-   flee:'你转身就跑——跑动中你看到了自己的倒影。',
-   skill:{name:'真名',effect:'敌失能1回合',revive:25}},
-
-  {name:'龙王之影',diff:10,power:120,kind:'top',
-   rule:'只有龙语对话。成功后可驾驭',
-   hint:'它从不说人话。它只是"听"。',
-   guess:[
-     {text:'必须用龙语与它对话',correct:true},
-     {text:'必须直视它的眼睛',correct:false},
-     {text:'必须跪下来',correct:false},
-     {text:'必须献上鲜血',correct:false}
-   ],
-   wrongDeath:'你跪了下来——你的灵魂被龙焰灼烧。',
-   flee:'你喊了龙王的名字。',
-   obs:'你抬头直视它。你的灵魂被龙焰灼烧。',
-   ok:['你用龙语回应了它。','它低下头。','——它认了你。'],
-   skill:{name:'龙威',effect:'敌-60',revive:25}}
-];
-
-/* ============================================================
-   角色库（9 个）
-   ============================================================ */
-var CHARS={
-  luBiao:{key:'luBiao',name:'陆标',power:3,diff:0},
-  zhangSien:{key:'zhangSien',name:'张思恩',power:6,diff:15},
-  shuangWu:{key:'shuangWu',name:'爽唔',power:5,diff:10},
-  yangKaidong:{key:'yangKaidong',name:'杨开冬',power:12,diff:5},
-  luJiancheng:{key:'luJiancheng',name:'陆建成',power:4,diff:-8},
-  xuYunxi:{key:'xuYunxi',name:'许云汐',power:18,diff:99},
-  ruanRou:{key:'ruanRou',name:'阮柔',power:10,diff:28},
-  guTingyu:{key:'guTingyu',name:'顾庭雨',power:9,diff:18},
-  zhouZhihui:{key:'zhouZhihui',name:'周芷卉',power:7,diff:12}
-};
-
-/* ============================================================
-   伙伴系统
-   ============================================================ */
-function getP(name){
-  for(var i=0;i<S.partners.length;i++)if(S.partners[i].name===name)return S.partners[i];
-  return null;
-}
-function alivePlayerPartners(){
-  return S.partners.filter(function(p){return p.alive&&p.side==='player';});
-}
-function aliveXuPartners(){
-  return S.partners.filter(function(p){return p.alive&&p.side==='xu';});
-}
-function addPartner(key,side){
-  side=side||'player';
-  var c=CHARS[key];if(!c)return null;
-  if(getP(c.name))return null;
-  var p={
-    key:key,name:c.name,power:c.power,side:side,
-    trust:55,alive:true,
-    isGhostMaster:false,charmed:false,betrayed:false,
-    joinedAt:S.age
-  };
-  if(side==='player'&&hasT('resonance')){
-    S.partners.forEach(function(q){if(q.side==='player'&&q.alive)q.power+=5;});
-  }
-  if(side==='player'&&hasT('contractLord'))p.power=Math.round(p.power*1.5);
-  S.partners.push(p);
-  if(side==='player'&&hasT('charmer')){
-    if(Math.random()<0.5){
-      p.charmed=true;p.trust=100;
-      log('【魅惑】'+p.name+'看着你，眼神变了。','charm');
-      checkAwaken('charm1');
-    }
-  }
-  renderStatus();
-  return p;
-}
-function recruitCheck(c){
-  var ch=35+S.beauty*2+S.intelli*2+S.family*1.5-c.diff;
-  ch+=(trueIntelCount()*2);
-  var mine=alivePlayerPartners().length;
-  ch-=mine*3;
-  if(S.flags.xuActive)ch-=6;
-  if(hasT('leaderAura'))ch*=1.6;
-  if(hasT('contractor'))ch*=2;
-  if(hasT('network'))ch+=6;
-  ch+=rnd(-20,20);
-  ch=clamp(ch,3,96);
-  return Math.random()*100<ch;
-}
-
-/* ============================================================
-   情报系统
-   ============================================================ */
-function addIntel(id,text,real){
-  if(!id||S.intelIds[id])return false;
-  S.intelIds[id]=true;
-  S.intel.push({id:id,text:text,real:!!real});
-  renderStatus();
-  return true;
-}
-function hasIntel(id){return !!S.intelIds[id];}
-function trueIntelCount(){
-  var c=0;
-  for(var i=0;i<S.intel.length;i++)if(S.intel[i].real)c++;
-  return c;
-}
-
-/* ============================================================
-   鬼香
-   ============================================================ */
-function useGhostIncense(){
-  if(S.ghostIncense<=0)return false;
-  var target=null;
-  S.ghosts.forEach(function(g){
-    if(!target||(g.revive||0)>(target.revive||0))target=g;
-  });
-  if(!target||(target.revive||0)<85)return false;
-  S.ghostIncense--;
-  target.revive=Math.max(0,target.revive-15);
-  log('【鬼香】'+target.name+'的复苏度降到 '+Math.round(target.revive)+'。','good');
-  logStory(['它的哭声轻了。','它在谢谢你。'],'good');
-  renderStatus();
-  return true;
-}
-
-/* ============================================================
-   复苏度系统（含年增长机制）
-   ============================================================ */
-function reviveColor(val){
-  if(val<30)return '#7dff9b';
-  if(val<61)return '#ffdf6e';
-  if(val<86)return '#ff9d5c';
-  return '#ff5252';
-}
-function reviveStatus(val){
-  if(val<31)return '稳定';
-  if(val<61)return '性情变';
-  if(val<86)return '鬼性显';
-  if(val<100)return '濒临';
-  return '复苏';
-}
-function addRevive(ghost,amount){
-  if(ghost._married||ghost._frozen)return;
-  ghost.revive=(ghost.revive||0)+amount;
-  if(ghost.revive>=100){
-    ghost.revive=100;
-    onGhostRevive(ghost);
-  }
-}
-function onGhostRevive(ghost){
-  if(S.flags.ferryman){
-    S.flags.ferryman=false;
-    log('【替死鬼】你的另一只鬼站了出来。','god');
-    logStory(['它挡住了它。','它替你死了。'],'god');
-    var idx=S.ghosts.indexOf(ghost);
-    if(idx>=0)S.ghosts.splice(idx,1);
-    return;
-  }
-  if(S.flags.undying){
-    log('【不灭战意】你没有死。只是变得很虚弱。','god');
-    applyMod({physic:-2});
-    ghost.revive=85;
-    return;
-  }
-  die('体内的【'+ghost.name+'】彻底复苏。');
-}
-
-/* ★★★ 复苏度年增长（分散压制机制） ★★★ */
-function annualReviveGrowth(){
-  var n=S.ghosts.length;
-  if(n===0)return 0;
-  var perGhost;
-  if(n===1)perGhost=3.0;
-  else if(n===2)perGhost=2.5;
-  else if(n===3)perGhost=2.0;
-  else if(n===4)perGhost=1.5;
-  else if(n===5)perGhost=1.0;
-  else if(n===6)perGhost=0.7;
-  else perGhost=0.5;
-  return perGhost;
-}
-
-/* ★★★ 驾驭新鬼所需真情报门槛（三角数） ★★★ */
-function ghostIntelRequirement(){
-  var n=S.ghosts.length;
-  return Math.round((n+1)*(n+2)/2);
-}
-function canTameMoreGhosts(){
-  return trueIntelCount()>=ghostIntelRequirement();
-}
-function previewReviveGrowth(){
-  return annualReviveGrowth().toFixed(1);
-}
-
-/* ============================================================
-   战力
-   ============================================================ */
-function ghostPowerSum(){
-  var s=0;
-  for(var i=0;i<S.ghosts.length;i++){
-    var g=S.ghosts[i];
-    var p=g.power||0;
-    if(g.merged)p*=1.5;
-    if(g.sleeping)p=0;
-    if(g._frozen)p*=0.5;
-    s+=p;
-  }
-  return Math.round(s);
-}
-function partnerPowerSum(){
-  var s=0;
-  for(var i=0;i<S.partners.length;i++){
-    var p=S.partners[i];
-    if(p.alive&&p.side==='player')s+=p.power||0;
-  }
-  return Math.round(s);
-}
-function intelPowerBonus(){
-  return Math.min(20,Math.floor(trueIntelCount()/3)*2);
-}
-function myPower(){
-  var p=S.physic*1.2+ghostPowerSum()+partnerPowerSum();
-  if(hasT('dragonBlood'))p+=10;
-  if(hasT('dragonTrue'))p+=20;
-  if(hasT('bloodRage')&&S.physic<=3)p+=30;
-  if(hasT('ancientBlood')&&trueIntelCount()>=10)p+=20;
-  if(S.flags.starForm)p+=8;
-  if(S.flags.xuServant)p+=5;
-  if(S.flags.xuSaved)p+=8;
-  p+=intelPowerBonus();
-  return Math.round(p);
-}
-function maxGhosts(){
-  var base=Math.floor(S.physic/2)+1;
-  if(base>5)base=5;
-  if(hasT('ghostBlood'))base+=1;
-  if(hasT('ghostOverload'))base+=2;
-  return base;
-}
-
-/* ============================================================
-   属性增减
-   ============================================================ */
-function applyMod(m){
-  if(!m)return;
-  if(m.beauty)S.beauty=Math.max(0,S.beauty+m.beauty);
-  if(m.intelli)S.intelli=Math.max(0,S.intelli+m.intelli);
-  if(m.physic)S.physic=Math.max(0,S.physic+m.physic);
-  if(m.family)S.family=Math.max(0,S.family+m.family);
-  if(m.ren)S.ren=clamp(S.ren+m.ren,0,100);
-  if(m.wei)S.wei=clamp(S.wei+m.wei,0,100);
-}
-
-/* ============================================================
-   死亡
-   ============================================================ */
-function die(reason){
-  if(!S.alive)return;
-  if(S.flags.resurrect){
-    S.flags.resurrect=false;
-    log('【死而复生】你睁开眼睛。','god');
-    var alive=S.partners.filter(function(p){return p.alive&&p.side==='player';});
-    if(alive.length){
-      var p=alive[Math.floor(Math.random()*alive.length)];
-      p.alive=false;
-      log('代价：'+p.name+'消失了。','danger');
-    }
-    return;
-  }
-  S.alive=false;
-  log('【死亡】'+reason,'dead');
-}
-
-/* ============================================================
-   状态栏渲染
-   ============================================================ */
-function renderStatus(){
-  if(!$('ageText'))return;
-  $('ageText').textContent=S.age;
-  $('aliveText').textContent=S.alive?'存活':'死亡';
-  $('aliveText').style.color=S.alive?'#7dff9b':'#ff5252';
-  var routeTxt='未定';
-  if(S.route){var r={ghost:'👁️ 驭鬼者',contract:'📜 契约师',intel:'📖 情报者',king:'👑 王者'}[S.route];if(r)routeTxt=r;}
-  $('routeText').innerHTML=routeTxt;
-
-  var knownKeys=Object.keys(S.knownRules);
-  var knownStr=knownKeys.length?knownKeys.join('、'):'无';
-
-  /* 鬼显示 */
-  var ghostStr='';
-  if(S.ghosts.length){
-    var growth=annualReviveGrowth().toFixed(1);
-    ghostStr+='<div class="tip" style="margin-bottom:4px;">每年增长 <span style="color:#ff9d5c;font-weight:700;">+'+growth+'</span>／只（分散压制）</div>';
-    S.ghosts.forEach(function(g){
-      var rv=Math.round(g.revive||0);
-      var frozen=g._frozen?' ❄️':'';
-      var married=g._married?' 💍':'';
-      ghostStr+='<div style="margin:2px 0;">'+g.name+frozen+married+' <span class="stat-bar"><span style="width:'+rv+'%;background:'+reviveColor(rv)+';"></span></span> <span style="color:'+reviveColor(rv)+'">'+rv+'</span> <span class="tip">('+reviveStatus(rv)+')</span></div>';
-    });
-  } else ghostStr='<span class="tip">无</span>';
-
-  /* 伙伴显示 */
-  var partnerStr='';
-  var aliveP=alivePlayerPartners();
-  if(aliveP.length){
-    partnerStr=aliveP.map(function(p){return p.name+'('+p.power+')'+(p.charmed?'♥':'');}).join('、');
-  } else partnerStr='<span class="tip">无</span>';
-  var xuP=aliveXuPartners();
-  if(xuP.length){
-    partnerStr+=' ｜ <span style="color:#ff8ac7">许营：'+xuP.map(function(p){return p.name;}).join('、')+'</span>';
-  }
-
-  /* 道具显示 */
-  var itemsStr='';
-  if(S.items.length){
-    itemsStr=S.items.map(function(it){return it.name;}).join('、');
-  }
-
-  /* 天赋显示 */
-  var talentStr='';
-  S.talents.forEach(function(t){
-    var cls={normal:'normal',rare:'rare',epic:'epic',god:'god'}[t.rarity];
-    talentStr+='<span class="talent-chip '+cls+'">'+t.name+'</span> ';
-  });
-
-  /* 鬼栏提示：下一只双门槛 */
-  var nextNeed=ghostIntelRequirement();
-  var haveI=trueIntelCount();
-  var nextHint='';
-  if(S.ghosts.length<maxGhosts()){
-    var nextGhostDiff=Math.max(0,3+Math.floor(S.ghosts.length/2)*1);
-    var intelOK=haveI>=nextNeed;
-    var physOK=S.physic>=nextGhostDiff;
-    if(intelOK&&physOK){
-      nextHint=' <span style="color:#7dff9b">✔ 可驾驭下一只</span>';
-    } else {
-      var parts=[];
-      parts.push('情报 '+haveI+'/'+nextNeed+(intelOK?' ✔':' ✘'));
-      parts.push('体质 '+S.physic+'/'+nextGhostDiff+(physOK?' ✔':' ✘'));
-      nextHint=' <span style="color:#ff9d5c">下一只：'+parts.join('　')+'</span>';
-    }
-  }
-
-  var html='';
-  html+='<b>属性</b> 颜'+S.beauty+' 智'+S.intelli+' 体'+S.physic+' 家'+S.family+'<br>';
-  html+='<b>战力</b> <span style="color:#ffb060;font-weight:700;font-size:15px;">'+myPower()+'</span>（体'+Math.round(S.physic*1.2)+'+鬼'+ghostPowerSum()+'+伴'+partnerPowerSum()+(intelPowerBonus()>0?'+情报'+intelPowerBonus():'')+'）<br>';
-  html+='<b>天赋</b> '+(talentStr||'无')+'<br>';
-  html+='<b>真情报</b> <span style="color:#a0e5ff">'+haveI+'</span><br>';
-  html+='<b>鬼</b>（'+S.ghosts.length+'/'+maxGhosts()+'）'+nextHint+'<br>'+ghostStr;
-  html+='<b>伙伴</b> '+partnerStr+'<br>';
-  if(S.ghostIncense>0)html+='<b>鬼香</b> '+S.ghostIncense+' 份<br>';
-  if(itemsStr)html+='<b>道具</b> '+itemsStr+'<br>';
-  html+='<b>已洞悉</b> <span style="color:#88ffe0">'+knownStr+'</span><br>';
-  html+='<b>你的行为正在改变什么</b> <span class="tip">'+renText()+'</span><br>';
-  html+='<b>你对自己的选择</b> <span class="tip">'+weiText()+'</span>';
-
-  $('statusBar').innerHTML=html;
-}
-
-function renText(){
-  var r=S.ren;
-  if(r>=80)return '有人在深夜念你的名字。';
-  if(r>=60)return '有人开始信你。';
-  if(r>=45)return '你没有亏欠太多人。';
-  if(r>=30)return '有人开始怕你。';
-  return '你在梦里听见哭声。';
-}
-function weiText(){
-  var w=S.wei;
-  if(w>=80)return '你的手比以前稳了。';
-  if(w>=60)return '你召唤鬼的时候，它不再犹豫。';
-  if(w>=40)return '你能感觉到体内的力量。';
-  if(w>=20)return '你还在适应。';
-  return '你不想用它。';
-}
-
-/* ============================================================
-   天赋觉醒
-   ============================================================ */
-function checkAwaken(cond){
-  S.talents.forEach(function(t){
-    if(!t.awaken)return;
-    if(t._awakened)return;
-    if(t.awaken.cond!==cond)return;
-    t._awakened=true;
-    logAwaken(t.name);
-    logStory(['—— '+t.awaken.desc+' ——'],'talent-god');
-    if(t.awaken.effect)t.awaken.effect();
-    unlockAchieve('talent_awaken');
-  });
-}
-
-/* ============================================================
-   选择系统
-   ============================================================ */
-function ask(choices,title){
-  return new Promise(function(res){
-    $('choiceBox').style.display='block';
-    $('choiceTitle').textContent=title||'⚡ 抉择';
-    var list=$('choiceList');
-    list.innerHTML='';
-    var availCount=0;
-    choices.forEach(function(c){
-      if(c.cond&&!c.cond())return;
-      availCount++;
-      var b=document.createElement('button');
-      b.type='button';
-      b.className='choice-btn'+(c.cls?' '+c.cls:'');
-      b.textContent='【'+availCount+'】'+c.text;
-      b.onclick=function(){
-        $('choiceBox').style.display='none';
-        logChoice(c.text);
-        var ret;
-        try{ret=c.effect?c.effect():null;}catch(e){console.error(e);}
-        Promise.resolve(ret).then(function(){renderStatus();res();});
-      };
-      list.appendChild(b);
-    });
-    if(!availCount){
-      var b=document.createElement('button');
-      b.className='choice-btn';
-      b.textContent='【继续】……';
-      b.onclick=function(){$('choiceBox').style.display='none';res();};
-      list.appendChild(b);
-    }
-  });
-}
-
-/* ============================================================
-   撞鬼系统
-   ============================================================ */
-function runGhostEncounter(g,introText){
-  return new Promise(function(res){
-    log('【遭遇·'+g.name+'】','ghost');
-    if(introText)logStory(introText,'ghost');
-    logStory(['【提示】'+g.hint],'rule');
-
-    var hideCount=0;
-    if(hasT('ghostEye'))hideCount++;
-    if(hasT('nightEye'))hideCount++;
-    if(hasT('timePerception'))hideCount++;
-    if(hasT('mindRead'))hideCount++;
-
-    /* 先知：直接看到规律 */
-    if(hasT('prophet')&&Math.random()<0.3){
-      log('【先知】你看到了它的真面目。','god');
-      log('【真规律】'+g.rule,'rule');
-      S.knownRules[g.name]=true;
-      addIntel('i_rule_'+g.name,'【'+g.name+'】规律：'+g.rule,true);
-      S.flags.guessCount=(S.flags.guessCount||0)+1;
-      checkAwaken('guess1');
-      return ask([
-        {text:'⚔️ 与它战斗',cls:'danger',effect:function(){
-  return fightGhost(g).then(function(won){
-    if(won)return askTame(g);
-  });
-}},
-        {text:'😨 转身就跑',effect:function(){
-          if(g.kind==='normal'&&Math.random()<0.5){die(g.flee);}
-          else logStory(['你按规律后退。它没有追来。'],'good');
-        }}
-      ],'⚡ 遭遇·'+g.name).then(res);
-    }
-
-    /* 沉默天赋 */
-    if(hasT('silent')&&!S.flags.silentUsed&&Math.random()<0.5){
-      S.flags.silentUsed=true;
-      return ask([
-        {text:'👻 【无言】默默退开，它似乎没注意到你',cls:'mainline',effect:function(){
-          logStory(['你退后一步。','它没有看你。','就像你从没存在过。'],'god');
-          applyMod({intelli:1});
-        }},
-        {text:'⚔️ 与它战斗',cls:'danger',effect:function(){
-  return fightGhost(g).then(function(won){
-    if(won)return askTame(g);
-  });
-}},
-        {text:'👁️ 观察它的规律',cls:'mainline',effect:function(){
-          return buildGuessAndAsk(g,res,false);
-        }}
-      ],'⚡ 遭遇·'+g.name).then(res);
-    }
-
-    /* 构造主选项 */
-    var choices=[
-      {text:'👁️ 观察它的规律',cls:'mainline',effect:function(){
-        return buildGuessAndAsk(g,res,false);
-      }}
-    ];
-    if(hasT('ghostWhisper')&&g.kind==='normal'){
-      choices.push({text:'💬 【鬼语者】与它对话',cls:'mainline',effect:function(){
-        logStory(['你开口说了一句话。','它停住了哭。','它看着你。'],'ghost');
-        S.flags.talkCount=(S.flags.talkCount||0)+1;
-        checkAwaken('talk3');
-        return buildGuessAndAsk(g,res,true);
-      }});
-    }
-    if(g.kind==='normal'||g.kind==='top'){
-  choices.push({text:'⚔️ 与它战斗（战力'+myPower()+' vs '+g.power+'）',cls:'danger',effect:function(){
-    return fightGhost(g).then(function(won){
-      if(won)return askTame(g);
-    });
-  }});
-}
-if(g.kind==='strong'){
-  choices.push({text:'⚔️ 与它战斗（不可驾驭）',cls:'danger',effect:function(){
-    return fightGhost(g).then(function(won){
-      if(won){
-        logStory(['它认了你。','但它的规则不允许被驾驭。','你只能离开。'],'ghost');
-      }
-    });
-  }});
-}
-    choices.push({text:'😨 转身就跑',effect:function(){
-      if(g.kind==='normal'){
-        if(S.knownRules[g.name]){logStory(['你按规律后退。','它没有追来。'],'good');applyMod({intelli:1});}
-        else if(Math.random()<0.55){die(g.flee);}
-        else{logStory(['你转身就跑。它没有立刻追来。'],'bad');applyMod({physic:-1});}
-      } else if(g.kind==='strong'){
-        if(Math.random()<0.40){logStory(['你跑得很快。'],'good');applyMod({physic:-1});}
-        else die(g.flee);
-      } else {die(g.flee);}
-    }});
-
-    return ask(choices,'⚡ 遭遇·'+g.name).then(res);
-  });
-}
-
-/* 构造猜测选项 + 隐藏错误选项 */
-function buildGuessAndAsk(g,doneRes,skipHint){
-  var hideCount=0;
-  if(hasT('ghostEye'))hideCount++;
-  if(hasT('nightEye'))hideCount++;
-  if(hasT('timePerception'))hideCount++;
-  if(hasT('mindRead'))hideCount++;
-
-  var guess=g.guess.slice();
-  if(hideCount>0){
-    var wrongs=guess.filter(function(o){return !o.correct;});
-    var corrects=guess.filter(function(o){return o.correct;});
-    var keep=wrongs.slice(0,Math.max(1,wrongs.length-hideCount));
-    guess=corrects.concat(keep);
-  }
-  for(var i=guess.length-1;i>0;i--){
-    var j=Math.floor(Math.random()*(i+1));
-    var t=guess[i];guess[i]=guess[j];guess[j]=t;
-  }
-
-  return ask(guess.map(function(opt){
-    return {text:'"'+opt.text+'"',effect:function(){
-      if(opt.correct){
-        logStory(['—— 你说对了。'],'rule');
-        S.knownRules[g.name]=true;
-        addIntel('i_rule_'+g.name,'【'+g.name+'】规律：'+g.rule,true);
-        log('【洞悉】你摸清了【'+g.name+'】的规律：'+g.rule,'rule');
-        S.flags.guessCount=(S.flags.guessCount||0)+1;
-        checkAwaken('guess1');
-        if(Object.keys(S.knownRules).length>=13)unlockAchieve('know_all_rules');
-        if(g.kind==='normal'||g.kind==='top'){
-          return askTame(g);
+        function typeWriter() {
+            if (charIndex < nameText.length) {
+                typewriterElement.innerHTML += nameText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 200);
+            }
         }
-      } else {
-        logStory(['—— 你猜错了。'],'bad');
-        die(g.wrongDeath||('你违反了【'+g.name+'】的规律。'));
-      }
-    }};
-  }),'⚡ 猜测它的规律');
-}
+        window.onload = () => {
+            setTimeout(typeWriter, 500);
+        };
 
-/* ============================================================
-   驾驭系统（双门槛：体质 + 情报）
-   ============================================================ */
-function askTame(g){
-  var choices=[
-    {text:'✔ 查看驾驭条件',cls:'mainline',effect:function(){
-      tryTame(g);
-    }},
-    {text:'✖ 放弃，离开',effect:function(){
-      logStory(['你退开了。','有时候放弃也是一种智慧。'],'story');
-    }}
-  ];
-  if(hasT('soulTrade')&&S.physic>2){
-    choices.push({text:'🩸 【魂契】付出1点体质，直接驾驭它',cls:'mainline',effect:function(){
-      if(S.ghosts.length>=maxGhosts()){log('【驭鬼】已达上限。','ghost');return;}
-      applyMod({physic:-1});
-      var copy=JSON.parse(JSON.stringify(g));
-      copy.revive=0;
-      S.ghosts.push(copy);
-      log('【魂契】驾驭【'+g.name+'】！','god');
-      logStory(['你割破手腕。','血在空中画成符。','"契约已成。"'],'god');
-      checkGhostAchieve();
-      renderStatus();
-    }});
-  }
-  return ask(choices,'⚡ 驾驭【'+g.name+'】');
-}
-
-function tryTame(g){
-  /* 第一道：容量 */
-  if(S.ghosts.length>=maxGhosts()){
-    log('【驭鬼·容量已满】'+S.ghosts.length+'/'+maxGhosts(),'danger');
-    logStory(['你身体已经装不下了。','再多一只——','它们会打起来。'],'danger');
-    return;
-  }
-
-  /* 第二道：体质 */
-  var needDiff=g.diff;
-  if(hasT('emptyHand'))needDiff=Math.max(0,needDiff-3);
-  var physicOK=S.physic>=needDiff;
-
-  /* 第三道：情报 */
-  var needIntel=ghostIntelRequirement();
-  var haveIntel=trueIntelCount();
-  var intelOK=haveIntel>=needIntel;
-
-  /* 显示条件 */
-  log('【驾驭条件·'+g.name+'】','rule');
-  logStory([
-    '　▸ 体质：'+S.physic+' / 需要 '+needDiff+(physicOK?'  ✔':'  ✘'),
-    '　▸ 真情报：'+haveIntel+' / 需要 '+needIntel+(intelOK?'  ✔':'  ✘')
-  ],'rule');
-
-  /* 情报不足 */
-  if(!intelOK){
-    var lack=needIntel-haveIntel;
-    log('【驭鬼·失败】情报不足','danger');
-    logStory([
-      '你缺 '+lack+' 条真情报。',
-      '你不知道——',
-      '它和你体内那只，',
-      '会不会打起来。'
-    ],'danger');
-    return;
-  }
-
-  /* 体质不足 */
-  if(!physicOK){
-    log('【驭鬼·失败】体质不足','danger');
-    logStory([
-      '你的身体撑不住。',
-      '你下手——',
-      '就是死。'
-    ],'danger');
-    if(S.flags.soulAnchor){
-      S.flags.soulAnchor=false;
-      log('【镇魂】压住复苏！','good');
-      applyMod({physic:-1});
-    } else {
-      die('驾驭失败，厉鬼复苏。');
-    }
-    return;
-  }
-
-  /* 双门槛都满足：成功 */
-  var copy=JSON.parse(JSON.stringify(g));
-  copy.revive=0;
-  if(hasT('ghostBride')&&S.ghosts.length===0){
-    copy.revive=0;
-    copy._married=true;
-    log('【鬼新娘】它与你的命运绑定。复苏度永远为0。','god');
-  }
-  S.ghosts.push(copy);
-  log('【驭鬼成功】驾驭【'+g.name+'】！','ghost');
-  logStory([
-    '你按住它。',
-    '它挣扎了一下。',
-    '然后——它认了你。'
-  ],'ghost');
-  applyMod({physic:-1});
-  checkGhostAchieve();
-  checkAwaken('ghost3');
-  checkAwaken('ghost5');
-  renderStatus();
-}
-
-function checkGhostAchieve(){
-  var cnt=S.ghosts.length;
-  if(cnt>=1)unlockAchieve('first_ghost');
-  if(cnt>=3)unlockAchieve('three_ghosts');
-  if(cnt>=5)unlockAchieve('ghost_master');
-}
-
-/* ============================================================
-   战斗（含鬼技能选择）
-   ============================================================ */
-function fightGhost(g){
-  return new Promise(function(res){
-    /* 找出可用的鬼技能 */
-    var available=[];
-    S.ghosts.forEach(function(gh){
-      if(!gh.skill)return;
-      if(gh._frozen)return;
-      if(gh.sleeping)return;
-      if((gh.revive||0)>=95)return; /* 濒死不能再用技能 */
-      available.push(gh);
-    });
-
-    var mp=myPower();
-    var choices=[];
-
-    /* 不用技能 */
-    choices.push({
-      text:'【不用技能】硬打（战力 '+mp+' ｜ 复苏度不涨）',
-      effect:function(){
-        return resolveFight(g, 0, 0);
-      }
-    });
-
-    /* 每种鬼技能一个选项 */
-    available.forEach(function(gh){
-      var sk=gh.skill;
-      var rev=(gh.revive||0);
-      var willBe=Math.round(rev+sk.revive);
-      var warn=willBe>=85?' ⚠️濒临':(willBe>=61?' ⚠️鬼性显':'');
-      choices.push({
-        text:'【'+gh.name+'·'+sk.name+'】'+sk.effect+'（复苏 '+Math.round(rev)+' → '+willBe+warn+'）',
-        cls:'mainline',
-        effect:function(){
-          /* 应用技能效果 */
-          var myBonus=0;
-          var enemyDebuff=0;
-          if(sk.effect.indexOf('敌-')>=0){
-            enemyDebuff=parseInt(sk.effect.split('敌-')[1],10)||0;
-          } else if(sk.effect.indexOf('我+')>=0){
-            myBonus=parseInt(sk.effect.split('我+')[1],10)||0;
-          } else if(sk.effect.indexOf('复制')>=0){
-            myBonus=Math.round(g.power*0.2);
-          } else if(sk.effect.indexOf('失能')>=0){
-            enemyDebuff=Math.round(g.power*0.5);
-          } else if(sk.effect.indexOf('暴露')>=0){
-            /* 凝视：自动洞悉规律 */
-            S.knownRules[g.name]=true;
-            addIntel('i_rule_'+g.name,'【'+g.name+'】规律：'+g.rule,true);
-            logStory(['你看见它的规律。'],'rule');
-          } else if(sk.effect.indexOf('重投')>=0){
-            /* 重来：允许一次重投 */
-            S.flags.rerollFight=true;
-          } else if(sk.effect.indexOf('抵消')>=0){
-            /* 替身：存档一次死亡豁免 */
-            S.flags.paperDecoy=true;
-          }
-
-          /* 增加复苏度 */
-          addRevive(gh, sk.revive);
-          log('【'+gh.name+'·'+sk.name+'】复苏度 +'+sk.revive,'ghost');
-          logStory(['它从你体内涌出。','它站在你面前。'],'ghost');
-          renderStatus();
-
-          return resolveFight(g, myBonus, enemyDebuff);
+        // --- 2. 复制 QQ 号 ---
+        function copyQQ() {
+            const qq = "3168565832";
+            navigator.clipboard.writeText(qq).then(() => {
+                const toast = document.getElementById("toast");
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 2000);
+            });
         }
-      });
-    });
 
-    /* 直接逃 */
-    choices.push({
-      text:'😨 转身就跑',
-      cls:'danger',
-      effect:function(){
-        if(g.kind==='normal'){
-          if(S.knownRules[g.name]){logStory(['你按规律后退。','它没有追来。'],'good');applyMod({intelli:1});res(false);}
-          else if(Math.random()<0.55){die(g.flee);res(false);}
-          else{logStory(['你转身就跑。'],'bad');applyMod({physic:-1});res(false);}
-        } else if(g.kind==='strong'){
-          if(Math.random()<0.40){logStory(['你跑得很快。'],'good');applyMod({physic:-1});res(false);}
-          else{die(g.flee);res(false);}
-        } else {
-          die(g.flee);res(false);
+        // --- 3. 加入QQ群逻辑 ---
+        function joinQQGroup() {
+            const groupNumber = "1128453039";
+            navigator.clipboard.writeText(groupNumber).then(() => {
+                const toast = document.getElementById("globalToast");
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 3000);
+            }).catch(err => {
+                const toast = document.getElementById("globalToast");
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 3000);
+            });
         }
-      }
-    });
 
-    ask(choices,'⚡ 战斗·选择').then(function(){res();});
-  });
-}
-
-/* 实际结算 */
-function resolveFight(g, myBonus, enemyDebuff){
-  return new Promise(function(res){
-    var mp=myPower()+myBonus;
-    if(hasT('warIntent'))mp=Math.round(mp*1.3);
-    var ep=Math.max(0, g.power-enemyDebuff);
-
-    logStory(['⚔️ 战斗开始','我方 '+mp+' ｜ 敌方 '+ep],'fight');
-
-    var win=false;
-    if(mp>ep){
-      logStory(['你的鬼群压了上去。','一场苦战。','最后，它低下头。'],'fight');
-      win=true;
-    } else if(mp===ep){
-      if(Math.random()<0.5){
-        logStory(['你在最后一刻压制了它。','它认了你。'],'fight');
-        win=true;
-      } else {
-        logStory(['它在最后一刻反扑。'],'fight');
-        /* 重投检查 */
-        if(S.flags.rerollFight){
-          S.flags.rerollFight=false;
-          log('【重来】时间重置了。','god');
-          return resolveFight(g, myBonus, enemyDebuff).then(res);
+        // --- 4. 模态框控制 ---
+        function toggleGameModal(show) {
+            const modal = document.getElementById('gameModal');
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
         }
-        /* 替身检查 */
-        if(S.flags.paperDecoy){
-          S.flags.paperDecoy=false;
-          log('【替身】纸人替你挡下了这一击。','god');
-          return res(true);
+
+        function toggleAboutModal(show) {
+            const modal = document.getElementById('aboutModal');
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
         }
-        die('战斗失败。');
-        res(false);
-        return;
-      }
-    } else {
-      logStory(['你冲上去。','——毫无悬念。','它甚至没有动。'],'fight');
-      if(S.flags.paperDecoy){
-        S.flags.paperDecoy=false;
-        log('【替身】纸人替你挡下了这一击。','god');
-        res(true);
-        return;
-      }
-      if(S.flags.undying){
-        S.flags.undying=false;
-        log('【不灭战意】你没有死。只是变得很虚弱。','god');
-        applyMod({physic:-2});
-        res(false);
-        return;
-      }
-      die('战力不足，你被【'+g.name+'】碾碎。');
-      res(false);
-      return;
-    }
-    res(win);
-  });
-}
-/* ============================================================
-   情报推演面板
-   ============================================================ */
-function showDeductionPanel(){
-  log('【推演】','intel');
-  logStory(['你把所有碎片摆在桌上。'],'intel');
 
-  var bal=[hasIntel('i_bal_1'),hasIntel('i_bal_2'),hasIntel('i_bal_3')];
-  var fre=[hasIntel('i_freeze_1'),hasIntel('i_freeze_2')];
-  var het=[hasIntel('i_hetero_1'),hasIntel('i_hetero_2'),hasIntel('i_hetero_3')];
-
-  var balCount=bal.filter(Boolean).length;
-  var freCount=fre.filter(Boolean).length;
-  var hetCount=het.filter(Boolean).length;
-
-  if(balCount>=3&&!S.routesUnlocked.balance){
-    S.routesUnlocked.balance=true;
-    logStory([
-      '■ 关于两只鬼：两只鬼在一起，会互相盯着对方',
-      '■ 关于规律：规律相反的鬼，会彼此压制',
-      '■ 关于长期：有人养了两只活到七十',
-      '',
-      '—— 推演成功！',
-      '你明白了。',
-      '两只规律相反的鬼，可以互相压制。',
-      '只要你同时驾驭它们——',
-      '它们的复苏速度会减半。'
-    ],'win');
-    unlockAchieve('balance_master');
-  } else if(balCount>0){
-    logStory(['■ 关于两只鬼：'+(bal[0]?'已收集':'□ ?')],'intel');
-    logStory(['■ 关于规律：'+(bal[1]?'已收集':'□ ?')],'intel');
-    logStory(['■ 关于长期：'+(bal[2]?'已收集':'□ ?')],'intel');
-  }
-
-  if(freCount>=2&&!S.routesUnlocked.freeze){
-    S.routesUnlocked.freeze=true;
-    logStory([
-      '',
-      '■ 关于"卡住"：鬼的力量可以被卡住',
-      '■ 关于时间：钟停了，时间就不走了',
-      '',
-      '—— 推演成功！',
-      '死机法已解锁。',
-      '你可以尝试让一只鬼永久"卡住"。'
-    ],'win');
-  } else if(freCount>0){
-    logStory(['■ 关于"卡住"：'+(fre[0]?'已收集':'□ ?')],'intel');
-    logStory(['■ 关于时间：'+(fre[1]?'已收集':'□ ?')],'intel');
-  }
-
-  if(hetCount>=3&&!S.routesUnlocked.hetero){
-    S.routesUnlocked.hetero=true;
-    logStory([
-      '',
-      '■ 关于旋律：母亲唱的歌，像龙语',
-      '■ 关于分裂：他们本是一体，被劈开了',
-      '■ 关于鬼：它死了。但它还在',
-      '',
-      '—— 推演成功！',
-      '异类法已解锁。',
-      '你可以尝试"用意识压过鬼"。'
-    ],'win');
-    unlockAchieve('hetero_master');
-  } else if(hetCount>0){
-    logStory(['■ 关于旋律：'+(het[0]?'已收集':'□ ?')],'intel');
-    logStory(['■ 关于分裂：'+(het[1]?'已收集':'□ ?')],'intel');
-    logStory(['■ 关于鬼：'+(het[2]?'已收集':'□ ?')],'intel');
-  }
-
-  if(!S.routesUnlocked.balance&&!S.routesUnlocked.freeze&&!S.routesUnlocked.hetero){
-    logStory(['','你看着这些碎片。','它们看起来有关联。','但还缺了什么。'],'story');
-  }
-  renderStatus();
-}
-
-/* ============================================================
-   三条路线激活
-   ============================================================ */
-function activateBalanceRoute(){
-  if(!S.routesUnlocked.balance){log('【平衡法】未解锁。收集3条碎片后推演。','danger');return;}
-  if(S.activeRoute){log('【平衡法】你已经在走'+S.activeRoute+'路线。','danger');return;}
-  S.activeRoute='balance';
-  log('【平衡法·激活】','win');
-  logStory([
-    '你闭上眼睛。',
-    '你体内有两只鬼。',
-    '它们一直很安静。',
-    '但今天——你感觉到它们。',
-    '它们在看你。也在看对方。',
-    '',
-    '这就是平衡。',
-    '你不压制它们。',
-    '你让它们——互相压制。',
-    '复苏增长速度减半。'
-  ],'rule');
-  renderStatus();
-}
-
-function activateFreezeRoute(){
-  if(!S.routesUnlocked.freeze){log('【死机法】未解锁。收集2条碎片后推演。','danger');return;}
-  if(!S.ghosts.length){log('【死机法】你没有鬼。','danger');return;}
-  log('【死机法·仪式】','win');
-  logStory([
-    '你把一只鬼叫出来。',
-    '它站在你面前。',
-    '你伸出手。',
-    '你按住它。',
-    '你开始"卡"它。'
-  ],'ghost');
-  var g=S.ghosts[0];
-  if(Math.random()<0.15){
-    logStory(['你按住了它。','它挣扎。','它嘶吼。','但你没有松手。','然后——它停了。'],'win');
-    g.revive=0;
-    g._frozen=true;
-    g.power=Math.round(g.power*0.5);
-    log('【死机成功】'+g.name+'永远不再复苏。战力减半。','win');
-    unlockAchieve('freeze_master');
-  } else {
-    logStory(['你按住了它。','它挣扎。','它嘶吼。','你按不住。','它的力量——涌出来了。'],'blood');
-    g.revive=Math.min(100,(g.revive||0)+30);
-    log('【死机失败】'+g.name+'复苏度 +30。','danger');
-    if(g.revive>=100)onGhostRevive(g);
-  }
-  renderStatus();
-}
-
-function activateHeteroRoute(){
-  if(!S.routesUnlocked.hetero){log('【异类法】未解锁。收集3条碎片后推演。','danger');return;}
-  if(S.intelli<8){log('【异类法】需要智力≥8。','danger');return;}
-  var target=null;
-  S.ghosts.forEach(function(g){if((g.revive||0)>=70&&!target)target=g;});
-  if(!target){log('【异类法】需要某只鬼复苏度≥70。','danger');return;}
-  S.activeRoute='hetero';
-  log('【异类法·觉醒】','win');
-  logStory([
-    '你闭上眼睛。',
-    '你伸出手。',
-    '你按住它。',
-    '不是驾驭它。',
-    '不是卡住它。',
-    '是——进去。',
-    '你走进它的记忆。'
-  ],'ghost');
-  logStory([
-    '你看见那个雨天。',
-    '你看见那个孩子。',
-    '你蹲下来。',
-    '你说："你还在。"',
-    '"你没有死。"',
-    '"你只是——变成了另一个东西。"',
-    '他抬头看你。',
-    '他笑了。',
-    '他说："你也是。"'
-  ],'god');
-  log('【异类·融合】完全免疫复苏。每年+5鬼性。','win');
-  target.merged=true;
-  renderStatus();
-}
-
-/* ============================================================
-   鬼性事件
-   ============================================================ */
-function triggerGhostNatureEvent(){
-  var danger=null;
-  S.ghosts.forEach(function(g){
-    if((g.revive||0)>=61&&(g.revive||0)<86&&!g._married&&!g._frozen){
-      if(!danger||(g.revive||0)>(danger.revive||0))danger=g;
-    }
-  });
-  if(!danger)return null;
-  if(Math.random()>=0.40)return null;
-
-  var events=[
-    function(){return ghostEventHurt(danger);},
-    function(){return ghostEventNight(danger);},
-    function(){return ghostEventAttack(danger);},
-    function(){return ghostEventReject(danger);},
-    function(){return ghostEventMemory(danger);}
-  ];
-  var ev=events[ri(0,events.length-1)];
-  return ev();
-}
-
-function ghostEventHurt(g){
-  return new Promise(function(res){
-    var alive=alivePlayerPartners();
-    if(!alive.length){res();return;}
-    log('【鬼性·误伤伙伴】','danger');
-    logStory(['你在夜里醒来。','你身边有个人。'],'danger');
-    var p=alive[ri(0,alive.length-1)];
-    logStory(['是'+p.name+'。','他睡着了。','他睡得很安稳。','但你的手在动。','不是你在动。','是它。'],'danger');
-    return ask([
-      {text:'全力挣扎——"不！"',cls:'action',effect:function(){
-        if(Math.random()<0.3){
-          logStory(['你压住了它。','你把手收回来。','你跑出房间。','你在门外吐了。'],'good');
-          applyMod({ren:5});
-        } else {
-          logStory(['你压不住它。'],'danger');
-          p.trust-=30;
-          g.revive=Math.min(100,(g.revive||0)+10);
-          logStory(['你的手落下去。','你听见一声闷响。','你听见一声痛呼。'],'blood');
-          if(p.trust<20){
-            p.side='xu';
-            S.flags.xuActive=true;
-            logStory(['几天后，'+p.name+'离开了你。'],'danger');
-          }
+        window.onclick = function(event) {
+            const gameModal = document.getElementById('gameModal');
+            const aboutModal = document.getElementById('aboutModal');
+            if (event.target === gameModal) toggleGameModal(false);
+            if (event.target === aboutModal) toggleAboutModal(false);
         }
-      }},
-      {text:'叫醒他——"跑！"',cls:'mainline',effect:function(){
-        logStory(['你喊出声。',''+p.name+'醒了。','他看到你的手。','他愣了一下，然后他没有跑。','他抓住你的手。','"哥，是我。","你看着我。","我是'+p.name+'。"'],'partner');
-        applyMod({ren:10});
-        p.trust+=30;
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }},
-      {text:'随它去',cls:'danger',effect:function(){
-        logStory(['你的手落下去。'],'blood');
-        p.trust-=30;
-        g.revive=Math.min(100,(g.revive||0)+10);
-        applyMod({ren:-15});
-        if(p.trust<20){
-          p.side='xu';
-          logStory([''+p.name+'离开了你。'],'danger');
-        }
-      }}
-    ]).then(function(){res();});
-  });
-}
 
-function ghostEventNight(g){
-  return new Promise(function(res){
-    log('【鬼性·夜间袭击】','danger');
-    logStory(['你睁开眼。','你不在家。','你站在一条陌生的街上。','你的手上——有血。'],'blood');
-    logStory(['你脚边躺着一个人。','他还在抽搐。','他快死了。'],'blood');
-    logStory(['你不认识他。','你不知道自己怎么到这里来的。','你不知道你做了什么。','但你知道——是你做的。'],'danger');
-    return ask([
-      {text:'蹲下来，试图救他',cls:'action',effect:function(){
-        if(Math.random()<0.4){
-          logStory(['你按住他的伤口。','你不知道怎么救。','你只知道你不想让他死。','——你救了他。'],'good');
-          applyMod({ren:8});
-        } else {
-          logStory(['他死了。','你站在尸体旁。'],'danger');
-          applyMod({ren:-5});
-        }
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }},
-      {text:'转身就走',cls:'danger',effect:function(){
-        logStory(['你走了。','你没有回头。','你听见他最后的呼吸。','你没有回头。'],'danger');
-        applyMod({ren:-10});
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }},
-      {text:'处理尸体',cls:'danger',effect:function(){
-        logStory(['你挖了个坑。','你把他埋了。','你做完这一切，天已经亮了。'],'danger');
-        applyMod({ren:-5,wei:3});
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }}
-    ]).then(function(){res();});
-  });
-}
+        // --- 5. 音乐播放/暂停控制 ---
+        const musicBtn = document.getElementById('musicBtn');
+        const audioPlayer = document.getElementById('audioPlayer');
 
-function ghostEventAttack(g){
-  return new Promise(function(res){
-    var xuP=aliveXuPartners();
-    if(!xuP.length){res();return;}
-    log('【鬼性·强制攻击】','danger');
-    var p=xuP[ri(0,xuP.length-1)];
-    logStory(['你看见'+p.name+'。','你没有想动手。','但你的身体——动了。'],'danger');
-    logStory(['你冲上去。','你的鬼群压上去。','他倒在地上。','他还在呼吸。','你的手——抬起。'],'blood');
-    return ask([
-      {text:'全力压制——"不——"',cls:'action',effect:function(){
-        if(Math.random()<0.4){
-          logStory(['你停住了。','你转身就跑。','他没有追你。'],'good');
-          applyMod({ren:8});
-        } else {
-          logStory(['你杀了。'],'blood');
-          p.alive=false;
-          g.revive=Math.min(100,(g.revive||0)+10);
-          applyMod({ren:-10});
-        }
-      }},
-      {text:'顺势杀他',cls:'danger',effect:function(){
-        logStory(['你杀了。','你没有犹豫。','你身体里的东西很满意。','你也很满意。'],'blood');
-        p.alive=false;
-        g.revive=Math.min(100,(g.revive||0)+10);
-        applyMod({ren:-15,wei:10});
-      }},
-      {text:'问他——"你为什么跟着许云汐？"',effect:function(){
-        logStory(['你停下来。','你问他。','他愣了一下。','他没有回答。','因为你掐住了他的脖子。'],'danger');
-        applyMod({ren:-3});
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }}
-    ]).then(function(){res();});
-  });
-}
-
-function ghostEventReject(g){
-  return new Promise(function(res){
-    var alive=alivePlayerPartners();
-    if(!alive.length){res();return;}
-    var p=alive[ri(0,alive.length-1)];
-    log('【鬼性·拒绝好意】','danger');
-    logStory([''+p.name+'来找你。','他给你带了东西。','是饭。','是一句问候。'],'partner');
-    logStory(['你看了一眼他。','你不想回应。','你不想说话。','你只想——一个人待着。'],'danger');
-    return ask([
-      {text:'"谢谢你。"',cls:'action',effect:function(){
-        logStory(['你接过来。','你说谢谢。','他笑了。','你没有笑。','但你心里有一个很轻的东西，动了一下。'],'good');
-        applyMod({ren:8});
-        p.trust+=10;
-      }},
-      {text:'"我不需要。"',cls:'danger',effect:function(){
-        logStory(['你把东西推回去。','他愣了一下。','然后他走了。','你没有看他。'],'danger');
-        applyMod({ren:-5});
-        p.trust-=15;
-      }},
-      {text:'"你为什么要对我好？！"',cls:'danger',effect:function(){
-        logStory(['你吼了。','你不想吼。','但你的身体在吼。','他被吓到了。','他退后了一步。'],'blood');
-        applyMod({ren:-15});
-        p.trust-=40;
-        g.revive=Math.min(100,(g.revive||0)+10);
-      }}
-    ]).then(function(){res();});
-  });
-}
-
-function ghostEventMemory(g){
-  return new Promise(function(res){
-    log('【鬼性·记忆混乱】','ghost');
-    logStory(['你醒来。','你不知道自己是谁。','你只知道一个名字——'+g.name+'.'],'ghost');
-    logStory(['你低头看自己的手。','手上有一道纹路。','像眼泪。','你哭了。','你不想哭。','但你在哭。','你不知道为什么哭。','你只知道——这哭不是你的。','是它的。'],'ghost');
-    logStory(['你看见一个画面。','一个孩子。','蹲在墙角。','有人在骂他。','有人在打他。','他不敢哭出声。','后来——他死了。'],'ghost');
-    logStory(['这就是'+g.name+'的记忆。','这就是它的执念。'],'rule');
-    return ask([
-      {text:'接受——"我记住了。"',cls:'action',effect:function(){
-        logStory(['你闭上眼睛。','你接受了这段记忆。','你不再只是"驾驭"它——','你开始"理解"它。'],'good');
-        applyMod({ren:10});
-        g.revive=Math.max(0,(g.revive||0)-5);
-        addIntel('i_deep_'+g.name,g.name+'的深层执念。',true);
-      }},
-      {text:'拒绝——"这不是我的记忆。"',effect:function(){
-        logStory(['你强行把画面推出去。','你不想看。','你不想理解。','你只想驾驭它。'],'danger');
-        applyMod({wei:5});
-        g.revive=Math.min(100,(g.revive||0)+5);
-      }},
-      {text:'主动融合——"我替你活下去。"',cls:'mainline',effect:function(){
-        logStory(['你说这句话的时候，感到身体里有什么东西——放松了。','它不再挣扎。','它不再哭。','它把一切交给了你。'],'god');
-        applyMod({ren:15,intelli:2});
-        g.revive=Math.max(0,(g.revive||0)-10);
-        g.merged=true;
-        S.ghostNature+=5;
-        addIntel('i_merge_'+g.name,'你和'+g.name+'的意识开始融合。',true);
-      }}
-    ]).then(function(){res();});
-  });
-}
-
-/* ============================================================
-   扩展 UI 按钮
-   ============================================================ */
-function addControlButtons(){
-  var ctrl=$('ctrlBox');
-  if(!ctrl||$('deduceBtn'))return;
-
-  var dBtn=document.createElement('button');
-  dBtn.id='deduceBtn';
-  dBtn.textContent='📖 推演';
-  dBtn.style.background='#3a4a8f';
-  dBtn.onclick=function(){
-    if(S.running&&S.alive&&!S.ended){
-      showDeductionPanel();
-    } else {
-      log('【推演】现在不是推演的时候。','tip');
-    }
-  };
-  ctrl.appendChild(dBtn);
-
-  var bBtn=document.createElement('button');
-  bBtn.id='balanceBtn';
-  bBtn.textContent='⚖️ 平衡法';
-  bBtn.style.background='#3a6a4a';
-  bBtn.onclick=function(){
-    if(S.routesUnlocked.balance)activateBalanceRoute();
-    else log('【平衡法】未解锁。收集3条碎片后推演。','danger');
-  };
-  ctrl.appendChild(bBtn);
-
-  var fBtn=document.createElement('button');
-  fBtn.id='freezeBtn';
-  fBtn.textContent='❄️ 死机法';
-  fBtn.style.background='#3a4a6a';
-  fBtn.onclick=function(){
-    if(S.routesUnlocked.freeze)activateFreezeRoute();
-    else log('【死机法】未解锁。收集2条碎片后推演。','danger');
-  };
-  ctrl.appendChild(fBtn);
-
-  var hBtn=document.createElement('button');
-  hBtn.id='heteroBtn';
-  hBtn.textContent='👻 异类法';
-  hBtn.style.background='#6a3a6a';
-  hBtn.onclick=function(){
-    if(S.routesUnlocked.hetero)activateHeteroRoute();
-    else log('【异类法】未解锁。收集3条碎片后推演。','danger');
-  };
-  ctrl.appendChild(hBtn);
-}
-
-/* ============================================================
-   天赋觉醒触发检查
-   ============================================================ */
-function triggerAwakenCheck(){
-  S.talents.forEach(function(t){
-    if(!t.awaken||t._awakened)return;
-    var cond=t.awaken.cond;
-    if(cond==='ghost3'&&S.ghosts.length>=3)checkAwaken('ghost3');
-    if(cond==='ghost5'&&S.ghosts.length>=5)checkAwaken('ghost5');
-    if(cond==='physic8'&&S.physic>=8)checkAwaken('physic8');
-    if(cond==='partner5'&&alivePlayerPartners().length>=5)checkAwaken('partner5');
-    if(cond==='talk3'&&S.flags.talkCount>=3)checkAwaken('talk3');
-    if(cond==='feed5'&&S.flags.feedCount>=5)checkAwaken('feed5');
-    if(cond==='language5'&&S.flags.languageCount>=5)checkAwaken('language5');
-    if(cond==='charm1'&&S.flags.charmCount>=1)checkAwaken('charm1');
-    if(cond==='guess1'&&S.flags.guessCount>=1)checkAwaken('guess1');
-    if(cond==='i_bg_dragon'&&hasIntel('i_bg_dragon'))checkAwaken('i_bg_dragon');
-  });
-}
-
-/* ============================================================
-   MAINLINE 节点表
-   ============================================================ */
-var MAINLINE={};
-
-function sleep(ms){
-  return new Promise(function(r){setTimeout(r,S.skip?30:ms);});
-}
-
-/* ============================================================
-   主循环
-   ============================================================ */
-function gameLoop(){
-  addControlButtons();
-  return new Promise(function(res){
-    S.running=true;
-
-    function step(){
-      if(!S.alive||S.ended||S.age>=120){res();return;}
-      S.age++;
-      renderStatus();
-      triggerAwakenCheck();
-
-      // 主线节点
-      if(MAINLINE[S.age]){
-        var node=MAINLINE[S.age];
-        if(node.cond&&!node.cond()){
-          return afterYear(step);
-        }
-        log('══════ 年龄 '+S.age+' ══════','epic');
-        return Promise.resolve(node.run()).then(function(){
-          if(!S.alive||S.ended){res();return;}
-          return afterYear(step);
-        });
-      }
-
-      // 日常
-      log('【'+S.age+'岁】','tip');
-
-      /* 年龄限制撞鬼概率 */
-      var ghostChance=0;
-      if(S.age<13)ghostChance=0;
-      else if(S.age<18)ghostChance=0.10;
-      else if(S.age<31)ghostChance=0.40;
-      else ghostChance=0.35;
-
-      if(S.age>=13&&Math.random()<ghostChance&&S.ghosts.length<maxGhosts()+1){
-        return randomGhostEvent().then(function(){
-          if(!S.alive||S.ended){res();return;}
-          return afterYear(step);
-        });
-      } else {
-        var dailyEvents=[
-          function(){logStory(['这一年平平安安，什么都没有发生。','天空很蓝。','你什么都没做。'],'good');},
-          function(){
-            if(S.ghosts.length===0){
-              logStory(['这一年平平安安，什么都没有发生。','天空很蓝。','你什么都没做。'],'good');
+        musicBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                // 如果处于暂停状态，则播放
+                audioPlayer.play().then(() => {
+                    musicBtn.classList.add('playing');
+                }).catch(err => {
+                    console.error("播放失败，请检查 music.FLAC 文件是否存在，且浏览器支持 FLAC 格式。", err);
+                });
             } else {
-              applyMod({physic:1});
-              logStory(['你练习了驭鬼。','你和鬼对话。','它没有回答。','但它听懂了。'],'ghost');
+                // 如果正在播放，则暂停
+                audioPlayer.pause();
+                musicBtn.classList.remove('playing');
             }
-          },
-          function(){applyMod({intelli:1});logStory(['你翻看旧书。','你看到一句话：','"规则比善意更保命。"'],'intel');},
-          function(){applyMod({beauty:1});logStory(['你走在街上。','有人看了你一眼。','你不认识他。','但他记住了你。'],'normal');},
-          function(){
-            if(Math.random()<0.15){
-              addIntel('i_random_'+S.age,'你获得了一条碎片。',true);
-              logStory(['你发现了一张纸片。','上面写着一些东西。','你看不懂。','但你记住了。'],'intel');
-            } else {
-              logStory(['这一年很平静。'],'normal');
-            }
-          }
-        ];
-        var ev=dailyEvents[ri(0,dailyEvents.length-1)];
-        ev();
-        return afterYear(step);
-      }
-    }
-
-    function afterYear(step){
-      if(!S.alive||S.ended){res();return;}
-
-      // 鬼香检查
-      var ret=checkGhostIncense();
-      return Promise.resolve(ret).then(function(){
-        if(!S.alive||S.ended){res();return;}
-
-        /* ★ 复苏度年增长（分散压制） */
-        var growth=annualReviveGrowth();
-        S.ghosts.forEach(function(g){
-          if(g._married||g._frozen)return;
-          var actual=growth;
-          if(S.activeRoute==='balance')actual*=0.5;
-          if(S.flags.yinAwaken)actual*=0.8;
-          if(hasT('ghostOverload'))actual*=1.1;
-          g.revive=Math.min(100,(g.revive||0)+actual);
-          if(g.revive>=100){
-            onGhostRevive(g);
-          }
         });
-        if(!S.alive||S.ended){res();return;}
 
-        // 鬼性事件
-        var gn=triggerGhostNatureEvent();
-        return Promise.resolve(gn).then(function(){
-          if(!S.alive||S.ended){res();return;}
+        // --- 6. 自定义鼠标指针 & 星光拖尾 ---
+        const cursor = document.getElementById("cursor");
+        
+        document.addEventListener("mousemove", (e) => {
+            cursor.style.left = e.clientX + "px";
+            cursor.style.top = e.clientY + "px";
 
-          // 异类法鬼性增长
-          if(S.activeRoute==='hetero'){
-            S.ghostNature+=5;
-            if(S.ghostNature>=100){
-              log('【异类·终末】你已经不是你了。','blood');
-              die('你变成了鬼。');
-              res();return;
+            if (Math.random() > 0.3) { 
+                createTrailParticle(e.clientX, e.clientY);
             }
-            if(S.ghostNature>=80){
-              logStory(['你不知道你是谁了。','你只知道你叫——'+(S.ghosts[0]?S.ghosts[0].name:'鬼')+'.'],'ghost');
-            } else if(S.ghostNature>=60){
-              logStory(['你开始忘事。','你忘了昨天的事。','你忘了你小时候的事。','你只记得——它的事。'],'ghost');
-            }
-          }
-
-          // 时间之外：每年+3鬼性
-          if(hasT('beyondTime')){
-            S.ghostNature+=3;
-            if(S.ghostNature>=100){
-              log('【时间之外·终末】你变成了鬼。','blood');
-              die('你在漫长的岁月中失去了自己。');
-              res();return;
-            }
-          }
-
-          // 龙裔真血：每年+3鬼性
-          if(hasT('dragonTrue')){
-            S.ghostNature+=3;
-            if(S.ghostNature>=100){
-              log('【龙裔·终末】你变成了鬼。','blood');
-              die('龙血吞噬了你的意识。');
-              res();return;
-            }
-          }
-
-          // 时间之外/龙血：80岁后不会死
-          if(S.age>=80&&(hasT('beyondTime')||hasT('dragonTrue'))){
-            // 不触发老死
-          } else if(S.age>90&&Math.random()<0.08){
-            logStory(['你在睡梦中安然离世。'],'old');
-            S.alive=false;
-            res();return;
-          }
-
-          renderStatus();
-          return sleep(SPEED).then(step);
         });
-      });
-    }
 
-    step();
-  }).then(function(){
-    S.running=false;
-    if(!S.alive&&!S.ended)log('【结局】你的轮回就此终结。','dead');
-  });
-}
-window.gameLoop=gameLoop;
-
-/* ============================================================
-   鬼香检查
-   ============================================================ */
-function checkGhostIncense(){
-  if(S.ghostIncense<=0)return null;
-  var danger=null;
-  S.ghosts.forEach(function(g){
-    if((g.revive||0)>=85&&!g._married&&!g._frozen)danger=g;
-  });
-  if(!danger)return null;
-  return ask([
-    {text:'【使用鬼香】'+danger.name+'复苏度 '+Math.round(danger.revive)+' → '+Math.round(danger.revive-15),cls:'mainline',effect:function(){
-      useGhostIncense();
-    }},
-    {text:'【不用】继续冒风险',effect:function(){
-      log('你决定不使用鬼香。','danger');
-    }},
-    {text:'【放弃它】主动放弃这只鬼，永久失去',cls:'danger',effect:function(){
-      var idx=S.ghosts.indexOf(danger);
-      if(idx>=0)S.ghosts.splice(idx,1);
-      log('【放弃】'+danger.name+'消散了。','danger');
-      logStory(['你手背上的纹路淡了。','你身体里的哭声停了。'],'danger');
-      applyMod({ren:-5});
-      renderStatus();
-    }}
-  ],'⚡ 危机：'+danger.name+'濒临复苏');
-}
-
-/* ============================================================
-   随机鬼遭遇
-   ============================================================ */
-function randomGhostEvent(){
-  var candidates=GHOSTS.filter(function(g){
-    if(g.kind==='strong')return Math.random()<0.3;
-    if(g.kind==='special')return Math.random()<0.2;
-    if(g.kind==='top')return Math.random()<0.1;
-    return true;
-  });
-  var g=candidates[ri(0,candidates.length-1)];
-  return runGhostEncounter(g);
-}
-
-/* ============================================================
-   节点 1 · 8岁 · 不一样的童年
-   ============================================================ */
-MAINLINE[8]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你八岁。',
-        '你住在一栋很老的居民楼里。',
-        '楼里的人都认识你。',
-        '你父母……你不太记得了。',
-        '你只记得他们很忙。',
-        '你只记得，他们很少笑。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['邻居老人从楼下走过。','他看见你，停下来。'],'story');
-        logStory(['"小孩，你几岁？"'],'story');
-        logStory(['"八岁。"'],'normal');
-        logStory(['他点点头，又摇摇头。'],'story');
-        logStory(['"别靠近海南中心校。"','"那里……"','"那里有东西。"'],'danger');
-        return sleep(700);
-      }).then(function(){
-        logStory(['楼上有人喊他。'],'story');
-        logStory(['他儿子冲下楼，一把拉住老人。'],'story');
-        logStory(['"他脑子糊涂了，你别听他的。"'],'story');
-        logStory(['然后他捂住老人的嘴，把他往楼上拖。'],'story');
-        logStory(['门关上了。'],'story');
-        return sleep(700);
-      }).then(function(){
-        logStory(['然后你听到声音。','很轻。像纸被撕裂。','"呲——"','只有一声。','然后安静了。'],'danger');
-        addIntel('i_school','海南中心校是禁忌之地。',true);
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看见的不是老人被拖走。','你看见的是一只——手。','从楼上伸出来的手。','不是人的手。','它捂住老人的嘴。','然后——老人消失了。'],'ghost');
-          addIntel('i_youhe_exists','你比正常早30年知道优呵的存在。',true);
-          checkAwaken('ghost5');
-        }
-        if(hasT('empathy')){
-          logTalent('共感');
-          logStory(['你感觉到一股情绪。','不是你的。','是老人的。','他被捂住嘴的那一刻——','他很害怕。','但当他被拖上楼的时候——','他不怕了。','他放心了。'],'ghost');
-        }
-        if(hasT('beyondTime')){
-          logTalent('时间之外');
-          logStory(['你坐在台阶上。','你忽然感觉到——','时间从你身边流过去。','但它没有带走你。','你不会老。'],'god');
-        }
-        return ask([
-          {text:'上楼看看',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['你上了楼。','那户人家的门关着。','你敲了敲门。','没有人应。','你从门缝看进去——里面很黑。','你退后一步。'],'story');
-          }},
-          {text:'记住"海南中心校"',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['你记住了这五个字。','老人的眼睛不像在胡说。'],'story');
-          }},
-          {text:'踢翻花盆',cls:'danger',effect:function(){
-            applyMod({ren:-5});
-            logStory(['你踢翻了花盆。','泥土撒了一地。','你听见楼上传来一声笑——','不是老人的笑。','很低。很轻。'],'danger');
-          }},
-          {text:'在门口撒尿',cls:'danger',effect:function(){
-            applyMod({ren:-10,wei:2});
-            logStory(['你上去了。','你什么都没想。','你只是觉得——大人都是骗子。','做完，你转身下楼。','你听见屋里传来一个声音。','不是老人的。','不是他儿子的。'],'danger');
-            addIntel('i_death','那户人家的老人，当晚死了。',true);
-          }}
-        ]);
-      }).then(function(){
-        logStory(['当晚，你做梦。','梦里有一个人在你耳边唱歌。','很短。很温暖。','你醒来的时候，脸上有泪。','你不知道为什么。'],'zx');
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 2 · 11岁 · 第一次撞鬼
-   ============================================================ */
-MAINLINE[11]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '深夜。你被哭声惊醒。',
-        '声音很小。',
-        '像是孩子在黑暗里找不到家。',
-        '你睁开眼。',
-        '床底——有什么东西在动。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['你低头看。','床底，一双眼睛看着你。','它在哭。','不是嚎啕大哭，是无声地哭。','眼泪一滴一滴落在地上。'],'ghost');
-        return sleep(700);
-      }).then(function(){
-        logStory(['然后它爬出来。','很小。像七八岁的孩子。','蹲在墙角。','它不停抹眼泪。','它没有攻击你。','它在看你。'],'ghost');
-
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看到了它的记忆。','一个雨天。一个墙角。一个孩子。','他在哭。','有人在骂他。有人在打他。','他不敢哭出声。','后来——他死了。'],'ghost');
-          addIntel('i_ghost_nature','鬼是人变的，有各自的执念。',true);
-        }
-        if(hasT('empathy')){
-          logTalent('共感');
-          logStory(['你感觉到它的情绪——哀。','它不想伤害你。','它只是——想让你听见它。'],'ghost');
-        }
-        if(hasT('ghostWhisper')){
-          logTalent('鬼语者');
-          logStory(['你张开嘴。','你说了一句话。','它停住了哭。','它看着你。'],'ghost');
-        }
-        if(hasT('ghostEye')){
-          logTalent('鬼眼');
-          logStory(['你看着它。','你眼睛忽然很热。','然后——你看见了它身上的字。','不是字。是痕迹。'],'ghost');
+        function createTrailParticle(x, y) {
+            const particle = document.createElement("div");
+            particle.classList.add("trail-particle");
+            const offsetX = (Math.random() - 0.5) * 20;
+            const offsetY = (Math.random() - 0.5) * 20;
+            particle.style.left = (x + offsetX) + "px";
+            particle.style.top = (y + offsetY) + "px";
+            const size = Math.random() * 6 + 2;
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+            
+            document.body.appendChild(particle);
+            setTimeout(() => { particle.remove(); }, 800);
         }
 
-        return ask([
-          {text:'问它："你为什么哭？"',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['它愣了一下。','它从没被人问过。','它只是哭。','它哭得更厉害了。','然后它退开了。','它缩回床底。','第二天早上，你在床底发现一块很旧的糖纸。','糖纸上画着一个笑脸。'],'good');
-          }},
-          {text:'装作不怕，和它对视',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['你看着它。','它看着你。','很久。','然后它停住了哭。','它歪头看你。','它笑了——不是笑你，是第一次有人看它。','它退开。'],'good');
-          }},
-          {text:'表现出恐惧',effect:function(){
-            applyMod({wei:-2});
-            logStory(['你往后退。','你的手在抖。','它看见了。','它笑了。','它哭着笑。','它慢慢退回床底。','你活下来了。','但那一晚你再也没睡着。'],'bad');
-          }},
-          {text:'抓起东西砸它',cls:'danger',effect:function(){
-            applyMod({ren:-8,wei:3});
-            logStory(['你抓起枕头砸过去。','它没有躲。','枕头穿过了它。','它停住了哭。','它看着你。','它笑了。','第二天早上，你床底多了一样东西——','那只枕头，被撕成了碎片。'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['你活过了第一次撞鬼。','但那一晚之后，你变了。'],'normal');
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 3 · 13岁 · 三个人的相遇
-   ============================================================ */
-MAINLINE[13]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '那是一个春天的下午。',
-        '老师领着一个女孩走进教室。',
-        '她很安静。她的眼睛很黑。',
-        '她走进来的那一刻——',
-        '所有人都看向她。',
-        '她没有看别人。她只看你。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['她走到你旁边的空位。','坐下。','她没有看黑板。','她看你。'],'xu');
-        logStory(['"你是谁？"'],'xu');
-        logStory(['"……"'],'normal');
-        logStory(['"我记住你了。"'],'xu');
-
-        if(hasT('charmer')){
-          logTalent('魅惑');
-          logStory(['她本来准备说"我记住你了"。','但她没说。','她只是——看着你。','看了很久。','然后她低下头。','她的耳朵红了。'],'charm');
-        }
-
-        addPartner('xuYunxi','xu');
-        S.flags.xuActive=true;
-        addIntel('i_xu','许云汐是优呵安排在你身边的监视者。',true);
-
-        return ask([
-          {text:'主动和她说话',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['你问她："你为什么看我？"','她愣了一下。','她没有回答。','但她转过头，看了你一眼。','那不是敌意。那是别的什么。'],'partner');
-          }},
-          {text:'给她一颗糖',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['你从口袋里摸出一颗糖，放在她桌上。','她低头看了很久。','然后她收起来了。'],'good');
-          }},
-          {text:'不理她',cls:'danger',effect:function(){
-            applyMod({ren:-2});
-            logStory(['你转回去，看黑板。','你假装没听见她的话。','但你感觉到——她一直在看你。'],'bad');
-          }},
-          {text:'嘲笑她',cls:'danger',effect:function(){
-            applyMod({ren:-8});
-            logStory(['你说："你有病吧。"','她愣了一下。','然后她笑了——很轻，很短。','那笑声，不像在笑你。','像在笑她自己。'],'xu');
-          }}
-        ]);
-      }).then(function(){
-        // 陆标
-        logStory(['你放学回家。','巷子很窄。','墙角蹲着一个男孩。','他在哭。','但哭声很小。'],'story');
-        return ask([
-          {text:'蹲下来，和他说话',cls:'action',effect:function(){
-            applyMod({ren:5});
-            addPartner('luBiao','player');
-            logStory(['你蹲下来。','"没人追你了。我在这儿。"','他愣了一下。很久。','然后他点点头。'],'partner');
-          }},
-          {text:'给他一颗糖',cls:'action',effect:function(){
-            applyMod({ren:3});
-            addPartner('luBiao','player');
-            logStory(['你摸出一颗糖，放在他手里。','他没吃。他收进口袋。'],'partner');
-          }},
-          {text:'踢他一脚，让他滚',cls:'danger',effect:function(){
-            applyMod({ren:-10});
-            logStory(['你踢了一脚墙。','他吓得缩起来。','你转身走了。'],'danger');
-          }},
-          {text:'利用他做眼线',cls:'danger',effect:function(){
-            applyMod({ren:-8,wei:3});
-            addPartner('luBiao','player');
-            logStory(['"你帮我做点事，我就不让他们追你。"','"好……好。"'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        // 陆建成
-        logStory(['回家路上。','墙角蹲着一个男孩。','他在地上画圈。','一圈。两圈。三圈。'],'story');
-        logStory(['他抬头。','"你是第370个。"'],'story');
-        logStory(['"什么第370个？"'],'normal');
-        logStory(['"第370个看见我的人。"'],'story');
-        logStory(['你问："那第371个呢？"','他愣了一下。','他笑了。','"不会有第371个了。"'],'danger');
-        return ask([
-          {text:'"你在画什么？"',cls:'action',effect:function(){
-            applyMod({ren:5});
-            addPartner('luJiancheng','player');
-            logStory(['"画我自己。"','"一个圈，就是我活一天。"','"我画了370个。"'],'partner');
-            addIntel('i_cycle','陆建成在数日子。',true);
-          }},
-          {text:'给他一颗糖',cls:'action',effect:function(){
-            applyMod({ren:3});
-            addPartner('luJiancheng','player');
-            logStory(['他接了糖，放进嘴里。','他笑了。'],'partner');
-          }},
-          {text:'"你有病吧。"',cls:'danger',effect:function(){
-            applyMod({ren:-5});
-            logStory(['他还在笑。','但他不说话了。'],'bad');
-          }},
-          {text:'踩碎他画的圈',cls:'danger',effect:function(){
-            applyMod({ren:-10});
-            logStory(['你擦掉他画的圈。','他还在笑。','但他的眼睛里——没有光了。'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['你十三岁。','你不知道许云汐是谁。','你不知道她为什么看你。','但你知道——她只是一个……和你一样的人。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 4 · 15岁 · 流派选择
-   ============================================================ */
-MAINLINE[15]={
-  cond:function(){return !S.route;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你十五岁。',
-        '自从十一岁那晚之后，你再也没有见过鬼。',
-        '你几乎要以为那只是一场梦。',
-        '直到今天。',
-        '巷口有个人在等你。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['他穿着一件很旧的灰色外套。','你看不清他的脸。','他手里拿着一颗糖。'],'story');
-        logStory(['"吃吧，没毒。"'],'story');
-        logStory(['你接过。糖是甜的。','这是你记忆里这个世界第一次有甜味。'],'good');
-        return sleep(700);
-      }).then(function(){
-        logStory(['"你十一岁那年，见过一只哭脸鬼。"','"你没死。"','"你知道为什么吗？"'],'story');
-        logStory(['"因为它没想杀你。"','"它只是想看看——有没有人，会问它为什么哭。"'],'story');
-        logStory(['"你问了。所以它放了你。"'],'good');
-        return sleep(700);
-      }).then(function(){
-        logStory(['"我叫智板。"','"你母亲的朋友。"','"她让我看着你。"'],'story');
-        logStory(['"她死了。"','"死在你出生那天。"'],'danger');
-        logStory(['"你体内有龙血。"','"从今天起，你会开始遇到鬼。"','"你会驾驭它们。你会变强。"','"然后——你会死。"'],'danger');
-        logStory(['"但你可以选择怎么死。"','"所以——你想怎么活？"'],'rule');
-        addIntel('i_zhiban','智板是母亲的朋友。',true);
-
-        if(hasT('bloodContract')){
-          logTalent('血契师');
-          logStory(['智板笑了。','"你身体里已经有两只鬼了。"','"它们互相盯着。"'],'epic');
-        }
-        if(hasT('twinSpirit')){
-          logTalent('双生灵魂');
-          logStory(['"你有两个灵魂。"','"一个是你。"','"一个是——我没见过的人。"'],'epic');
-          addIntel('i_twin_spirit','你体内有另一个灵魂。',true);
-        }
-        if(hasT('emptyHand')){
-          logTalent('空手驭鬼');
-          logStory(['智板测试你的驭鬼能力。','你轻易驾驭了一只鬼。'],'epic');
-        }
-        if(hasT('soulVessel')){
-          logTalent('魂器');
-          logStory(['智板给你一个东西。','"你可以把鬼封进去。"'],'epic');
-        }
-
-        return ask([
-          {text:'👁️ 驭鬼者——"我要驾驭更多的鬼。"',cls:'mainline',effect:function(){
-            S.route='ghost';
-            applyMod({wei:8});
-            logStory(['"驭鬼者死在鬼的手里。"','"这是最常见的一种死法。"'],'danger');
-          }},
-          {text:'📜 契约师——"我要和人打交道。"',cls:'mainline',effect:function(){
-            S.route='contract';
-            applyMod({ren:5});
-            logStory(['"人会背叛你。"','"但人也会替你挡刀。"'],'story');
-          }},
-          {text:'📖 情报者——"我想知道真相。"',cls:'mainline',effect:function(){
-            S.route='intel';
-            applyMod({intelli:2});
-            logStory(['"真相会让你失去很多。你确定？"','你点头。'],'story');
-          }},
-          {text:'👑 王者——"我都要。"',cls:'mainline',effect:function(){
-            S.route='king';
-            applyMod({ren:3,wei:3});
-            logStory(['"贪心的人，通常死得最早。"','"但活得最久的人，也通常最贪心。"'],'story');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['智板："记住一句话。"','"规则比善意更保命。"'],'rule');
-        logStory(['他转身离开。','你注意到——他走路的时候，没有脚步声。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 5 · 17岁 · 第一次复苏危机
-   ============================================================ */
-MAINLINE[17]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你十七岁。',
-        '一年前，你驾驭了第一只鬼。',
-        '你用它打了一场架。你赢了。',
-        '然后——今晚，你从梦里惊醒。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['你的手在抖。','不是怕。','是它在动。'],'ghost');
-        logStory(['你能感觉到它在你身体里。','它在哭。'],'ghost');
-        return sleep(700);
-      }).then(function(){
-        logStory(['你低头看自己的手。','手背上——有一道淡淡的纹路。','像眼泪。'],'danger');
-        logStory(['智板出现在门口。','"你用了它。"','"它就会慢慢吃掉你。"','"这个过程——叫复苏。"'],'danger');
-        return sleep(700);
-      }).then(function(){
-        logStory(['"每只鬼都有\'复苏度\'。"','"0 到 100。"','"涨到 100——它就彻底复苏。你就死了。"'],'danger');
-        logStory(['"不用就不涨。但你就没有力量。"','"这个世界——没有力量的人，活不久。"'],'story');
-        logStory(['你看着他。','你终于明白——','鬼不是你的武器。','鬼是你的寿命。'],'rule');
-        addIntel('i_revive_1','用鬼会复苏，但不用鬼就没有力量。',true);
-
-        return ask([
-          {text:'保守——"我以后尽量不用鬼。"',effect:function(){
-            applyMod({ren:5});
-            S.flags.conservative=true;
-          }},
-          {text:'激进——"我需要力量。"',cls:'danger',effect:function(){
-            applyMod({wei:8});
-            S.flags.aggressive=true;
-          }},
-          {text:'求索——"有没有办法延缓复苏？"',cls:'mainline',effect:function(){
-            applyMod({intelli:2});
-            logStory(['"有。"','"但那些方法——都不容易。"','"有的要付出代价。有的要冒很大的险。"'],'story');
-            addIntel('i_revive_2','存在延缓复苏的方法。',true);
-          }},
-          {text:'邪恶——"我可以让别人替我承受吗？"',cls:'danger',effect:function(){
-            applyMod({ren:-8,wei:3});
-            logStory(['智板沉默了。','"可以。"','"但那个人——会死。"'],'danger');
-            addIntel('i_revive_3','可以把鬼转移给别人，对方必死。',true);
-          }}
-        ]);
-      }).then(function(){
-        logStory(['智板："鬼香可以降低复苏度。但很稀有。"','"我只有一支。等你快死的时候——我会给你。"'],'story');
-        logStory(['他站起来，走了。','你注意到——还是没有脚步声。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 6 · 20岁 · 旧钟表店
-   ============================================================ */
-MAINLINE[20]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你二十岁。',
-        '有人给了你一个地址。',
-        '巷子很深。你走了很久。',
-        '最后你看见一家店。',
-        '招牌很旧。上面只有一个字——钟。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['你推门进去。风铃响了一下。'],'story');
-        logStory(['店里很暗。到处都是钟。','每一个钟都停在不同的时间。','没有一个在走。'],'story');
-        return sleep(700);
-      }).then(function(){
-        logStory(['老板坐在柜台后面。','很老了。看不清脸。'],'story');
-        logStory(['"你来了。"','"我认识你母亲。她来过这里。"'],'story');
-        logStory(['你愣住了。'],'normal');
-        return sleep(700);
-      }).then(function(){
-        logStory(['"她说——\'如果我死了，请把这个交给我的孩子。\'"'],'story');
-        logStory(['他从柜台下面拿出一张纸。'],'story');
-        logStory(['上面只有一行字：'],'story');
-        logStory(['"你会比我更值得活着。"'],'zx');
-        logStory(['你看了很久。','你不知道该怎么反应。','你从来没见过她。','但你哭了。'],'story');
-        addIntel('i_mother_last','母亲留给你一句话："你会比我更值得活着。"',true);
-
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看到老板的死亡。','他死于四十年前。','他的执念——是等一个人。'],'ghost');
-          addIntel('i_shop_keeper','老板在等母亲回来。',true);
-        }
-        if(hasT('empathy')){
-          logTalent('共感');
-          logStory(['你感觉到他的情绪——盼。'],'ghost');
-        }
-        if(hasT('beyondTime')){
-          logTalent('时间之外');
-          logStory(['老板看着你。','"你不会老。"','"你会变成——和我们一样的东西。"'],'god');
-          S.ghostIncense++;
-          log('【额外获得】鬼香 ×1','god');
-        }
-
-        return sleep(600);
-      }).then(function(){
-        logStory(['老板："我能买卖情报。你想换什么？"'],'intel');
-        return ask([
-          {text:'用家境换（家≥5）',cls:'action',cond:function(){return S.family>=5;},effect:function(){
-            applyMod({family:-1});
-            addIntel('i_youhe','优呵是世界重启的执掌者。',true);
-            addIntel('i_twin','张响与嘴唇是龙王双生子。',true);
-            logStory(['"第一页——优呵。"','"第二页——张响、嘴唇。"'],'intel');
-          }},
-          {text:'用颜值换（颜≥5）',cls:'action',cond:function(){return S.beauty>=5;},effect:function(){
-            addIntel('i_reinc','三班封印着轮回鬼。',true);
-            addIntel('i_dshadow','龙王之影在地下沉睡。',true);
-            logStory(['"你长得像她。你母亲。"','"三班封印着轮回鬼。"','"龙王之影在地下沉睡。"'],'intel');
-          }},
-          {text:'用智力换（智≥7）',cls:'action',cond:function(){return S.intelli>=7;},effect:function(){
-            applyMod({intelli:1});
-            addIntel('i_twin','张响掌绝对力量，嘴唇执绝对之恶。',true);
-            addIntel('i_youhe','优呵是第一代龙王。',true);
-            logStory(['你和老板对弈了三局。三局你都赢了。'],'intel');
-          }},
-          {text:'抢夺',cls:'danger',effect:function(){
-            applyMod({ren:-10,wei:2});
-            addIntel('i_youhe','优呵是世界重启的执掌者。',true);
-            logStory(['你的手穿过了他——','他不是人。他早就死了。'],'danger');
-            S.flags.fakeIncense=true;
-          }},
-          {text:'"我什么都不要。"',effect:function(){
-            applyMod({ren:3});
-            addIntel('i_mother_words','母亲三句话：别信张响，别信嘴唇，但要相信你自己。',true);
-            logStory(['"别相信张响。"','"也别相信嘴唇。"','"但要相信你自己。"'],'zx');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['临走前，老板叫住你。','"这个给你。"'],'story');
-        logStory(['他递给你一个小瓷瓶。','"鬼香。可以降 15 点复苏度。别浪费。"'],'rule');
-        S.ghostIncense++;
-        log('【获得】鬼香 ×1','god');
-        return sleep(600);
-      }).then(function(){
-        logStory(['你走出店门。风铃又响了一下。','你回头——店不见了。','巷子尽头，只有一堵墙。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   启动绑定
-   ============================================================ */
-S=newState();
-
-function enforce(){
-  var inputs=[$('beauty'),$('intelli'),$('physic'),$('family')];
-  var v=inputs.map(function(el){var n=parseInt(el.value,10);if(isNaN(n)||n<0)n=0;if(n>ATTR_MAX)n=ATTR_MAX;return n;});
-  var total=v[0]+v[1]+v[2]+v[3];
-  while(total>POINT_MAX){
-    var mi=0;
-    for(var i=1;i<4;i++)if(v[i]>v[mi])mi=i;
-    v[mi]--;total--;
-  }
-  inputs.forEach(function(el,i){el.value=String(v[i]);});
-  $('remain').textContent=String(POINT_MAX-v[0]-v[1]-v[2]-v[3]);
-}
-
-$('randomBtn').onclick=function(){
-  if(S.running)return;
-  var v=[0,0,0,0],remain=POINT_MAX;
-  while(remain>0){var i=ri(0,3);if(v[i]<ATTR_MAX){v[i]++;remain--;}}
-  $('beauty').value=v[0];$('intelli').value=v[1];
-  $('physic').value=v[2];$('family').value=v[3];
-  enforce();
-};
-
-['beauty','intelli','physic','family'].forEach(function(id){
-  var el=$(id);
-  ['input','change','keyup','blur'].forEach(function(ev){
-    el.addEventListener(ev,enforce);
-  });
-});
-
-$('rollBtn').onclick=function(){
-  if(S.running)return;
-  enforce();
-  S.beauty=parseInt($('beauty').value,10)||0;
-  S.intelli=parseInt($('intelli').value,10)||0;
-  S.physic=parseInt($('physic').value,10)||0;
-  S.family=parseInt($('family').value,10)||0;
-  var picked=rollTalents();
-  S.talents=picked;
-  S.talentIds={};
-  picked.forEach(function(t){S.talentIds[t.id]=true;});
-  renderTalents(picked);
-  $('startBtn').disabled=false;
-};
-
-$('startBtn').onclick=function(){
-  var talents=S.talents;
-  S=newState();
-  S.talents=talents;
-  S.talentIds={};
-  talents.forEach(function(t){S.talentIds[t.id]=true;});
-  S.beauty=parseInt($('beauty').value,10)||0;
-  S.intelli=parseInt($('intelli').value,10)||0;
-  S.physic=parseInt($('physic').value,10)||0;
-  S.family=parseInt($('family').value,10)||0;
-  talents.forEach(function(t){if(t.effect)t.effect();});
-
-  $('setupBox').style.display='none';
-  $('statusBox').style.display='block';
-  $('mainBox').style.display='block';
-  $('ctrlBox').style.display='flex';
-
-  renderStatus();
-  log('══════ 轮回开始 ══════','epic');
-  log('欢迎来到规则怪谈世界。','tip');
-  log('　属性影响天赋池：属性≥6 触发对应属性天赋，属性=10 必出传说天赋。','tip');
-  log('　驾驭鬼需要双门槛：体质 ≥ 鬼的难度 + 真情报 ≥ 门槛。','tip');
-  log('　真情报门槛随已驾驭鬼数增加：第1只0，第2只3，第3只7……','tip');
-  log('　鬼越多，复苏越慢（分散压制）——但驾驭更多鬼需要更多情报。','tip');
-
-  setTimeout(addControlButtons,100);
-  gameLoop();
-};
-
-$('restartBtn').onclick=function(){
-  location.reload();
-};
-
-$('skipBtn').onclick=function(){
-  S.skip=!S.skip;
-  $('skipBtn').textContent=S.skip?'⏩ 恢复等待':'⏩ 跳过等待';
-};
-
-enforce();
-updateAchCount();
-
-/* ============================================================
-   节点 7 · 23岁 · 阵营成型
-   ============================================================ */
-MAINLINE[23]={
-  cond:function(){return S.flags.xuActive;},
-  run:function(){
-    return new Promise(function(res){
-      logStory(['你二十三岁。','许云汐开始公开拉拢你身边的人。','顾庭雨和阮柔出现。']);
-      return sleep(700).then(function(){
-        logStory(['教室。','许云汐身边多了一个女孩。','她笑起来很甜。'],'xu');
-        logStory(['"你好。"','"我是许云汐的朋友。"'],'xu');
-        logStory(['她说话的时候——眼睛在看你。','但笑容——是给许云汐的。'],'normal');
-        addPartner('guTingyu','xu');
-        addIntel('i_gt','顾庭雨善于伪装，她总是站在强者一边。',true);
-
-        if(hasT('charmer')){
-          logTalent('魅惑');
-          logStory(['她本来准备说"你好"。','但当她看着你的眼睛——她忘了台词。'],'charm');
-        }
-
-        return ask([
-          {text:'"你好。"',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['你点了点头。','她笑了一下。那笑，比刚才真了一点。'],'partner');
-          }},
-          {text:'"你是她朋友？"',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['"我是她唯一的朋友。"'],'partner');
-            addIntel('i_gt_lonely','顾庭雨和许云汐都是孤独的人。',true);
-          }},
-          {text:'"你不像她朋友。"',cls:'danger',effect:function(){
-            applyMod({ren:-3});
-            logStory(['"你也不像好人。"'],'bad');
-          }},
-          {text:'"你跟着她，是因为怕她吧。"',cls:'danger',effect:function(){
-            applyMod({ren:-5});
-            logStory(['她的笑容消失了。她转身走了。','但她没有反驳。'],'danger');
-            addIntel('i_gt_fear','顾庭雨怕许云汐。',true);
-          }}
-        ]);
-      }).then(function(){
-        logStory(['许云汐身边多了一个人。','她站在许云汐身后。一言不发。'],'xu');
-        logStory(['你能感觉到——她在看你的脖子。','像是在计算——一刀能不能砍断。'],'danger');
-        addPartner('ruanRou','xu');
-        addIntel('i_rr','阮柔是许云汐的死士。',true);
-
-        return ask([
-          {text:'和她打招呼',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['你说："你好。"','她愣了一下。她从来不知道该怎么回应这个。'],'partner');
-          }},
-          {text:'"你手上有伤。"',cls:'action',effect:function(){
-            applyMod({ren:3});
-            logStory(['她低头看自己的手。手背上有旧伤。','她说："不疼。"'],'partner');
-            addIntel('i_rr_scar','阮柔身上有很多旧伤。',true);
-          }},
-          {text:'"你砍得断吗？"',cls:'danger',effect:function(){
-            applyMod({ren:-3,wei:2});
-            logStory(['她看着你。很久。','然后她说："砍得断。"'],'danger');
-          }},
-          {text:'"你是她的狗。"',cls:'danger',effect:function(){
-            applyMod({ren:-5});
-            logStory(['她的手动了一下。刀出鞘一寸。','她没有砍。','"……对。"'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['这一年起，许云汐开始公开拉拢你的人。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 7.5 · 24岁 · 双龙（许云汐视角）
-   ============================================================ */
-MAINLINE[24]={
-  cond:function(){return S.flags.xuActive&&!S.flags.xuMetDragons;},
-  run:function(){
-    S.flags.xuMetDragons=true;
-    return new Promise(function(res){
-      logStory(['══════ 许云汐的视角 ══════'],'xu');
-      logStory(['这一晚的事，你并不知道。','但它的结果——会影响你后面的一生。'],'xu');
-      return sleep(900).then(function(){
-        logStory(['深夜。许云汐一个人坐在窗边。'],'xu');
-        logStory(['窗外的灯灭了。不是停电。','是所有的光同时消失。'],'danger');
-        logStory(['她站起来。她感觉到——有人在她身后。'],'danger');
-        logStory(['张响坐在她的椅子上。白色长袍。'],'zx');
-        logStory(['"你是谁。"'],'xu');
-        logStory(['"一个想和你做交易的人。"'],'zx');
-        logStory(['"你接近的那个人，他体内流着龙血。"','"我需要你——在他做决定之前，靠近他。"'],'zx');
-        logStory(['"我凭什么帮你。"'],'xu');
-        logStory(['"因为你也想知道——你为什么总是看着他。"'],'zx');
-        logStory(['"签下这个契约。我会告诉你答案。"'],'zx');
-        return sleep(900);
-      }).then(function(){
-        logStory(['就在许云汐伸手要接的瞬间——窗户开了。'],'danger');
-        logStory(['嘴唇站在窗外。黑色长袍。'],'blood');
-        logStory(['"别签。"'],'blood');
-
-        var trustScore=0;
-        if(S.ren>=60)trustScore+=2;
-        if(S.ren<=20)trustScore-=1;
-        if(hasT('charmer'))trustScore+=2;
-        if(hasT('leaderAura'))trustScore+=1;
-        if(hasT('contractor'))trustScore+=1;
-        if(S.flags.starForm)trustScore+=1;
-        var roll=Math.random()*5;
-        var result;
-        if(trustScore>=4&&roll<3)result='C';
-        else if(trustScore>=2&&roll<2.5)result='C';
-        else if(roll<1.5)result='A';
-        else if(roll<3)result='B';
-        else if(roll<4.2)result='D';
-        else result='E';
-        S.flags.xuState=result;
-
-        return sleep(700).then(function(){
-          if(result==='A'){
-            logStory(['许云汐签了。','一道黑色的纹路烙在她手背上。','像蛇。'],'xu');
-            addIntel('i_xu_contract','许云汐与张响签订契约。',true);
-            S.flags.xuContracted=true;
-          } else if(result==='B'){
-            logStory(['"我谁都不签。"'],'xu');
-            logStory(['嘴唇给了她一把很小的短剑。','"如果有一天你想杀了他——用这个。"'],'blood');
-            S.flags.xuHasDagger=true;
-          } else if(result==='C'){
-            logStory(['"你们都是骗子。"','"因为你从来就没有选择。"'],'xu');
-            logStory(['许云汐转身就走。她保留了意志。'],'xu');
-            S.flags.xuIndependent=true;
-          } else if(result==='D'){
-            logStory(['"你们为什么要找他。"','"他是我们的外甥。"'],'xu');
-            logStory(['许云汐愣住了。'],'xu');
-            S.flags.xuKnowsOrigin=true;
-            addIntel('i_xu_knows','许云汐知道了你的身世。',true);
-          } else {
-            logStory(['许云汐抽出刀。','"你们不该来找我。"'],'xu');
-            logStory(['刀穿过了他们。她杀不死他们。','她只能杀死自己。'],'danger');
-            applyMod({physic:-1});
-            S.flags.xuHurt=true;
-          }
-          return sleep(600);
+        // --- 7. 头像 3D 倾斜 ---
+        const wrapper = document.getElementById("avatar-wrapper");
+        document.addEventListener("mousemove", (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
+            wrapper.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
         });
-      }).then(function(){res();});
-    });
-  }
-};
+        
+        document.addEventListener("mouseleave", () => {
+            wrapper.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            wrapper.style.transition = "transform 0.5s ease";
+        });
+        document.addEventListener("mouseenter", () => {
+            wrapper.style.transition = "transform 0.1s ease-out";
+        });
 
-/* ============================================================
-   节点 8 · 25岁 · 决战
-   ============================================================ */
-MAINLINE[25]={
-  cond:function(){return S.flags.xuActive;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你二十五岁。',
-        '你收到了一封信。',
-        '里面只有一张纸条：',
-        '"今晚十点，中心校门口。"',
-        '"一个人来。"',
-        '你认得她的字。'
-      ]);
-      return sleep(800).then(function(){
-        logStory(['你到的时候，她已经在了。','她背对着你。'],'xu');
-        logStory(['"你来了。"','"我等这一天很久了。"'],'xu');
-        logStory(['她转过身。你第一次看清她的脸。','很普通的一张脸。','但她的眼睛——很黑。','黑得像一口井。井里没有水。'],'xu');
-        return sleep(700);
-      }).then(function(){
-        logStory(['"我从记事起——就有人告诉我——要看着你。"'],'xu');
-        logStory(['"如果我不看着你——我会死。"'],'xu');
-        logStory(['你看着她。你终于明白——','她不是你的敌人。','她只是一个从小被推到你面前的人。'],'story');
-        return sleep(700);
-      }).then(function(){
-        var state=S.flags.xuState||'C';
-        if(state==='A'){
-          logStory(['她的手背亮了一下。契约在发光。'],'xu');
-          logStory(['"今天——我不用再想了。"'],'xu');
-          logStory(['她抽出刀。那不是她。是契约在控制她。'],'danger');
-        } else if(state==='B'){
-          logStory(['她拿出那把短剑。'],'xu');
-          logStory(['"有人给了我这个。"','"但我不想杀你。"','"我只是——不知道该做什么。"'],'xu');
-        } else if(state==='D'){
-          logStory(['"我见过他们。他们说——你是他们的外甥。"','"你从来没说过。"'],'xu');
-        } else if(state==='E'){
-          logStory(['她指着自己手背的伤口。','"我试过杀他们。杀不了。"','"所以我来杀你。"'],'danger');
-        } else {
-          logStory(['"我见过两个穿长袍的人。他们都想和我做交易。我拒绝了。"','"因为我想问你——你到底是谁。"'],'xu');
-        }
-        return sleep(700);
-      }).then(function(){
-        var choices=[];
-        var canPacify=trueIntelCount()>=8&&S.ren>=60;
-        var canTear=hasIntel('i_xu_contract')&&hasIntel('i_zx_contract');
+        // --- 8. 月亮拖拽功能 ---
+        const moon = document.getElementById('moon');
+        let isDraggingMoon = false;
+        let moonOffsetX = 0;
+        let moonOffsetY = 0;
 
-        choices.push({text:'【和平】问她："你为什么要一直看着我？"',cls:'action',effect:function(){
-          applyMod({ren:5});
-          logStory(['"因为……我不知道。我从来不知道。"'],'xu');
-        }});
+        moon.addEventListener('mouseenter', () => document.body.classList.add('moon-hover'));
+        moon.addEventListener('mouseleave', () => document.body.classList.remove('moon-hover'));
 
-        if(hasIntel('i_twin')&&hasIntel('i_bg_photo')){
-          choices.push({text:'【和平】说真话："我母亲也是被他们杀的。"',cls:'action',effect:function(){
-            applyMod({ren:10});
-            logStory(['"……所以你也恨他们？"'],'xu');
-            S.flags.xuKnowsKin=true;
-          }});
+        function startMoonDrag(e) {
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            if (clientX === undefined) return;
+
+            isDraggingMoon = true;
+            const rect = moon.getBoundingClientRect();
+            moonOffsetX = clientX - rect.left;
+            moonOffsetY = clientY - rect.top;
+            
+            moon.classList.add('dragging');
+            moon.style.transition = 'none';
+            
+            e.preventDefault(); 
+            e.stopPropagation();
         }
 
-        if(canPacify){
-          choices.push({text:'【和平】不还手，硬接她一刀',cls:'action',effect:function(){
-            applyMod({ren:15,wei:-5,physic:-1});
-            logStory(['你站着不动。','她的刀在你胸前停住。'],'xu');
-            logStory(['"你为什么不还手？"','"因为你在哭。"'],'normal');
-            logStory(['她伸手摸自己的脸。是湿的。'],'xu');
-            S.flags.xuWeep=true;
-          }});
+        function dragMoon(e) {
+            if (!isDraggingMoon) return;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            if (clientX === undefined) return;
+
+            let x = clientX - moonOffsetX;
+            let y = clientY - moonOffsetY;
+            
+            const moonW = moon.offsetWidth;
+            const moonH = moon.offsetHeight;
+            x = Math.max(0, Math.min(x, window.innerWidth - moonW));
+            y = Math.max(0, Math.min(y, window.innerHeight - moonH));
+            
+            moon.style.left = x + 'px';
+            moon.style.top = y + 'px';
+            moon.style.right = 'auto'; 
+            
+            e.preventDefault();
         }
 
-        if(canTear){
-          choices.push({text:'【和平】"我可以撕掉你手上的契约。"',cls:'mainline',effect:function(){
-            logStory(['你把手按在她的手背上。'],'god');
-            logStory(['你感到一阵剧痛。','但你没有松手。','契约碎了。'],'win');
-            logStory(['"……我自由了？"','她哭了。哭得像个孩子。'],'xu');
-            applyMod({ren:25,physic:-2});
-            S.flags.xuSaved=true;
-            var xp=getP('许云汐');
-            if(xp){xp.side='player';xp.alive=true;xp.trust=80;xp.power=12;}
-            unlockAchieve('xu_saved');
-          }});
+        function stopMoonDrag() {
+            if (isDraggingMoon) {
+                isDraggingMoon = false;
+                moon.classList.remove('dragging');
+                moon.style.transition = 'box-shadow 0.3s, transform 0.3s';
+            }
         }
 
-        choices.push({text:'【中立】"你走吧。我不杀你。"',cls:'action',effect:function(){
-          applyMod({ren:8,wei:-2});
-          logStory(['"我会一直看着你。"','"不是因为恨你。"','"是因为我只有你了。"'],'xu');
-          S.flags.xuLetGo=true;
-        }});
+        moon.addEventListener('mousedown', startMoonDrag);
+        document.addEventListener('mousemove', dragMoon);
+        document.addEventListener('mouseup', stopMoonDrag);
 
-        choices.push({text:'【邪恶】"你不过是个棋子。"',cls:'danger',effect:function(){
-          applyMod({ren:-8,wei:2});
-          logStory(['她笑了。"对。"'],'xu');
-          S.flags.xuHate=true;
-        }});
+        moon.addEventListener('touchstart', startMoonDrag, { passive: false });
+        document.addEventListener('touchmove', dragMoon, { passive: false });
+        document.addEventListener('touchend', stopMoonDrag);
 
-        choices.push({text:'【邪恶】杀她',cls:'danger',effect:function(){
-          var mp=myPower();
-          var xp=95;
-          if(S.flags.xuContracted)xp+=35;
-          for(var i=0;i<S.partners.length;i++){
-            var q=S.partners[i];
-            if(q.side==='xu'&&q.alive)xp+=q.power;
-          }
-          logStory(['⚔️ 决战','我方 '+mp+' ｜ 许云汐方 '+xp],'fight');
-          if(mp>xp){
-            applyMod({ren:-15,wei:10});
-            logStory(['她一步步后退。"我输了。"'],'xu');
-            logStory(['"……原来你也是这样的人。"'],'xu');
-            S.flags.xuDefeated=true;
-            var xx=getP('许云汐');if(xx){xx.alive=false;}
-            unlockAchieve('xu_defeat');
-          } else if(mp===xp){
-            logStory(['两方绞杀。最后她先退了一步。'],'xu');
-            applyMod({physic:-2});
-          } else {
-            logStory(['你被围住。你的伙伴们一个接一个走向她。'],'danger');
-            applyMod({physic:-3});
-            S.flags.xuWon=true;
-          }
-        }});
+        window.addEventListener('resize', () => {
+            if (!moon.style.left) return;
+            const rect = moon.getBoundingClientRect();
+            let x = rect.left;
+            let y = rect.top;
+            x = Math.max(0, Math.min(x, window.innerWidth - moon.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - moon.offsetHeight));
+            moon.style.left = x + 'px';
+            moon.style.top = y + 'px';
+        });
 
-        if(S.ren<=20&&S.wei>=50){
-          choices.push({text:'【邪恶·暗黑】"我们联手吧。杀光所有人。"',cls:'danger',effect:function(){
-            applyMod({ren:-20,wei:15});
-            logStory(['她看着你。很久。','"你比我还疯。"','她伸出手。你握住了。'],'blood');
-            S.flags.xuAlly=true;
-            var xp=getP('许云汐');
-            if(xp){xp.side='player';xp.trust=100;xp.power=20;}
-          }});
+        // --- 9. Canvas 粒子背景 ---
+        const canvas = document.getElementById("particle-canvas");
+        const ctx = canvas.getContext("2d");
+        let width, height;
+        let particles = [];
+        const mouse = { x: null, y: null, radius: 150 };
+
+        window.addEventListener("mousemove", (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        window.addEventListener("mouseout", () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            const particleCount = Math.floor(width * height / 10000); 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
         }
 
-        return ask(choices,'⚡ 决战');
-      }).then(function(){
-        if(S.flags.xuWeep&&!S.flags.xuSaved&&!S.flags.xuAlly){
-          logStory(['她跪在地上。哭了很久。'],'xu');
-          logStory(['"……那我是什么。"','"你是一个人。只是有人骗了你很久。"'],'normal');
-          logStory(['"……我杀了他，你能原谅我吗？"','"你能。"','"那你呢？"','"我不能。但我可以陪你。"'],'normal');
-          applyMod({ren:20});
-          S.flags.xuSaved=true;
-          var xp=getP('许云汐');
-          if(xp){xp.side='player';xp.alive=true;xp.trust=85;xp.power=12;}
-          unlockAchieve('xu_saved');
-        }
-        logStory(['你走出校门。天亮了。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+                const colors = ['rgba(212, 175, 55, 0.8)', 'rgba(255, 179, 0, 0.6)', 'rgba(255, 255, 255, 0.3)'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
 
-/* ============================================================
-   节点 9 · 28岁 · 母亲的真相
-   ============================================================ */
-MAINLINE[28]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你二十八岁。',
-        '你梦见一片废墟。',
-        '废墟上站着一个人。她转过身。',
-        '她长得很像张响。也很像嘴唇。',
-        '她是你的母亲。'
-      ]);
-      return sleep(900).then(function(){
-        logStory(['"你长大了。"','"我不能陪你。我死在你出生那天。"','"但有些事——我要告诉你。"'],'zx');
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
 
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看清她了。','她笑的时候——和你一模一样。'],'ghost');
-          addIntel('i_mother_face','你记住了母亲的脸。',true);
-        }
-        if(hasT('twinSpirit')){
-          logTalent('双生灵魂');
-          logStory(['你体内的另一个灵魂回应了。','"姐姐。"'],'epic');
-          addIntel('i_aunt','另一个灵魂是母亲的姐妹，龙王四女。',true);
-        }
-        if(hasT('beyondTime')){
-          logTalent('时间之外');
-          logStory(['"你不会死。你会活下去。比我久。"','"久到——你会忘记我们。"'],'god');
-          addIntel('i_mother_curse','母亲的诅咒：你会活得太久。',true);
-        }
+            update() {
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let forceDirectionX = dx / distance;
+                    let forceDirectionY = dy / distance;
+                    let maxDistance = mouse.radius;
+                    let force = (maxDistance - distance) / maxDistance;
+                    let directionX = forceDirectionX * force * this.density;
+                    let directionY = forceDirectionY * force * this.density;
 
-        return sleep(700);
-      }).then(function(){
-        logStory(['她说了三句话。'],'zx');
-        logStory(['"张响想控制你。他会用契约锁住你。"'],'zx');
-        logStory(['"嘴唇想毁了你。他会用仇恨烧掉你。"'],'zx');
-        logStory(['"不要相信他们。但——也不要恨他们。"','"他们和你一样，都是被优呵造出来的。"'],'zx');
-        addIntel('i_mother_three','母亲三句话：别信张响，别信嘴唇，也不要恨他们。',true);
-        return sleep(700);
-      }).then(function(){
-        logStory(['她伸手。但她的手穿过了你。','她笑了。很轻。很累。但很温暖。'],'story');
-        logStory(['"我最后想说的是——"','"你比我更值得活着。"'],'zx');
-        return sleep(700);
-      }).then(function(){
-        logStory(['她消散了。','这一次是永别。'],'danger');
-        return ask([
-          {text:'"我会活下去。"',cls:'action',effect:function(){
-            applyMod({ren:10});
-            S.flags.promiseLive=true;
-          }},
-          {text:'"我会找到他们。"',effect:function(){
-            applyMod({intelli:2});
-            S.flags.promiseFind=true;
-          }},
-          {text:'"我会杀了他们。"',cls:'danger',effect:function(){
-            applyMod({ren:-8,wei:5});
-            S.flags.promiseKill=true;
-            logStory(['"……你会变成他的。"','"……我确定。"'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        if(hasT('empathy')){
-          logTalent('共感');
-          logStory(['你感觉到她的情绪——安。','她走了。她没有遗憾。'],'ghost');
-        }
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 10 · 32岁 · 三班之谜
-   ============================================================ */
-MAINLINE[32]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你三十二岁。',
-        '你终于来到这所学校。',
-        '海南中心校。',
-        '没有人。但每一间教室的灯都亮着。',
-        '你走到三楼。九年级三班。',
-        '门虚掩着。你推门进去。'
-      ]);
-      return sleep(900).then(function(){
-        logStory(['空教室里，最后一排靠窗的位置，坐着一个人。','不是人。是教室鬼。'],'ghost');
-        logStory(['它在写作业。','作业本上，写满了同一句话：','"我不能坐这里。"'],'danger');
-
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看到所有孩子的死。','他们坐在座位上。','他们不知道自己要死了。','然后——灯灭了。'],'ghost');
-          addIntel('i_sanban_death','三班全体师生在同一时刻死亡。',true);
+                    if (distance < mouse.radius) {
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    } else {
+                        if (this.x !== this.baseX) {
+                            let dx = this.x - this.baseX;
+                            this.x -= dx / 10;
+                        }
+                        if (this.y !== this.baseY) {
+                            let dy = this.y - this.baseY;
+                            this.y -= dy / 10;
+                        }
+                    }
+                } else {
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.x -= dx / 10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dy = this.y - this.baseY;
+                        this.y -= dy / 10;
+                    }
+                }
+                this.draw();
+            }
         }
 
-        return ask([
-          {text:'"你为什么坐这里？"',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['它张开嘴。没有声音。但你听懂了。','"他们说——最后一排靠窗的位置，给我。"','"我不想要的。但没有人听。"'],'ghost');
-          }},
-          {text:'观察',effect:function(){
-            applyMod({intelli:1});
-            logStory(['你看到它周围的桌子——都比其他桌子干净。','像是有人在等一个人——等一个不会再回来的人。'],'intel');
-          }},
-          {text:'坐在它的位置',cls:'danger',effect:function(){
-            applyMod({wei:3});
-            logStory(['你坐下。','它笑了。然后它消失了。','你忽然觉得——你被"标记"了。'],'danger');
-          }}
-        ]);
-      }).then(function(){
-        logStory(['你回头。陆建成站在门口。'],'partner');
-        logStory(['"我看见她了。"','"你妈。"'],'partner');
-        logStory(['"她让我告诉你——三班不是教室。三班是一个封印。"'],'danger');
-        addIntel('i_seal','三班是封印。',true);
-        return sleep(700);
-      }).then(function(){
-        return ask([
-          {text:'"她还说了什么？"',cls:'action',effect:function(){
-            applyMod({ren:8});
-            logStory(['"封印的钥匙，在你身上。"'],'partner');
-            addIntel('i_key','你是封印的钥匙。',true);
-          }},
-          {text:'"你为什么能看见她？"',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['"因为我快死了。快死的人，能看见死人。"'],'partner');
-            addIntel('i_ljc_dying','陆建成快死了。',true);
-          }},
-          {text:'"你在骗我。"',cls:'danger',effect:function(){
-            applyMod({ren:-5});
-            logStory(['他笑了。很悲伤。','"我没有骗你。我从来不骗你。"'],'danger');
-          }},
-          {text:'"那你去死吧。"',cls:'danger',effect:function(){
-            applyMod({ren:-15,wei:5});
-            logStory(['他愣了一下。然后他点点头。','"好。"'],'danger');
-            S.flags.ljcDoomed=true;
-          }}
-        ]);
-      }).then(function(){
-        logStory(['黑板上的字开始动。一个字一个字地浮出来。'],'blood');
-        logStory(['"杀死嘴唇：龙语短剑，插心。"','"杀死张响：让他撕毁自己所有的契约。"'],'blood');
-        logStory(['字迹是——你母亲的。'],'zx');
-        addIntel('i_kill_lip','杀死嘴唇的方法：龙语短剑刺入心脏。',true);
-        addIntel('i_kill_zx','杀死张响的方法：让他撕毁所有契约。',true);
-        return sleep(800);
-      }).then(function(){
-        logStory(['你身后，有东西在动。','三班之主。','它没有形状。它只是"在"。'],'blood');
-
-        if(hasT('ghostWhisper')){
-          logTalent('鬼语者');
-          logStory(['你可以和它对话。'],'epic');
-          logStory(['"你们想要什么？"','"自由。"','"我可以帮你们。"'],'ghost');
-          logStory(['它开始消散。自愿地。'],'win');
-          applyMod({ren:15});
-          addIntel('i_sanban_truth','三班之主不想害人，它只是被怨气困住。',true);
-          return sleep(700);
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+            }
+            requestAnimationFrame(animate);
         }
 
-        return ask([
-          {text:'【和平】不攻击它，只观察',cls:'action',effect:function(){
-            applyMod({ren:8});
-            logStory(['你不动。它也不动。','很久。它退了。'],'good');
-            addIntel('i_sanban_truth','三班之主不想害人。',true);
-          }},
-          {text:'【中立】试图理解它',effect:function(){
-            applyMod({intelli:2});
-            logStory(['你明白了——','它不是鬼。它是一个班所有人的执念。'],'intel');
-            addIntel('i_sanban_truth','三班之主是三班全体师生的怨气集合体。',true);
-          }},
-          {text:'【邪恶】攻击它',cls:'danger',effect:function(){
-            applyMod({wei:5});
-            logStory(['你召出鬼群。它散开。然后重组。','它没有反击。它只是看着你。'],'danger');
-            S.flags.sanbanAttacked=true;
-          }}
-        ]);
-      }).then(function(){
-        if(S.flags.ljcDoomed){
-          logStory(['几天后，你听说陆建成死了。','死的时候，他在笑。','他说他要去见她。你母亲。'],'danger');
-          S.partners=S.partners.filter(function(p){return p.name!=='陆建成';});
-          renderStatus();
-        }
-        logStory(['你三十二岁。','你终于走进那间教室。','你终于知道——','你要杀的人是谁。你要救的人是谁。'],'story');
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 11 · 38岁 · 优呵现身
-   ============================================================ */
-MAINLINE[38]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你三十八岁。',
-        '你在梦里。你不知道怎么来的。',
-        '你到了一扇门前。门后面有光。',
-        '你推门进去。'
-      ]);
-      return sleep(900).then(function(){
-        logStory(['他坐在王座上。他看着你。'],'youhe');
-        logStory(['"我请你来的。"'],'youhe');
-        logStory(['他穿一身红。','他的脸——很普通。普通得像一个路人。'],'youhe');
-        logStory(['"你母亲也坐过这里。"','"她求我放过你。"','"我答应了。"','"然后我杀了她。"'],'youhe');
-        logStory(['他笑了。','"因为看她哭的样子——太有趣了。"'],'blood');
-        addIntel('i_youhe_nature','优呵以杀人为乐，是纯粹的恶。',true);
-
-        if(hasT('godslayer')){
-          logTalent('弑神者');
-          logStory(['你看见他的弱点。你看见他的裂缝。','你看见——怎么杀他。'],'god');
-          S.flags.godslayerAwaken=true;
-        }
-        if(hasT('nameless')){
-          logTalent('不可名状');
-          logStory(['他看着你的方向。','但他的眼神——穿过了你。','他看不见你。'],'god');
-        }
-        if(hasT('nightmare')){
-          logTalent('通灵眼');
-          logStory(['你看见他杀第一个人。','那个人是苏叶青。','然后你看见——他笑了。','不是犹豫。是享受。'],'ghost');
-          addIntel('i_youhe_first','优呵杀第一个人时，是在享受。',true);
-        }
-        if(hasT('empathy')){
-          logTalent('共感');
-          logStory(['你感觉到他的情绪——厌。','他厌倦一切。'],'ghost');
-          addIntel('i_youhe_bored','优呵厌倦一切。',true);
-        }
-
-        return sleep(700);
-      }).then(function(){
-        if(S.ren<=20&&S.wei>=50){
-          logStory(['"你像我。"','"我们是一样的。"','"你只是还没坐上王座。"'],'youhe');
-        } else if(S.ren>=60&&S.wei<=40){
-          logStory(['"你愚蠢。"','"你以为善良能解决什么？"','"你母亲也善良。她死了。"'],'youhe');
-        } else {
-          logStory(['"你什么都不是。"','"你不善。你不恶。你只是活着。"'],'youhe');
-        }
-        return sleep(700);
-      }).then(function(){
-        return ask([
-          {text:'【和平】不回应他',cls:'action',effect:function(){
-            applyMod({ren:5});
-            logStory(['你转身离开。他没有追。'],'good');
-            S.flags.pathPeace=true;
-          }},
-          {text:'【中立】"我会杀了你。"',effect:function(){
-            applyMod({wei:5});
-            logStory(['优呵笑了。"你会吗？"'],'danger');
-            S.flags.pathVengeance=true;
-          }},
-          {text:'【邪恶】"我想和你做交易。"',cls:'danger',effect:function(){
-            applyMod({ren:-10,wei:5});
-            logStory(['"你母亲也说过这句话。"'],'youhe');
-            S.flags.pathKing=true;
-          }},
-          {text:'【特殊】"你知道我母亲叫什么吗？"',cls:'mainline',cond:function(){return hasIntel('i_mother_face')||hasIntel('i_mother_last');},effect:function(){
-            applyMod({ren:15});
-            logStory(['"……我不知道。"','"我杀了那么多人。我从来不知道他们的名字。"'],'youhe');
-            addIntel('i_youhe_weak','优呵不记得他杀过的人。',true);
-          }}
-        ]);
-      }).then(function(){
-        logStory(['你醒了。你在自己的房间里。','但你知道——那一夜是真的。'],'story');
-        renderStatus();
-        res();
-      });
-    });
-  }
-};
-
-/* ============================================================
-   节点 12 · 45岁 · 终局决战
-   ============================================================ */
-MAINLINE[45]={
-  cond:function(){return true;},
-  run:function(){
-    return new Promise(function(res){
-      logStory([
-        '你四十五岁。',
-        '所有线索汇聚。',
-        '你站在海南中心校的操场上。',
-        '天很暗。',
-        '你知道——这是最后一战。'
-      ]);
-      return sleep(900).then(function(){
-        logStory(['你回头看了一眼。'],'story');
-        var aliveP=alivePlayerPartners();
-        if(aliveP.length){
-          logStory(['你的伙伴都来了。',''+aliveP.map(function(p){return p.name;}).join('、')+'。'],'partner');
-        } else {
-          logStory(['你身后没有人。','你一个人来。'],'danger');
-        }
-        return sleep(700);
-      }).then(function(){
-        logStory(['你冲上去。','你的鬼群铺天盖地。','优呵没有动。','你的鬼群穿过了他。','他不是一个身体。他是一个概念。'],'youhe');
-        if(S.ghosts.length>0){
-          var weakest=S.ghosts[0];
-          S.ghosts.forEach(function(g){if((g.power||0)<(weakest.power||0))weakest=g;});
-          logStory(['你的【'+weakest.name+'】消散了。'],'blood');
-          S.ghosts=S.ghosts.filter(function(g){return g!==weakest;});
-        }
-        renderStatus();
-        return sleep(700);
-      }).then(function(){
-        logStory(['你想起了母亲的话。','"优呵不记得他杀过的人。"'],'zx');
-        return sleep(600);
-      }).then(function(){
-        var choices=[];
-        if(hasT('godslayer')){
-          choices.push({text:'【弑神者】用你觉醒的力量——直接攻击他的裂缝',cls:'mainline',effect:function(){
-            logStory(['你冲向他。你看见他的裂缝。你攻击它。','他第一次——受伤了。'],'win');
-            S.flags.bossWounded=true;
-          }});
-        }
-        if(hasIntel('i_youhe_weak')||hasT('empathy')){
-          choices.push({text:'【弱点】"你不记得他们。"',cls:'action',effect:function(){
-            logStory(['"你杀了那么多人。但你从来不知道他们的名字。"'],'rule');
-            logStory(['他第一次沉默了。'],'youhe');
-            S.flags.bossHesitate=true;
-          }});
-        }
-        if(hasIntel('i_mother_face')||hasIntel('i_mother_last')){
-          choices.push({text:'【母亲】"我母亲叫什么？"',cls:'action',effect:function(){
-            logStory(['"……我不知道。"','"你连她叫什么都不知道。"','"你凭什么杀她。"'],'normal');
-            logStory(['他第二次沉默了。'],'youhe');
-            S.flags.bossHesitate=true;
-          }});
-        }
-        choices.push({text:'【硬打】正面冲击',cls:'danger',effect:function(){
-          logStory(['你冲上去。硬打。','他被你打中了一次。但他也打中了你。'],'fight');
-          applyMod({physic:-3});
-          S.flags.bossWounded=true;
-        }});
-        return ask(choices,'⚡ 决战·破局');
-      }).then(function(){
-        logStory(['—— 最后一刻 ——'],'blood');
-        var path='neutral';
-        if(S.ren<=20&&S.wei>=50)path='slaughter';
-        else if(S.ren>=60&&S.wei<=40)path='peace';
-
-        if(path==='peace'){
-          return finalPeace();
-        } else if(path==='slaughter'){
-          return finalSlaughter();
-        } else {
-          return finalNeutral();
-        }
-      }).then(function(){res();});
-    });
-  }
-};
-
-/* ============================================================
-   三种终局分支
-   ============================================================ */
-function finalPeace(){
-  return new Promise(function(r){
-    logStory(['你不愿杀优呵——因为杀他就是成为他。'],'good');
-    return ask([
-      {text:'【封印】用自己的身体封印他',cls:'mainline',effect:function(){
-        logStory(['"杀你，我就成了你。"','"所以我不杀你。"','"我封印你。用我自己。"'],'win');
-        logStory(['你的身体开始发光。','你的鬼从你体内涌出。','它们围住你。围住他。围住整个世界。'],'god');
-        logStory(['优呵第一次——露出了不同的表情。','"你……为什么要这样。"'],'youhe');
-        logStory(['"因为我不想变成你。"'],'normal');
-        logStory(['你的身体化作光。他被封印了。','世界安静了。'],'win');
-        logStory(['你的伙伴们跪在地上。很久。','他们献祭了你的肉身。'],'partner');
-        logStory(['诡异的时代——终结了。','从此人间再无轮回。从此人间再无优呵。'],'win');
-        unlockAchieve('king_saint');
-        S.ending='殉道';
-        S.ended=true;
-      }},
-      {text:'【不杀】转身离开',effect:function(){
-        logStory(['"我不杀你。我也不会成为你。我走了。"'],'good');
-        logStory(['你回到了人间。你活到了老。','优呵还在。但你——至少没有变成他。'],'normal');
-        S.ending='不留遗憾';
-        S.ended=true;
-      }}
-    ]).then(r);
-  });
-}
-
-function finalSlaughter(){
-  return new Promise(function(r){
-    logStory(['你抽出刀。你把所有的鬼都召出来。你冲向他。'],'blood');
-    return ask([
-      {text:'【杀】杀了他，成为新王',cls:'danger',effect:function(){
-        logStory(['你刺穿了他。他倒下了。','他笑了。"你像我。"'],'youhe');
-        logStory(['"对。我像你。"','"但我会做得比你好。"'],'blood');
-        logStory(['你戴上了王冠。你坐在了他的王座上。'],'blood');
-        logStory(['你回头看。身后一个人都没有。','你的伙伴都死了。是你杀的。'],'danger');
-        logStory(['你忽然懂了——','你不是在杀他。你是在成为他。'],'blood');
-        unlockAchieve('king_blood');
-        S.ending='孤独的王';
-        S.ended=true;
-      }},
-      {text:'【停手】放下刀',cls:'action',effect:function(){
-        logStory(['你举起刀。然后你停住了。'],'normal');
-        logStory(['你想起陆标。你想起他蹲在墙角的那个下午。'],'partner');
-        logStory(['你放下了刀。'],'good');
-        logStory(['"我杀了很多人。我不配活着。"','"但我可以让别人活着。用我的命。"'],'good');
-        logStory(['你把自己的命交了出去。'],'win');
-        S.ending='还债';
-        S.ended=true;
-      }}
-    ]).then(r);
-  });
-}
-
-function finalNeutral(){
-  return new Promise(function(r){
-    logStory(['你不善。你不恶。你只是活着。'],'normal');
-    return ask([
-      {text:'【杀】用母亲留下的龙语短剑',cls:'mainline',cond:function(){return hasIntel('i_kill_lip');},effect:function(){
-        logStory(['龙语短剑出现在你手中。','你刺进他的胸口。'],'fight');
-        logStory(['他低头看着剑。','"原来你也——和他一样。"'],'youhe');
-        logStory(['他化作了灰。','张响看着他消失。很久。然后他也散了。'],'zx');
-        logStory(['"谢谢。"'],'zx');
-        unlockAchieve('blood_king');
-        S.ending='凡王之血';
-        S.ended=true;
-      }},
-      {text:'【隐退】带着伙伴离开',cls:'action',effect:function(){
-        logStory(['你转身。你带着你的伙伴离开。','你没有杀他。你也没有救世界。'],'good');
-        logStory(['你活到了老。你把真相写了下来。','你把它交给后人。'],'good');
-        logStory(['你没有成为英雄。','但你成了一个传道者。'],'win');
-        unlockAchieve('old_sage');
-        S.ending='传承';
-        S.ended=true;
-      }},
-      {text:'【成鬼】让体内的鬼彻底复苏',cls:'danger',effect:function(){
-        logStory(['你闭上眼睛。你不再压制它。','它从你身体里出来。它哭了。'],'ghost');
-        logStory(['"一起。"你说。','你和它——合为一体。'],'win');
-        logStory(['你成为了它。你成为了异类。'],'ghost');
-        unlockAchieve('hetero_master');
-        S.ending='鬼的新娘';
-        S.ended=true;
-      }}
-    ]).then(r);
-  });
-}
-
-/* ============================================================
-   老年结局 · 75岁
-   ============================================================ */
-MAINLINE[75]={
-  cond:function(){return S.alive&&!S.ended;},
-  run:function(){
-    return new Promise(function(res){
-      var aliveP=alivePlayerPartners();
-      if(aliveP.length>=2){
-        logStory(['你七十五岁。','你的身边——还围着 '+aliveP.length+' 个人。'],'good');
-        logStory(['他们也都老了。但还在。'],'good');
-        logStory([''+aliveP.map(function(p){return p.name;}).join('、')+'。'],'partner');
-        logStory(['他们每年都来看你。'],'partner');
-      } else if(aliveP.length>=1){
-        logStory(['你七十五岁。','你的身边——只剩 '+aliveP.length+' 个人了。'],'normal');
-        logStory([''+aliveP.map(function(p){return p.name;}).join('、')+'。'],'partner');
-      } else {
-        logStory(['你七十五岁。','你的身边——一个人都没有了。'],'danger');
-        logStory(['你坐在空荡荡的房间里。'],'old');
-      }
-      return sleep(700).then(function(){
-        return ask([
-          {text:'把一切交给后人',cls:'action',effect:function(){
-            logStory(['你把所有的情报整理成册。','你把所有的鬼托付给伙伴。','你把所有的故事——写了下来。'],'good');
-            logStory(['那一夜——你睡得很安稳。','第二天，你没有醒来。'],'good');
-            logStory(['你的葬礼上——那些伙伴都来了。','他们把你的骨灰撒在海南中心校的操场上。'],'partner');
-            logStory(['从那天起——这座城市再也没有出现过鬼。'],'win');
-            unlockAchieve('old_family');
-            S.ending='天伦之乐';
-            S.ended=true;
-          }},
-          {text:'一个人安静地走',effect:function(){
-            logStory(['你没有告诉任何人。','你一个人走完了最后的日子。'],'old');
-            unlockAchieve('old_alone');
-            S.ending='孤影成灰';
-            S.ended=true;
-          }}
-        ]);
-      }).then(function(){res();});
-    });
-  }
-};
-
-/* ============================================================
-   全局导出 + IIFE 收尾
-   ============================================================ */
-window.S=S;
-window.$=$;
-window.log=log;
-window.logStory=logStory;
-window.ask=ask;
-window.applyMod=applyMod;
-window.renderStatus=renderStatus;
-window.hasT=hasT;
-window.die=die;
-window.addRevive=addRevive;
-window.checkAwaken=checkAwaken;
-window.unlockAchieve=unlockAchieve;
-window.myPower=myPower;
-window.maxGhosts=maxGhosts;
-window.trueIntelCount=trueIntelCount;
-window.ri=ri;
-window.rnd=rnd;
-window.clamp=clamp;
-window.addIntel=addIntel;
-window.addPartner=addPartner;
-window.getP=getP;
-window.alivePlayerPartners=alivePlayerPartners;
-window.aliveXuPartners=aliveXuPartners;
-window.hasIntel=hasIntel;
-window.MAINLINE=MAINLINE;
-window.gameLoop=gameLoop;
-window.triggerAwakenCheck=triggerAwakenCheck;
-
-/* ============ IIFE 收尾 ============ */
-});
-</script>
+        initCanvas();
+        animate();
+        window.addEventListener("resize", initCanvas);
+    </script>
 </body>
 </html>
