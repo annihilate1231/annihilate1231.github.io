@@ -10,6 +10,7 @@
             --bg-color: #050505;
             --gold: #d4af37;
             --amber: #ffb300;
+            --blood-red: #8b0000;
             --text-color: #e0e0e0;
             --glass-bg: rgba(20, 20, 20, 0.6);
             --glass-border: rgba(212, 175, 55, 0.3);
@@ -52,7 +53,7 @@
             width: 130px;
             height: 130px;
             border-radius: 50%;
-            z-index: 50; /* 层级高于主内容 */
+            z-index: 50;
             background: radial-gradient(circle at 30% 30%, #fffde7 0%, #ffd54f 40%, #ffb300 80%, #ff8f00 100%);
             box-shadow: 
                 0 0 50px 15px rgba(255, 179, 0, 0.3),
@@ -67,7 +68,6 @@
             left: 50px;
         }
 
-        /* 月亮表面的陨石坑纹理 */
         .moon::before {
             content: '';
             position: absolute;
@@ -101,7 +101,6 @@
             box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
 
-        /* 拖拽时的月亮状态反馈 */
         .moon.dragging {
             transform: scale(1.08);
             box-shadow: 
@@ -113,7 +112,7 @@
             transition: box-shadow 0.2s, transform 0.2s;
         }
 
-        /* ================= 音乐播放器 (精简版) ================= */
+        /* ================= 音乐播放器 ================= */
         .music-player {
             position: fixed;
             top: 30px;
@@ -148,12 +147,10 @@
             transition: transform 0.3s;
         }
 
-        /* 播放时唱片旋转 */
         .music-btn.playing .music-icon {
             animation: spin 3s linear infinite;
         }
 
-        /* 播放时的发光效果 */
         .music-btn.playing {
             border-color: var(--amber);
             box-shadow: 0 0 20px rgba(255, 179, 0, 0.5);
@@ -205,7 +202,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 25px;
             perspective: 1000px;
             pointer-events: none;
         }
@@ -261,12 +258,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             transform: translateZ(30px);
         }
 
         .name-title {
-            font-size: 3rem;
+            font-size: 3.2rem;
             font-weight: bold;
             color: transparent;
             background: linear-gradient(90deg, #fff, var(--gold), var(--amber), var(--gold));
@@ -274,10 +271,50 @@
             -webkit-background-clip: text;
             background-clip: text;
             animation: shine 3s linear infinite;
-            letter-spacing: 5px;
-            font-family: 'Times New Roman', serif;
+            letter-spacing: 6px;
+            font-family: "Cinzel", "Georgia", "Times New Roman", serif;
             text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            min-height: 60px;
+            min-height: 65px;
+        }
+
+        /* ================= 霸气台词（恢复系统书法体） ================= */
+        .slogan {
+            font-size: 1.7rem; 
+            font-weight: 900;
+            letter-spacing: 5px; /* 系统书法体需要适当的字间距来展现气势 */
+            margin: 10px 0;
+            
+            /* 血色到鎏金的渐变 */
+            background: linear-gradient(180deg, #ff4b4b 0%, #ffb300 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            
+            /* 血色发光与暗影 */
+            text-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.6),
+                0 0 20px rgba(255, 0, 0, 0.4),
+                0 0 40px rgba(255, 179, 0, 0.4);
+            
+            /* 恢复为系统自带的经典书法体栈 */
+            font-family: "STXingkai", "华文行楷", "STKaiti", "楷体", "SimSun", serif;
+            
+            opacity: 0;
+            transform: scale(1.5) translateY(-20px);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* 入场动画，由 JS 触发 */
+        .slogan.show {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            animation: breathe 3s infinite alternate ease-in-out 1s;
+        }
+
+        /* 呼吸灯特效 */
+        @keyframes breathe {
+            0% { text-shadow: 0 0 10px rgba(255, 0, 0, 0.6), 0 0 20px rgba(255, 0, 0, 0.4), 0 0 40px rgba(255, 179, 0, 0.4); }
+            100% { text-shadow: 0 0 20px rgba(255, 0, 0, 1), 0 0 50px rgba(255, 0, 0, 0.6), 0 0 70px rgba(212, 175, 55, 0.8); }
         }
 
         /* ================= 按钮组 ================= */
@@ -437,6 +474,7 @@
             margin-bottom: 20px;
             letter-spacing: 2px;
             font-size: 1.5rem;
+            font-family: "STXingkai", "华文行楷", "SimSun", serif;
         }
 
         .modal-content p {
@@ -563,6 +601,7 @@
         /* 移动端适配 */
         @media (max-width: 600px) {
             .name-title { font-size: 2.2rem; }
+            .slogan { font-size: 1.3rem; letter-spacing: 2px; }
             .avatar-wrapper { width: 180px; height: 180px; }
             .container { gap: 20px; }
             * { cursor: auto; } 
@@ -582,30 +621,28 @@
     <div class="cursor" id="cursor"></div>
     <canvas id="particle-canvas"></canvas>
 
-    <!-- 音乐播放器 (精简版，一键播放/暂停) -->
     <div class="music-player">
         <div class="music-btn" id="musicBtn" title="播放/暂停">
             <span class="music-icon">🎵</span>
         </div>
-        <!-- 默认加载 music.FLAC -->
-        <audio id="audioPlayer" loop src="music.mp3"></audio>
+        <audio id="audioPlayer" loop src="music.FLAC"></audio>
     </div>
 
-    <!-- 可拖拽的鎏金月亮 -->
     <div class="moon" id="moon">
         <div class="moon-crater"></div>
     </div>
 
     <div class="container">
-        <!-- 头像区域 -->
         <div class="avatar-wrapper" id="avatar-wrapper">
             <div class="glow-ring"></div>
             <img src="avatar.jpg" alt="Sunset Avatar" class="avatar" onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=sunset&backgroundColor=111111'">
         </div>
 
-        <!-- 信息区域 -->
         <div class="info-section">
             <h1 class="name-title" id="typewriter"></h1>
+            
+            <!-- 霸气台词 -->
+            <div class="slogan" id="slogan">我重临世界之日，诸逆臣皆当死去</div>
             
             <div class="qq-card" onclick="copyQQ()">
                 <span class="qq-label">Contact QQ</span>
@@ -613,42 +650,29 @@
                 <div class="toast" id="toast">已复制到剪贴板</div>
             </div>
 
-            <!-- 功能按钮组 -->
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="toggleGameModal(true)">
-                    🎮 进入游戏
-                </button>
-                <button class="btn" onclick="toggleAboutModal(true)">
-                    💡 关于我
-                </button>
-                <button class="btn" onclick="joinQQGroup()">
-                    👥 加入QQ群
-                </button>
+                <button class="btn btn-primary" onclick="toggleGameModal(true)">🎮 进入游戏</button>
+                <button class="btn" onclick="toggleAboutModal(true)">💡 关于我</button>
+                <button class="btn" onclick="joinQQGroup()">👥 加入QQ群</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= 游戏选择模态框 ================= -->
+    <!-- 游戏选择模态框 -->
     <div class="modal-overlay" id="gameModal">
         <div class="modal-content">
             <h2>选择游戏</h2>
             <p>请选择你要进入的游戏世界</p>
             <div class="game-options">
-                <a href="game1.html" class="game-option">
-                    <span><span class="game-tag">[01]</span>Game 1</span>
-                </a>
-                <a href="game2.html" class="game-option">
-                    <span><span class="game-tag">[02]</span>Game 2</span>
-                </a>
-                <a href="game3.html" class="game-option">
-                    <span><span class="game-tag">[03]</span>Game 3</span>
-                </a>
+                <a href="game1.html" class="game-option"><span><span class="game-tag">[01]</span>Game 1</span></a>
+                <a href="game2.html" class="game-option"><span><span class="game-tag">[02]</span>Game 2</span></a>
+                <a href="game3.html" class="game-option"><span><span class="game-tag">[03]</span>Game 3</span></a>
             </div>
             <button class="close-btn" onclick="toggleGameModal(false)">取消返回</button>
         </div>
     </div>
 
-    <!-- ================= 关于我模态框 ================= -->
+    <!-- 关于我模态框 -->
     <div class="modal-overlay" id="aboutModal">
         <div class="modal-content">
             <h2>关于 𝖘𝖚𝖓𝖘𝖊𝖙</h2>
@@ -657,7 +681,7 @@
         </div>
     </div>
 
-    <!-- ================= 全局提示框 (加入QQ群) ================= -->
+    <!-- 全局提示框 -->
     <div class="global-toast" id="globalToast">
         <h3>✨ 群号已复制 ✨</h3>
         <p>请打开手机或电脑 QQ 搜索加入</p>
@@ -665,9 +689,10 @@
     </div>
 
     <script>
-        // --- 1. 打字机效果 ---
+        // 1. 打字机与台词入场
         const nameText = "𝖘𝖚𝖓𝖘𝖊𝖙";
         const typewriterElement = document.getElementById("typewriter");
+        const sloganElement = document.getElementById("slogan");
         let charIndex = 0;
 
         function typeWriter() {
@@ -675,290 +700,152 @@
                 typewriterElement.innerHTML += nameText.charAt(charIndex);
                 charIndex++;
                 setTimeout(typeWriter, 200);
+            } else {
+                setTimeout(() => sloganElement.classList.add("show"), 500);
             }
         }
-        window.onload = () => {
-            setTimeout(typeWriter, 500);
-        };
+        window.onload = () => setTimeout(typeWriter, 500);
 
-        // --- 2. 复制 QQ 号 ---
+        // 2. 复制QQ
         function copyQQ() {
-            const qq = "3168565832";
-            navigator.clipboard.writeText(qq).then(() => {
+            navigator.clipboard.writeText("3168565832").then(() => {
                 const toast = document.getElementById("toast");
                 toast.classList.add("show");
-                setTimeout(() => { toast.classList.remove("show"); }, 2000);
+                setTimeout(() => toast.classList.remove("show"), 2000);
             });
         }
 
-        // --- 3. 加入QQ群逻辑 ---
+        // 3. 加群
         function joinQQGroup() {
-            const groupNumber = "1128453039";
-            navigator.clipboard.writeText(groupNumber).then(() => {
+            navigator.clipboard.writeText("1128453039").then(() => {
                 const toast = document.getElementById("globalToast");
                 toast.classList.add("show");
-                setTimeout(() => { toast.classList.remove("show"); }, 3000);
-            }).catch(err => {
+                setTimeout(() => toast.classList.remove("show"), 3000);
+            }).catch(() => {
                 const toast = document.getElementById("globalToast");
                 toast.classList.add("show");
-                setTimeout(() => { toast.classList.remove("show"); }, 3000);
+                setTimeout(() => toast.classList.remove("show"), 3000);
             });
         }
 
-        // --- 4. 模态框控制 ---
+        // 4. 模态框
         function toggleGameModal(show) {
-            const modal = document.getElementById('gameModal');
-            if (show) modal.classList.add('active');
-            else modal.classList.remove('active');
+            document.getElementById('gameModal').classList[show ? 'add' : 'remove']('active');
         }
-
         function toggleAboutModal(show) {
-            const modal = document.getElementById('aboutModal');
-            if (show) modal.classList.add('active');
-            else modal.classList.remove('active');
+            document.getElementById('aboutModal').classList[show ? 'add' : 'remove']('active');
+        }
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('gameModal')) toggleGameModal(false);
+            if (event.target === document.getElementById('aboutModal')) toggleAboutModal(false);
         }
 
-        window.onclick = function(event) {
-            const gameModal = document.getElementById('gameModal');
-            const aboutModal = document.getElementById('aboutModal');
-            if (event.target === gameModal) toggleGameModal(false);
-            if (event.target === aboutModal) toggleAboutModal(false);
-        }
-
-        // --- 5. 音乐播放/暂停控制 ---
+        // 5. 音乐
         const musicBtn = document.getElementById('musicBtn');
         const audioPlayer = document.getElementById('audioPlayer');
-
         musicBtn.addEventListener('click', () => {
             if (audioPlayer.paused) {
-                // 如果处于暂停状态，则播放
-                audioPlayer.play().then(() => {
-                    musicBtn.classList.add('playing');
-                }).catch(err => {
-                    console.error("播放失败，请检查 music.FLAC 文件是否存在，且浏览器支持 FLAC 格式。", err);
-                });
+                audioPlayer.play().then(() => musicBtn.classList.add('playing')).catch(err => console.error(err));
             } else {
-                // 如果正在播放，则暂停
                 audioPlayer.pause();
                 musicBtn.classList.remove('playing');
             }
         });
 
-        // --- 6. 自定义鼠标指针 & 星光拖尾 ---
+        // 6. 鼠标与拖尾
         const cursor = document.getElementById("cursor");
-        
         document.addEventListener("mousemove", (e) => {
             cursor.style.left = e.clientX + "px";
             cursor.style.top = e.clientY + "px";
-
-            if (Math.random() > 0.3) { 
-                createTrailParticle(e.clientX, e.clientY);
-            }
+            if (Math.random() > 0.3) createTrailParticle(e.clientX, e.clientY);
         });
 
         function createTrailParticle(x, y) {
             const particle = document.createElement("div");
             particle.classList.add("trail-particle");
-            const offsetX = (Math.random() - 0.5) * 20;
-            const offsetY = (Math.random() - 0.5) * 20;
-            particle.style.left = (x + offsetX) + "px";
-            particle.style.top = (y + offsetY) + "px";
+            particle.style.left = (x + (Math.random() - 0.5) * 20) + "px";
+            particle.style.top = (y + (Math.random() - 0.5) * 20) + "px";
             const size = Math.random() * 6 + 2;
             particle.style.width = size + "px";
             particle.style.height = size + "px";
-            
             document.body.appendChild(particle);
-            setTimeout(() => { particle.remove(); }, 800);
+            setTimeout(() => particle.remove(), 800);
         }
 
-        // --- 7. 头像 3D 倾斜 ---
+        // 7. 头像3D
         const wrapper = document.getElementById("avatar-wrapper");
         document.addEventListener("mousemove", (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 20;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 20;
-            wrapper.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            wrapper.style.transform = `rotateY(${(window.innerWidth / 2 - e.pageX) / 20}deg) rotateX(${(window.innerHeight / 2 - e.pageY) / 20}deg)`;
         });
-        
         document.addEventListener("mouseleave", () => {
             wrapper.style.transform = `rotateY(0deg) rotateX(0deg)`;
             wrapper.style.transition = "transform 0.5s ease";
         });
-        document.addEventListener("mouseenter", () => {
-            wrapper.style.transition = "transform 0.1s ease-out";
-        });
+        document.addEventListener("mouseenter", () => wrapper.style.transition = "transform 0.1s ease-out");
 
-        // --- 8. 月亮拖拽功能 ---
+        // 8. 月亮拖拽
         const moon = document.getElementById('moon');
-        let isDraggingMoon = false;
-        let moonOffsetX = 0;
-        let moonOffsetY = 0;
-
+        let isDragging = false, offX = 0, offY = 0;
         moon.addEventListener('mouseenter', () => document.body.classList.add('moon-hover'));
         moon.addEventListener('mouseleave', () => document.body.classList.remove('moon-hover'));
 
-        function startMoonDrag(e) {
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            if (clientX === undefined) return;
-
-            isDraggingMoon = true;
+        function startDrag(e) {
+            const cx = e.clientX || (e.touches && e.touches[0].clientX);
+            const cy = e.clientY || (e.touches && e.touches[0].clientY);
+            if (!cx) return;
+            isDragging = true;
             const rect = moon.getBoundingClientRect();
-            moonOffsetX = clientX - rect.left;
-            moonOffsetY = clientY - rect.top;
-            
-            moon.classList.add('dragging');
-            moon.style.transition = 'none';
-            
-            e.preventDefault(); 
-            e.stopPropagation();
+            offX = cx - rect.left; offY = cy - rect.top;
+            moon.classList.add('dragging'); moon.style.transition = 'none';
+            e.preventDefault(); e.stopPropagation();
         }
-
-        function dragMoon(e) {
-            if (!isDraggingMoon) return;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            if (clientX === undefined) return;
-
-            let x = clientX - moonOffsetX;
-            let y = clientY - moonOffsetY;
-            
-            const moonW = moon.offsetWidth;
-            const moonH = moon.offsetHeight;
-            x = Math.max(0, Math.min(x, window.innerWidth - moonW));
-            y = Math.max(0, Math.min(y, window.innerHeight - moonH));
-            
-            moon.style.left = x + 'px';
-            moon.style.top = y + 'px';
-            moon.style.right = 'auto'; 
-            
+        function onDrag(e) {
+            if (!isDragging) return;
+            const cx = e.clientX || (e.touches && e.touches[0].clientX);
+            const cy = e.clientY || (e.touches && e.touches[0].clientY);
+            if (!cx) return;
+            let x = Math.max(0, Math.min(cx - offX, window.innerWidth - moon.offsetWidth));
+            let y = Math.max(0, Math.min(cy - offY, window.innerHeight - moon.offsetHeight));
+            moon.style.left = x + 'px'; moon.style.top = y + 'px'; moon.style.right = 'auto';
             e.preventDefault();
         }
-
-        function stopMoonDrag() {
-            if (isDraggingMoon) {
-                isDraggingMoon = false;
-                moon.classList.remove('dragging');
-                moon.style.transition = 'box-shadow 0.3s, transform 0.3s';
-            }
+        function stopDrag() {
+            if (isDragging) { isDragging = false; moon.classList.remove('dragging'); moon.style.transition = 'box-shadow 0.3s, transform 0.3s'; }
         }
+        moon.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+        moon.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', onDrag, { passive: false });
+        document.addEventListener('touchend', stopDrag);
 
-        moon.addEventListener('mousedown', startMoonDrag);
-        document.addEventListener('mousemove', dragMoon);
-        document.addEventListener('mouseup', stopMoonDrag);
-
-        moon.addEventListener('touchstart', startMoonDrag, { passive: false });
-        document.addEventListener('touchmove', dragMoon, { passive: false });
-        document.addEventListener('touchend', stopMoonDrag);
-
-        window.addEventListener('resize', () => {
-            if (!moon.style.left) return;
-            const rect = moon.getBoundingClientRect();
-            let x = rect.left;
-            let y = rect.top;
-            x = Math.max(0, Math.min(x, window.innerWidth - moon.offsetWidth));
-            y = Math.max(0, Math.min(y, window.innerHeight - moon.offsetHeight));
-            moon.style.left = x + 'px';
-            moon.style.top = y + 'px';
-        });
-
-        // --- 9. Canvas 粒子背景 ---
-        const canvas = document.getElementById("particle-canvas");
-        const ctx = canvas.getContext("2d");
-        let width, height;
-        let particles = [];
-        const mouse = { x: null, y: null, radius: 150 };
-
-        window.addEventListener("mousemove", (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-        window.addEventListener("mouseout", () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
+        // 9. Canvas粒子
+        const canvas = document.getElementById("particle-canvas"), ctx = canvas.getContext("2d");
+        let W, H, particles = [], m = { x: null, y: null, r: 150 };
+        window.addEventListener("mousemove", (e) => { m.x = e.x; m.y = e.y; });
+        window.addEventListener("mouseout", () => { m.x = null; m.y = null; });
 
         function initCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            particles = [];
-            const particleCount = Math.floor(width * height / 10000); 
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
+            W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
+            particles = Array.from({ length: Math.floor(W * H / 10000) }, () => ({
+                x: Math.random() * W, y: Math.random() * H, s: Math.random() * 2 + 0.5,
+                bx: 0, by: 0, d: Math.random() * 30 + 1,
+                c: ['rgba(212, 175, 55, 0.8)', 'rgba(255, 179, 0, 0.6)', 'rgba(255,255,255,0.3)'][Math.floor(Math.random() * 3)]
+            })).map(p => { p.bx = p.x; p.by = p.y; return p; });
         }
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 0.5;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.density = (Math.random() * 30) + 1;
-                const colors = ['rgba(212, 175, 55, 0.8)', 'rgba(255, 179, 0, 0.6)', 'rgba(255, 255, 255, 0.3)'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fill();
-            }
-
-            update() {
-                if (mouse.x != null && mouse.y != null) {
-                    let dx = mouse.x - this.x;
-                    let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let forceDirectionX = dx / distance;
-                    let forceDirectionY = dy / distance;
-                    let maxDistance = mouse.radius;
-                    let force = (maxDistance - distance) / maxDistance;
-                    let directionX = forceDirectionX * force * this.density;
-                    let directionY = forceDirectionY * force * this.density;
-
-                    if (distance < mouse.radius) {
-                        this.x -= directionX;
-                        this.y -= directionY;
-                    } else {
-                        if (this.x !== this.baseX) {
-                            let dx = this.x - this.baseX;
-                            this.x -= dx / 10;
-                        }
-                        if (this.y !== this.baseY) {
-                            let dy = this.y - this.baseY;
-                            this.y -= dy / 10;
-                        }
-                    }
-                } else {
-                    if (this.x !== this.baseX) {
-                        let dx = this.x - this.baseX;
-                        this.x -= dx / 10;
-                    }
-                    if (this.y !== this.baseY) {
-                        let dy = this.y - this.baseY;
-                        this.y -= dy / 10;
-                    }
-                }
-                this.draw();
-            }
-        }
-
         function animate() {
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-            }
+            ctx.clearRect(0, 0, W, H);
+            particles.forEach(p => {
+                if (m.x != null) {
+                    let dx = m.x - p.x, dy = m.y - p.y, dist = Math.hypot(dx, dy);
+                    if (dist < m.r) { p.x -= (dx / dist) * ((m.r - dist) / m.r) * p.d; p.y -= (dy / dist) * ((m.r - dist) / m.r) * p.d; }
+                    else { p.x -= (p.x - p.bx) / 10; p.y -= (p.y - p.by) / 10; }
+                } else { p.x -= (p.x - p.bx) / 10; p.y -= (p.y - p.by) / 10; }
+                ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill();
+            });
             requestAnimationFrame(animate);
         }
-
-        initCanvas();
-        animate();
-        window.addEventListener("resize", initCanvas);
+        initCanvas(); animate(); window.addEventListener("resize", initCanvas);
     </script>
 </body>
 </html>

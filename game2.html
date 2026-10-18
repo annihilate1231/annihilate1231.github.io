@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>教室</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #eef0f3;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  /* ============ 游戏画面：屏幕中间三分之一 + 边框 ============ */
+  #stage {
+    position: fixed;
+    left: 0;
+    top: 33.333vh;
+    width: 100vw;
+    height: 33.334vh;
+    border: 2px solid #111111;
+    box-sizing: border-box;
+    background: #ffffff;
+    overflow: hidden;
+    touch-action: none;
+    z-index: 2;
+  }
+
+  #game { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  /* ============ 顶部对话区 ============ */
+  #topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 33.333vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  #dialog {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    width: 100%;
+    max-width: 470px;
+    padding: 14px 17px;
+    background: #ffffff;
+    border: 1.5px solid rgba(0, 0, 0, 0.09);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+
+  #dialog.show { opacity: 1; transform: translateY(0); }
+
+  #avatarBox {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f6f7f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #avatarBox svg { width: 100%; height: 100%; display: block; }
+
+  #dialogBody { flex: 1 1 auto; min-width: 0; }
+
+  #speaker {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: #9ca3af;
+    margin-bottom: 6px;
+  }
+
+  #line {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.65;
+    color: #111827;
+    word-break: break-word;
+  }
+
+  #choices { margin-top: 4px; }
+
+  .choice {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 9px 14px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    color: #111111;
+    background: #ffffff;
+    border: 1.4px solid rgba(0, 0, 0, 0.16);
+    border-radius: 10px;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+
+  .choice:active,
+  .choice:hover {
+    background: #111111;
+    color: #ffffff;
+    border-color: #111111;
+  }
+
+  /* ============ 虚拟摇杆 ============ */
+  #joystick {
+    position: fixed;
+    left: 24px;
+    bottom: 9vh;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.022);
+    border: 1px solid rgba(0, 0, 0, 0.09);
+    touch-action: none;
+    z-index: 10;
+    transition: opacity .25s ease;
+  }
+
+  #joystick.locked { opacity: 0.3; }
+
+  #joystick::after {
+    content: "";
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px dashed rgba(0, 0, 0, 0.06);
+  }
+
+  #knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px 0 0 -26px;
+    border-radius: 50%;
+    background: #111;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* ============ 交互按钮 ============ */
+  #actionBtn {
+    position: fixed;
+    right: 28px;
+    bottom: 9vh;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: rgba(0, 0, 0, 0.32);
+    background: #ffffff;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    touch-action: none;
+    z-index: 10;
+    transition: transform .08s ease, color .18s, background .18s,
+                border-color .18s, box-shadow .18s;
+  }
+
+  #actionBtn.ready {
+    color: #ffffff;
+    background: #111111;
+    border-color: #111111;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  #actionBtn.pressed { transform: scale(0.92); }
+
+  /* ============ 小屏适配 ============ */
+  @media (max-width: 520px) {
+    #joystick { width: 112px; height: 112px; left: 16px; bottom: 9vh; }
+    #knob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+    #actionBtn { width: 78px; height: 78px; right: 20px; bottom: 10vh; font-size: 14px; }
+    #line { font-size: 15px; }
+    #dialog { padding: 12px 14px; gap: 11px; }
+    #avatarBox { flex: 0 0 46px; width: 46px; height: 46px; }
+  }
+
+  /* ============ 横屏适配 ============ */
+  @media (orientation: landscape) and (max-height: 560px) {
+    #stage { top: 20vh; height: 58vh; }
+    #topBar { height: 20vh; }
+    #joystick { width: 84px; height: 84px; left: 16px; bottom: 2vh; }
+    #knob { width: 36px; height: 36px; margin: -18px 0 0 -18px; }
+    #actionBtn { width: 66px; height: 66px; right: 18px; bottom: 2vh; font-size: 12px; }
+    #line { font-size: 14px; }
+    #avatarBox { flex: 0 0 40px; width: 40px; height: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topBar">
+  <div id="dialog">
+    <div id="avatarBox"></div>
+    <div id="dialogBody">
+      <div id="speaker"></div>
+      <div id="line"></div>
+      <div id="choices"></div>
+    </div>
+  </div>
+</div>
+
+<div id="stage"><canvas id="game"></canvas></div>
+
+<div id="joystick"><div id="knob"></div></div>
+<div id="actionBtn">交互</div>
+
+<script>
+/* ==========================================================
+   01 · 调试开关
+   ========================================================== */
+const DEBUG = true;
+
+/* ==========================================================
+   02 · 常量配置
+   ========================================================== */
+const CONFIG = {
+  MAX_SPEED:   240,
+  ACCEL:       11,
+  TOAST_TIME:  3.8,
+  INTERACT_PAD: 34,
+  TRAIL_LEN:   10,
+};
+
+/* ==========================================================
+   03 · 全局状态
+   ========================================================== */
+/* 剧情变量（跨场景保留） */
+const state = {
+  vars:  {},   // 剧本 set 进来的变量
+  fired: {},   // 一次性触发器标记
+};
+
+/* 对话引擎状态 */
+const dialogue = {
+  active:  false,      // 剧本是否在运行
+  mode:    'hidden',   // hidden | toast | waiting | choice
+  timer:   0,          // toast 倒计时
+  scriptId: null,      // 当前剧本 id
+  frames:  [],         // 执行栈 { nodes, index }
+  currentChoices: null,
+};
+
+/* 场景 / 玩家状态 */
+let sceneName = 'classroom';
+let cur = null;
+let active = null;     // 距离玩家最近的交互对象
+let camX = 0, camY = 0;
+let xu = null;         // 许云汐对象引用（渲染用）
+
+const player = { x: 620, y: 760, r: 15 };
+const vel = { x: 0, y: 0 };
+let lastAngle = -Math.PI / 2;
+const trail = [];
+
+const solids = [];
+const interactables = [];
+
+/* ==========================================================
+   04 · 剧本数据（纯数据，随便改）
+   ========================================================== */
+/* 说话人表：who → { 显示名, 头像类型 } */
+const WHO = {
+  xu:  { name: '许云汐', kind: 'xu'  },
+  npc: { name: '同学',   kind: 'npc' },
+  obj: { name: '提示',   kind: 'obj' },
+};
+
+/* 剧本节点表
+   say   : { who, text }
+   choice: { options: [{ label, next }] }
+   set   : { key, value }
+   when  : { cond, then: [ ...nodes ] }
+   jump  : { to }
+   end   : {}
+*/
+const SCRIPT = {
+  xu_main: [
+    { type: 'say', who: 'xu', text: '你也没走呀。' },
+    { type: 'say', who: 'xu', text: '最后一节自习课，教室里只剩我们两个了。' },
+    { type: 'say', who: 'xu', text: '……我有件事，想问你很久了。' },
+    { type: 'choice', options: [
+      { label: '你说吧。', next: 'xu_ask' },
+      { label: '什么事？', next: 'xu_evade' },
+    ]},
+    { type: 'jump', to: 'xu_common' },
+  ],
+  xu_ask: [
+    { type: 'say', who: 'xu', text: '其实也没什么大事……就是明天的运动会，你会去看吗？' },
+    { type: 'jump', to: 'xu_common' },
+  ],
+  xu_evade: [
+    { type: 'say', who: 'xu', text: '（她犹豫了一下）算了，还是等明天再说吧。' },
+    { type: 'jump', to: 'xu_common' },
+  ],
+  xu_common: [
+    { type: 'say', who: 'xu', text: '（窗外的梧桐叶被风吹得沙沙响）' },
+    { type: 'say', who: 'xu', text: '那就……明天见。' },
+    { type: 'set', key: 'met_xu', value: true },
+    { type: 'end' },
+  ],
+};
+
+/* ==========================================================
+   05 · 条件求值
+   ========================================================== */
+/* 支持：函数、'flag'、'not'、'and'、'or'、'eq'
+   例： ['and', ['flag','saw_window'], ['not',['flag','met_xu']]]
+*/
+function evalCond(cond, vars) {
+  if (cond == null) return true;
+  if (typeof cond === 'function') return !!cond(vars);
+  if (!Array.isArray(cond)) return !!cond;
+
+  const [op, ...args] = cond;
+  switch (op) {
+    case 'flag': return !!vars[args[0]];
+    case 'not':  return !evalCond(args[0], vars);
+    case 'and':  return args.every(a => evalCond(a, vars));
+    case 'or':   return args.some(a => evalCond(a, vars));
+    case 'eq':   return vars[args[0]] === args[1];
+    default:     return true;
+  }
+}
+
+/* ==========================================================
+   06 · 剧本校验器
+   ========================================================== */
+function validateScripts() {
+  const errors = [];
+  for (const [id, nodes] of Object.entries(SCRIPT)) {
+    nodes.forEach((n, i) => {
+      if (n.type === 'choice' && Array.isArray(n.options)) {
+        n.options.forEach((o, j) => {
+          if (o.next && !SCRIPT[o.next]) {
+            errors.push(`  ${id}[${i}].options[${j}] → 未知剧本 "${o.next}"`);
+          }
+        });
+      }
+      if (n.type === 'jump' && !SCRIPT[n.to]) {
+        errors.push(`  ${id}[${i}] jump → 未知剧本 "${n.to}"`);
+      }
+      if (n.type === 'say' && !n.text) {
+        errors.push(`  ${id}[${i}] say 缺少 text`);
+      }
+    });
+  }
+  if (errors.length) {
+    console.error('[剧本校验] 发现 ' + errors.length + ' 个问题：\n' + errors.join('\n'));
+  } else if (DEBUG) {
+    console.log('[剧本校验] 通过，共 ' + Object.keys(SCRIPT).length + ' 段剧本');
+  }
+  return errors.length === 0;
+}
+
+/* ==========================================================
+   07 · DOM 引用
+   ========================================================== */
+const canvas     = document.getElementById('game');
+const ctx        = canvas.getContext('2d');
+const joystickEl = document.getElementById('joystick');
+const knobEl     = document.getElementById('knob');
+const actionBtn  = document.getElementById('actionBtn');
+const dialogEl   = document.getElementById('dialog');
+const avatarBox  = document.getElementById('avatarBox');
+const speakerEl  = document.getElementById('speaker');
+const lineEl     = document.getElementById('line');
+const choicesEl  = document.getElementById('choices');
+
+/* ==========================================================
+   08 · 画布尺寸
+   ========================================================== */
+let W = 0, H = 0;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth || 1;
+  const h = canvas.clientHeight || 1;
+  W = w;
+  H = h;
+  canvas.width  = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 160));
+resize();
+
+/* ==========================================================
+   09 · 头像
+   ========================================================== */
+function avatarSVG(kind) {
+  const open = `<svg viewBox="0 0 64 64" fill="none" stroke="#111111"
+    stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">`;
+
+  const person = `
+    <circle cx="32" cy="24" r="11"/>
+    <path d="M27 36.5 L23 57"/>
+    <path d="M37 36.5 L41 57"/>
+  `;
+
+  if (kind === 'xu') {
+    return open + person + `
+      <g transform="translate(22.5,14.5) rotate(-38)">
+        <ellipse cx="-4.6" cy="0" rx="5.2" ry="3.3" fill="#e8a0b4" stroke-width="1.5"/>
+        <ellipse cx="4.6" cy="0" rx="5.2" ry="3.3" fill="#e8a0b4" stroke-width="1.5"/>
+        <ellipse cx="0" cy="0" rx="1.4" ry="3.3" fill="#111111" stroke="none"/>
+      </g>
+    </svg>`;
+  }
+
+  if (kind === 'npc') {
+    return open + person + `</svg>`;
+  }
+
+  return open + `
+    <rect x="17" y="26" width="30" height="22" rx="4"/>
+    <path d="M17 36h30"/>
+    <path d="M27 26v-6h10v6"/>
+  </svg>`;
+}
+
+/* ==========================================================
+   10 · 对话 UI 层
+   ========================================================== */
+function showLine(name, text, kind) {
+  speakerEl.textContent = name;
+  lineEl.textContent = text;
+  avatarBox.innerHTML = avatarSVG(kind);
+  choicesEl.innerHTML = '';
+  dialogue.currentChoices = null;
+  dialogue.mode = 'waiting';
+  dialogEl.classList.add('show');
+}
+
+function showToast(name, text, kind) {
+  showLine(name, text, kind);
+  dialogue.mode = 'toast';
+  dialogue.timer = CONFIG.TOAST_TIME;
+}
+
+function showChoices(options) {
+  dialogue.mode = 'choice';
+  dialogue.currentChoices = options;
+  choicesEl.innerHTML = '';
+  options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'choice';
+    b.type = 'button';
+    b.textContent = opt.label;
+    b.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      pickOption(i);
+    });
+    choicesEl.appendChild(b);
+  });
+}
+
+function hideDialog() {
+  dialogEl.classList.remove('show');
+  choicesEl.innerHTML = '';
+  dialogue.currentChoices = null;
+  dialogue.mode = 'hidden';
+}
+
+/* ==========================================================
+   11 · 剧本引擎
+   ========================================================== */
+function runScript(id) {
+  if (!SCRIPT[id]) {
+    console.error('[剧本] 不存在：' + id);
+    return;
+  }
+  dialogue.active = true;
+  dialogue.scriptId = id;
+  dialogue.frames = [{ nodes: SCRIPT[id], index: 0 }];
+  dialogue.currentChoices = null;
+  joystickEl.classList.add('locked');
+  step();
+}
+
+function step() {
+  while (dialogue.frames.length) {
+    const frame = dialogue.frames[dialogue.frames.length - 1];
+
+    if (frame.index >= frame.nodes.length) {
+      dialogue.frames.pop();
+      continue;
+    }
+
+    const node = frame.nodes[frame.index];
+
+    switch (node.type) {
+      case 'say': {
+        frame.index++;
+        const meta = WHO[node.who] || { name: node.who, kind: 'obj' };
+        showLine(meta.name, node.text, meta.kind);
+        return; // 暂停，等玩家推进
+      }
+      case 'choice': {
+        frame.index++;
+        showChoices(node.options || []);
+        return; // 暂停，等选择
+      }
+      case 'set': {
+        state.vars[node.key] = node.value;
+        frame.index++;
+        break;
+      }
+      case 'when': {
+        frame.index++;
+        if (evalCond(node.cond, state.vars)) {
+          dialogue.frames.push({ nodes: node.then || [], index: 0 });
+        }
+        break;
+      }
+      case 'jump': {
+        if (!SCRIPT[node.to]) {
+          console.error('[剧本] jump 目标不存在：' + node.to);
+          resetDialogue();
+          return;
+        }
+        dialogue.frames = [{ nodes: SCRIPT[node.to], index: 0 }];
+        break;
+      }
+      case 'end': {
+        resetDialogue();
+        return;
+      }
+      default: {
+        frame.index++;
+      }
+    }
+  }
+  resetDialogue();
+}
+
+function advanceDialogue() {
+  if (dialogue.mode !== 'waiting') return;
+  step();
+}
+
+function pickOption(i) {
+  const opts = dialogue.currentChoices;
+  if (!opts) return;
+  const opt = opts[i];
+  dialogue.currentChoices = null;
+  choicesEl.innerHTML = '';
+  dialogue.mode = 'waiting';
+
+  if (opt.next) {
+    if (!SCRIPT[opt.next]) {
+      console.error('[剧本] 选项目标不存在：' + opt.next);
+      resetDialogue();
+      return;
+    }
+    dialogue.frames = [{ nodes: SCRIPT[opt.next], index: 0 }];
+  }
+  step();
+}
+
+function resetDialogue() {
+  dialogue.active = false;
+  dialogue.scriptId = null;
+  dialogue.frames = [];
+  dialogue.currentChoices = null;
+  hideDialog();
+  joystickEl.classList.remove('locked');
+}
+
+/* ==========================================================
+   12 · 场景数据
+   ========================================================== */
+const SCENES = {
+  classroom: {
+    world:  { w: 1240, h: 940 },
+    bounds: { x: 70, y: 70, w: 1100, h: 800 },
+  },
+  corridor: {
+    world:  { w: 1500, h: 560 },
+    bounds: { x: 90, y: 150, w: 1320, h: 260 },
+  },
+};
+
+/* 教室课桌位置 */
+const desks = [];
+const deskCols = [380, 620, 860];
+const deskRows = [320, 460, 600];
+for (const cy of deskRows) {
+  for (const cx of deskCols) {
+    desks.push({ x: cx, y: cy, w: 100, h: 56 });
+  }
+}
+
+/* 普通 NPC 数据（只出浮词，不走剧本） */
+const npcData = [
+  { x: 380, y: 362, line: '老师来了叫我一下……' },
+  { x: 620, y: 362, line: '作业写完了吗？借我抄抄。' },
+  { x: 860, y: 502, line: '这道题我盯了十分钟了。' },
+  { x: 380, y: 502, line: '嘘——别说话。' },
+  { x: 620, y: 642, line: '下课一起去小卖部？' },
+];
+
+/* ==========================================================
+   13 · 场景构建
+   ========================================================== */
+function buildClassroom() {
+  for (const d of desks) {
+    solids.push({ x: d.x - d.w / 2, y: d.y - d.h / 2, w: d.w, h: d.h });
+  }
+  solids.push({ x: 500, y: 130, w: 240, h: 68 }); // 讲台
+
+  for (const n of npcData) {
+    interactables.push({
+      type: 'npc', name: '同学',
+      x: n.x, y: n.y, r: 13,
+      line: n.line,
+      bob: Math.random() * Math.PI * 2,
+    });
+  }
+
+  /* 许云汐：带 script 字段 → 按交互时进剧本 */
+  xu = {
+    type: 'xu', name: '许云汐',
+    x: 820, y: 214, r: 14, bob: 0,
+    script: 'xu_main',
+  };
+  interactables.push(xu);
+  solids.push({ x: xu.x - 13, y: xu.y - 13, w: 26, h: 26 });
+
+  interactables.push({
+    type: 'podium', name: '讲台',
+    x: 620, y: 164, r: 42,
+    line: '黑板上写着：今天随堂小测。',
+  });
+
+  interactables.push({
+    type: 'door', name: '教室门',
+    x: 955, y: 869, r: 36,
+    target: 'corridor',
+    spawn: { x: 200, y: 270 },
+  });
+}
+
+function buildCorridor() {
+  interactables.push({
+    type: 'door', name: '教室门',
+    x: 200, y: 404, r: 36,
+    target: 'classroom',
+    spawn: { x: 940, y: 750 },
+  });
+
+  interactables.push({
+    type: 'obj', name: '窗',
+    x: 450, y: 158, r: 30,
+    line: '窗外的操场上，有人在跑步。',
+  });
+}
+
+/* ==========================================================
+   14 · 场景加载
+   ========================================================== */
+function loadScene(name, spawn) {
+  sceneName = name;
+  cur = SCENES[name];
+
+  solids.length = 0;
+  interactables.length = 0;
+  active = null;
+  xu = null;
+
+  if (name === 'classroom') buildClassroom();
+  else buildCorridor();
+
+  if (spawn) {
+    player.x = spawn.x;
+    player.y = spawn.y;
+  } else {
+    player.x = cur.bounds.x + cur.bounds.w / 2;
+    player.y = cur.bounds.y + cur.bounds.h / 2;
+  }
+
+  vel.x = 0;
+  vel.y = 0;
+  trail.length = 0;
+
+  resetDialogue();
+
+  camX = camAxis(player.x, W, cur.world.w);
+  camY = camAxis(player.y, H, cur.world.h);
+
+  fireTriggers('enter', { scene: name });
+}
+
+/* ==========================================================
+   15 · 触发器（场景 / 事件 → 剧本）
+   ========================================================== */
+/* 示例（默认关闭）：
+   { on: 'enter', scene: 'corridor', script: 'corr_intro', once: true }
+*/
+const TRIGGERS = [];
+
+function fireTriggers(kind, ctxObj) {
+  for (const t of TRIGGERS) {
+    if (t.on !== kind) continue;
+    if (kind === 'enter' && t.scene && t.scene !== ctxObj.scene) continue;
+    if (t.once && state.fired[t.script]) continue;
+    if (t.once) state.fired[t.script] = true;
+    runScript(t.script);
+    return;
+  }
+}
+
+/* ==========================================================
+   16 · 交互入口
+   ========================================================== */
+function onActionPress() {
+  if (dialogue.active) {
+    advanceDialogue();
+    return;
+  }
+  if (!active) return;
+
+  if (active.script) {
+    runScript(active.script);
+    return;
+  }
+  if (active.type === 'door') {
+    loadScene(active.target, active.spawn);
+    return;
+  }
+
+  const kind = active.type === 'npc' ? 'npc' : 'obj';
+  showToast(active.name, active.line, kind);
+}
+
+/* ==========================================================
+   17 · 键盘
+   ========================================================== */
+const keys = new Set();
+
+window.addEventListener('keydown', (e) => {
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) {
+    e.preventDefault();
+  }
+  keys.add(e.code);
+  if ((e.code === 'KeyE' || e.code === 'Space') && !e.repeat) onActionPress();
+});
+window.addEventListener('keyup', (e) => keys.delete(e.code));
+window.addEventListener('blur', () => { keys.clear(); resetJoy(); });
+
+/* ==========================================================
+   18 · 虚拟摇杆
+   ========================================================== */
+const joyVec = { x: 0, y: 0 };
+let joyId = null;
+
+function updateJoy(e) {
+  const rect = joystickEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const maxR = rect.width * 0.36;
+
+  let dx = e.clientX - cx;
+  let dy = e.clientY - cy;
+  const d = Math.hypot(dx, dy);
+  if (d > maxR) { dx = dx / d * maxR; dy = dy / d * maxR; }
+
+  knobEl.style.transform = `translate(${dx}px, ${dy}px)`;
+  joyVec.x = dx / maxR;
+  joyVec.y = dy / maxR;
+}
+
+function resetJoy() {
+  joyId = null;
+  joyVec.x = 0;
+  joyVec.y = 0;
+  knobEl.style.transform = 'translate(0px, 0px)';
+}
+
+joystickEl.addEventListener('pointerdown', (e) => {
+  if (joyId !== null || dialogue.active) return;
+  joyId = e.pointerId;
+  joystickEl.setPointerCapture(e.pointerId);
+  updateJoy(e);
+  e.preventDefault();
+});
+
+joystickEl.addEventListener('pointermove', (e) => {
+  if (e.pointerId !== joyId) return;
+  updateJoy(e);
+  e.preventDefault();
+});
+
+function endJoy(e) { if (e.pointerId === joyId) resetJoy(); }
+joystickEl.addEventListener('pointerup', endJoy);
+joystickEl.addEventListener('pointercancel', endJoy);
+joystickEl.addEventListener('lostpointercapture', endJoy);
+
+/* ==========================================================
+   19 · 交互按钮
+   ========================================================== */
+actionBtn.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  actionBtn.classList.add('pressed');
+  onActionPress();
+});
+window.addEventListener('pointerup', () => actionBtn.classList.remove('pressed'));
+window.addEventListener('pointercancel', () => actionBtn.classList.remove('pressed'));
+
+/* ==========================================================
+   20 · 工具函数
+   ========================================================== */
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+
+function rr(x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) {
+    ctx.roundRect(x, y, w, h, r);
+  } else {
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+}
+
+function camAxis(p, view, size) {
+  if (size <= view) return (size - view) / 2;
+  return clamp(p - view / 2, 0, size - view);
+}
+
+/* ==========================================================
+   21 · 碰撞
+   ========================================================== */
+function resolveCollisions() {
+  if (DEBUG && window.__game && window.__game.god) return;
+
+  const B = cur.bounds;
+
+  for (const s of solids) {
+    const nx = clamp(player.x, s.x, s.x + s.w);
+    const ny = clamp(player.y, s.y, s.y + s.h);
+    const dx = player.x - nx;
+    const dy = player.y - ny;
+    const d = Math.hypot(dx, dy);
+
+    if (d < player.r) {
+      if (d === 0) {
+        const left   = player.x - s.x;
+        const right  = s.x + s.w - player.x;
+        const top    = player.y - s.y;
+        const bottom = s.y + s.h - player.y;
+        const m = Math.min(left, right, top, bottom);
+        if (m === left)        player.x = s.x - player.r;
+        else if (m === right)  player.x = s.x + s.w + player.r;
+        else if (m === top)    player.y = s.y - player.r;
+        else                   player.y = s.y + s.h + player.r;
+      } else {
+        const push = (player.r - d) / d;
+        player.x += dx * push;
+        player.y += dy * push;
+      }
+    }
+  }
+
+  player.x = clamp(player.x, B.x + player.r, B.x + B.w - player.r);
+  player.y = clamp(player.y, B.y + player.r, B.y + B.h - player.r);
+}
+
+/* ==========================================================
+   22 · 更新
+   ========================================================== */
+function update(dt, t) {
+  let ix = 0, iy = 0;
+
+  if (!dialogue.active) {
+    if (keys.has('ArrowLeft')  || keys.has('KeyA')) ix -= 1;
+    if (keys.has('ArrowRight') || keys.has('KeyD')) ix += 1;
+    if (keys.has('ArrowUp')    || keys.has('KeyW')) iy -= 1;
+    if (keys.has('ArrowDown')  || keys.has('KeyS')) iy += 1;
+
+    const jm = Math.hypot(joyVec.x, joyVec.y);
+    if (jm > 0.12) {
+      const k = (jm - 0.12) / (1 - 0.12);
+      ix += (joyVec.x / jm) * k;
+      iy += (joyVec.y / jm) * k;
+    }
+  }
+
+  const len = Math.hypot(ix, iy);
+  if (len > 1) { ix /= len; iy /= len; }
+
+  const tvx = ix * CONFIG.MAX_SPEED;
+  const tvy = iy * CONFIG.MAX_SPEED;
+  const f = 1 - Math.exp(-CONFIG.ACCEL * dt);
+  vel.x += (tvx - vel.x) * f;
+  vel.y += (tvy - vel.y) * f;
+
+  if (Math.abs(vel.x) < 0.6) vel.x = 0;
+  if (Math.abs(vel.y) < 0.6) vel.y = 0;
+
+  const spd = Math.hypot(vel.x, vel.y);
+  if (spd > 8) lastAngle = Math.atan2(vel.y, vel.x);
+
+  player.x += vel.x * dt;
+  player.y += vel.y * dt;
+
+  resolveCollisions();
+
+  trail.push({ x: player.x, y: player.y });
+  if (trail.length > CONFIG.TRAIL_LEN) trail.shift();
+
+  camX = camAxis(player.x, W, cur.world.w);
+  camY = camAxis(player.y, H, cur.world.h);
+
+  /* 最近可交互对象 */
+  let best = null, bd = Infinity;
+  for (const o of interactables) {
+    const d = Math.hypot(o.x - player.x, o.y - player.y);
+    if (d < o.r + player.r + CONFIG.INTERACT_PAD && d < bd) {
+      bd = d;
+      best = o;
+    }
+  }
+  active = best;
+
+  /* toast 倒计时 */
+  if (dialogue.mode === 'toast') {
+    dialogue.timer -= dt;
+    if (dialogue.timer <= 0) hideDialog();
+  }
+}
+
+/* ==========================================================
+   23 · 渲染：教室
+   ========================================================== */
+function drawClassroomFloor() {
+  const B = cur.bounds;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(B.x, B.y, B.w, B.h);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(B.x, B.y, B.w, B.h);
+  ctx.clip();
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.042)';
+  ctx.lineWidth = 1;
+  const step = 70;
+  ctx.beginPath();
+  for (let gx = B.x; gx <= B.x + B.w; gx += step) {
+    ctx.moveTo(gx + 0.5, B.y);
+    ctx.lineTo(gx + 0.5, B.y + B.h);
+  }
+  for (let gy = B.y; gy <= B.y + B.h; gy += step) {
+    ctx.moveTo(B.x, gy + 0.5);
+    ctx.lineTo(B.x + B.w, gy + 0.5);
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(B.x, B.y, B.w, B.h);
+}
+
+function drawBoard() {
+  ctx.fillStyle = '#1c1c1c';
+  rr(380, 78, 480, 26, 4);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(410, 88); ctx.lineTo(470, 88);
+  ctx.moveTo(490, 92); ctx.lineTo(560, 92);
+  ctx.moveTo(600, 87); ctx.lineTo(650, 87);
+  ctx.stroke();
+}
+
+function drawPodium() {
+  ctx.fillStyle = '#f7f7f7';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 2;
+  rr(500, 130, 240, 68, 10);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(516, 152);
+  ctx.lineTo(724, 152);
+  ctx.stroke();
+}
+
+function drawDesk(d) {
+  ctx.fillStyle = '#eeeeee';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.lineWidth = 1.5;
+  rr(d.x - 24, d.y + 32, 48, 22, 9);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#fbfbfb';
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 2;
+  rr(d.x - d.w / 2, d.y - d.h / 2, d.w, d.h, 8);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawClassroomDoor() {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(900, 854, 110, 30);
+
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(900, 854, 110, 30);
+
+  ctx.beginPath();
+  ctx.arc(994, 869, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#111111';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(900, 854, 110, 0.06, Math.PI / 2 - 0.06);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function drawNpc(o, t) {
+  const bob = Math.sin(t * 2.1 + o.bob) * 1.6;
+  const y = o.y + bob;
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r + 6, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  ctx.lineWidth = 2.4;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r * 0.5, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+}
+
+function drawXu(o, t) {
+  const bob = Math.sin(t * 1.7 + o.bob) * 1.7;
+  const y = o.y + bob;
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r + 11, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(232, 160, 180, 0.15)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  ctx.lineWidth = 2.4;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(o.x, y, o.r * 0.5, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  const edgeA = -0.72;
+  const bx = o.x + Math.cos(edgeA) * (o.r + 1.2);
+  const by = y   + Math.sin(edgeA) * (o.r + 1.2);
+
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.rotate(edgeA + Math.PI / 2 + Math.sin(t * 1.7 + o.bob) * 0.055);
+
+  ctx.fillStyle = '#e8a0b4';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 1.15;
+
+  ctx.beginPath();
+  ctx.ellipse(-3.7, 0, 4.0, 2.6, -0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(3.7, 0, 4.0, 2.6, 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 1.15, 2.8, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#111111';
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawClassroom(t) {
+  drawClassroomFloor();
+  drawBoard();
+  drawPodium();
+
+  for (const d of desks) drawDesk(d);
+
+  drawClassroomDoor();
+
+  for (const o of interactables) {
+    if (o.type === 'npc') drawNpc(o, t);
+  }
+
+  if (xu) drawXu(xu, t);
+}
+
+/* ==========================================================
+   24 · 渲染：走廊
+   ========================================================== */
+function drawCorridorWindow(cx, wy) {
+  const w = 130;
+
+  ctx.fillStyle = '#eef4fa';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 2;
+  rr(cx - w / 2, wy - 16, w, 32, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx, wy - 16);
+  ctx.lineTo(cx, wy + 16);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.32)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(cx - 48, wy + 10);
+  ctx.lineTo(cx - 26, wy - 10);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+
+function drawCorridorDoor(cx, wy, isExit, t) {
+  const w = 92;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = isExit ? 2.6 : 1.8;
+  rr(cx - w / 2, wy - 14, w, 28, 3);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx + w / 2 - 14, wy, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#111111';
+  ctx.fill();
+
+  if (isExit) {
+    ctx.beginPath();
+    ctx.moveTo(cx - w / 2 + 14, wy);
+    ctx.lineTo(cx + w / 2 - 24, wy);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const pulse = 0.5 + Math.sin(t * 3.2) * 0.5;
+    ctx.globalAlpha = 0.25 + pulse * 0.35;
+    ctx.beginPath();
+    ctx.moveTo(cx - 7, wy + 22);
+    ctx.lineTo(cx, wy + 30);
+    ctx.lineTo(cx + 7, wy + 22);
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawCorridor(t) {
+  const B = cur.bounds;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(B.x, B.y, B.w, B.h);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(B.x, B.y, B.w, B.h);
+  ctx.clip();
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.045)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let gx = B.x; gx <= B.x + B.w; gx += 90) {
+    ctx.moveTo(gx + 0.5, B.y);
+    ctx.lineTo(gx + 0.5, B.y + B.h);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.028)';
+  ctx.beginPath();
+  ctx.moveTo(B.x, B.y + B.h / 2);
+  ctx.lineTo(B.x + B.w, B.y + B.h / 2);
+  ctx.stroke();
+
+  ctx.restore();
+
+  ctx.strokeStyle = '#111111';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(B.x, B.y, B.w, B.h);
+
+  for (let x = B.x + 120; x < B.x + B.w - 140; x += 240) {
+    drawCorridorWindow(x, B.y);
+  }
+
+  for (let x = B.x + 420; x < B.x + B.w - 120; x += 250) {
+    drawCorridorDoor(x, B.y + B.h, false, t);
+  }
+
+  drawCorridorDoor(200, B.y + B.h, true, t);
+}
+
+/* ==========================================================
+   25 · 渲染：通用
+   ========================================================== */
+function drawTrail() {
+  const spd = Math.hypot(vel.x, vel.y);
+  if (spd < 40) return;
+
+  const n = trail.length;
+  for (let i = 0; i < n; i++) {
+    const k = i / (n - 1);
+    ctx.globalAlpha = 0.055 * k * (spd / CONFIG.MAX_SPEED);
+    ctx.beginPath();
+    ctx.arc(trail[i].x, trail[i].y, player.r * (0.55 + k * 0.4), 0, Math.PI * 2);
+    ctx.fillStyle = '#111111';
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawPlayer(t) {
+  const spd = Math.hypot(vel.x, vel.y);
+  const s = Math.min(spd / CONFIG.MAX_SPEED, 1);
+
+  const breathe = 1 + Math.sin(t * 2.4) * 0.022;
+  const sx = (1 + s * 0.20) * breathe;
+  const sy = (1 - s * 0.11) * breathe;
+
+  ctx.save();
+  ctx.translate(player.x, player.y);
+  ctx.rotate(lastAngle);
+  ctx.scale(sx, sy);
+
+  ctx.beginPath();
+  ctx.arc(0, 0, player.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  ctx.lineWidth = 2.6;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, player.r * 0.52, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.10)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawHighlight(t) {
+  if (!active) return;
+
+  const pulse = 0.5 + Math.sin(t * 3.4) * 0.5;
+  const r = active.r + 9 + pulse * 3.5;
+
+  ctx.beginPath();
+  ctx.arc(active.x, active.y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(0, 0, 0, ${0.16 + pulse * 0.28})`;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 5]);
+  ctx.lineDashOffset = -t * 18;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
+}
+
+function render(t) {
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(-camX, -camY);
+
+  if (sceneName === 'classroom') drawClassroom(t);
+  else drawCorridor(t);
+
+  drawTrail();
+  drawPlayer(t);
+  drawHighlight(t);
+
+  ctx.restore();
+
+  actionBtn.classList.toggle('ready', dialogue.active || !!active);
+  actionBtn.textContent = dialogue.active ? '继续' : '交互';
+}
+
+/* ==========================================================
+   26 · 主循环
+   ========================================================== */
+let lastTime = performance.now();
+
+function loop(now) {
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+  const t = now / 1000;
+
+  update(dt, t);
+  render(t);
+
+  requestAnimationFrame(loop);
+}
+
+/* ==========================================================
+   27 · 调试工具
+   ========================================================== */
+if (DEBUG) {
+  window.__game = {
+    get vars() { return state.vars; },
+    get dialogue() { return dialogue; },
+    get active() { return active; },
+    run:  runScript,
+    skip: advanceDialogue,
+    goto: (id) => runScript(id),
+    scene: (name, spawn) => loadScene(name, spawn),
+    set: (k, v) => { state.vars[k] = v; },
+    reset: () => { state.vars = {}; state.fired = {}; },
+    god: false,
+  };
+  console.log('[调试] window.__game 可用：run / skip / goto / scene / set / god');
+}
+
+/* ==========================================================
+   28 · 启动
+   ========================================================== */
+validateScripts();
+loadScene('classroom', { x: 620, y: 760 });
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
