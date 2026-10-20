@@ -2,3972 +2,1347 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>封锁</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>暗域幸存者 · 双摇杆</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
-    height: 100%; overflow: hidden; background: #eef0f3;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    user-select: none; -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: none; overscroll-behavior: none;
-  }
-  #statusBar {
-    position: fixed; top: 0; left: 0; width: 100%; height: 22px;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 14px; font-size: 11px; letter-spacing: 2px;
-    color: rgba(0,0,0,0.38); z-index: 6; pointer-events: none;
-  }
-  #stage {
-    position: fixed; left: 0; top: 33.333vh;
-    width: 100vw; height: 33.334vh;
-    border: 2px solid #111111; background: #ffffff;
-    overflow: hidden; touch-action: none; z-index: 2;
-  }
-  #game { display: block; width: 100%; height: 100%; touch-action: none; }
-  #topBar {
-    position: fixed; top: 0; left: 0; width: 100%; height: 33.333vh;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 20px; pointer-events: none; z-index: 5;
-  }
-  #dialog {
-    display: flex; align-items: flex-start; gap: 13px;
-    width: 100%; max-width: 470px; padding: 14px 17px;
-    background: #ffffff; border: 1.5px solid rgba(0,0,0,0.09);
-    border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.07);
-    opacity: 0; transform: translateY(-8px);
-    transition: opacity .25s ease, transform .25s ease;
-    max-height: calc(33.333vh - 20px); overflow-y: auto;
-  }
-  #dialog.show { opacity: 1; transform: translateY(0); }
-  #avatarBox {
-    flex: 0 0 48px; width: 48px; height: 48px;
-    border-radius: 50%; background: #f6f7f9;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-  }
-  #avatarBox svg { width: 100%; height: 100%; display: block; }
-  #dialogBody { flex: 1 1 auto; min-width: 0; }
-  #speaker { font-size: 11px; letter-spacing: 2.5px; color: #9ca3af; margin-bottom: 6px; }
-  #line {
-    font-size: 15px; font-weight: 500; line-height: 1.6;
-    color: #111827; word-break: break-word; white-space: pre-wrap;
-  }
-  #choices { margin-top: 8px; }
-  .choice {
-    display: block; width: 100%; margin-top: 6px; padding: 8px 12px;
-    font: inherit; font-size: 13px; font-weight: 500;
-    text-align: left; color: #111111; background: #ffffff;
-    border: 1.4px solid rgba(0,0,0,0.16); border-radius: 8px;
-    cursor: pointer; pointer-events: auto;
-    -webkit-tap-highlight-color: transparent;
-    transition: background .15s, color .15s, border-color .15s;
-  }
-  .choice:active, .choice:hover {
-    background: #111111; color: #ffffff; border-color: #111111;
-  }
-  .choice.danger { color: #b91c1c; border-color: rgba(185,28,28,0.35); }
-  .choice.danger:active, .choice.danger:hover {
-    background: #b91c1c; color: #ffffff; border-color: #b91c1c;
-  }
-  .choice.lie { color: #6d28d9; border-color: rgba(109,40,217,0.35); }
-  .choice.lie:active, .choice.lie:hover {
-    background: #6d28d9; color: #ffffff; border-color: #6d28d9;
-  }
-  #joystick {
-    position: fixed; left: 24px; bottom: 9vh;
-    width: 128px; height: 128px; border-radius: 50%;
-    background: rgba(0,0,0,0.022); border: 1px solid rgba(0,0,0,0.09);
-    touch-action: none; z-index: 10; transition: opacity .25s ease;
-  }
-  #joystick.locked { opacity: 0.3; }
-  #joystick::after {
-    content: ""; position: absolute; inset: 20px;
-    border-radius: 50%; border: 1px dashed rgba(0,0,0,0.06);
-  }
-  #knob {
-    position: absolute; left: 50%; top: 50%;
-    width: 52px; height: 52px; margin: -26px 0 0 -26px;
-    border-radius: 50%; background: #111;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.22);
-    pointer-events: none; will-change: transform;
-  }
-  #actionBtn {
-    position: fixed; right: 28px; bottom: 9vh;
-    width: 90px; height: 90px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 600; letter-spacing: 2px;
-    color: rgba(0,0,0,0.32); background: #ffffff;
-    border: 1.5px solid rgba(0,0,0,0.12);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    touch-action: none; z-index: 10;
-    transition: transform .08s, color .18s, background .18s, border-color .18s;
-  }
-  #actionBtn.ready {
-    color: #ffffff; background: #111111; border-color: #111111;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  }
-  #actionBtn.danger-ready {
-    color: #ffffff; background: #b91c1c; border-color: #b91c1c;
-    box-shadow: 0 4px 20px rgba(185,28,28,0.4);
-  }
-  #actionBtn.pressed { transform: scale(0.92); }
-  #actionBtn.hidden { opacity: 0; pointer-events: none; }
-  #overlay {
-    position: fixed; inset: 0; background: #ffffff;
-    z-index: 100; display: none; align-items: center;
-    justify-content: center; flex-direction: column;
-    padding: 40px; text-align: center;
-  }
-  #overlay.show { display: flex; }
-  #overlay h1 {
-    font-size: 22px; letter-spacing: 6px; color: #111827;
-    font-weight: 600; margin-bottom: 24px;
-  }
-  #overlay p {
-    font-size: 15px; line-height: 1.9; color: #6b7280;
-    max-width: 420px; margin-bottom: 8px; white-space: pre-wrap;
-  }
-  #overlay button {
-    margin-top: 32px; padding: 12px 32px; font: inherit;
-    font-size: 14px; letter-spacing: 2px; color: #111111;
-    background: #ffffff; border: 1.5px solid #111111;
-    border-radius: 10px; cursor: pointer;
-  }
-  #overlay button:active { background: #111111; color: #ffffff; }
-  #struggle {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-    z-index: 50; display: none; align-items: center;
-    justify-content: center; flex-direction: column;
-  }
-  #struggle.show { display: flex; }
-  #struggle .s-title {
-    font-size: 28px; letter-spacing: 8px; color: #ffffff;
-    font-weight: 600; margin-bottom: 20px;
-    animation: pulse 0.6s ease-in-out infinite;
-  }
-  #struggle .s-hint {
-    font-size: 14px; color: rgba(255,255,255,0.6);
-    letter-spacing: 2px; margin-bottom: 40px;
-  }
-  #struggle .s-btn {
-    width: 120px; height: 120px; border-radius: 50%;
-    background: #ffffff; border: 4px solid #b91c1c;
-    color: #b91c1c; font-size: 18px; font-weight: 700;
-    letter-spacing: 4px; display: flex;
-    align-items: center; justify-content: center;
-    cursor: pointer; user-select: none;
-  }
-  #struggle .s-btn:active { background: #b91c1c; color: #ffffff; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-  @media (max-width: 520px) {
-    #joystick { width: 112px; height: 112px; left: 16px; bottom: 9vh; }
-    #knob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
-    #actionBtn { width: 78px; height: 78px; right: 20px; bottom: 10vh; font-size: 14px; }
-    #line { font-size: 14px; }
-    #dialog { padding: 12px 14px; gap: 10px; }
-    #avatarBox { flex: 0 0 42px; width: 42px; height: 42px; }
-  }
-  @media (orientation: landscape) and (max-height: 560px) {
-    #stage { top: 20vh; height: 58vh; }
-    #topBar { height: 20vh; }
-    #joystick { width: 84px; height: 84px; left: 16px; bottom: 2vh; }
-    #knob { width: 36px; height: 36px; margin: -18px 0 0 -18px; }
-    #actionBtn { width: 66px; height: 66px; right: 18px; bottom: 2vh; font-size: 12px; }
-    #line { font-size: 13px; }
-    #avatarBox { flex: 0 0 40px; width: 40px; height: 40px; }
-  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0b0e16;
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  #game{display:block;position:fixed;inset:0;touch-action:none}
+
+  /* ---------- HUD ---------- */
+  #hud{position:fixed;inset:0;pointer-events:none;padding:12px 14px;z-index:5}
+  #hpWrap{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  #lvTag{font-size:12px;font-weight:700;color:#9ec5ff;min-width:44px;letter-spacing:.5px}
+  .bar{flex:1;height:11px;border-radius:6px;background:rgba(255,255,255,.09);
+    overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+  .bar>i{display:block;height:100%;width:0;border-radius:6px;transition:width .1s linear}
+  #hpBar>i{background:linear-gradient(90deg,#e63958,#ff7b93)}
+  #xpBar{display:block;height:8px;border-radius:6px;background:rgba(255,255,255,.09);
+    overflow:hidden;border:1px solid rgba(255,255,255,.07);margin-bottom:8px}
+  #xpBar>i{display:block;height:100%;width:0;border-radius:6px;
+    background:linear-gradient(90deg,#3b82f6,#22d3ee);transition:width .1s linear}
+  #meta{display:flex;justify-content:space-between;font-size:12px;color:#7d90b0;letter-spacing:.6px}
+
+  /* ---------- 摇杆 ---------- */
+  .stick{position:fixed;width:132px;height:132px;border-radius:50%;z-index:10;
+    background:radial-gradient(circle,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:2px solid rgba(120,160,255,.22);touch-action:none}
+  .stick .knob{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(170,205,255,.85),rgba(70,120,220,.5));
+    box-shadow:0 0 18px rgba(80,140,255,.45);will-change:transform;pointer-events:none}
+  #stickL{left:26px;bottom:30px}
+  #stickR{right:26px;bottom:30px}
+
+  /* ---------- 技能按钮 ---------- */
+  #skillBtns{position:fixed;inset:0;pointer-events:none;z-index:10}
+  .skillBtn{position:fixed;right:44px;width:82px;height:82px;border-radius:50%;
+    pointer-events:auto;touch-action:none;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid rgba(170,205,255,.4);
+    box-shadow:0 0 22px rgba(80,140,255,.45);color:#fff;font-weight:800;font-size:13px;
+    letter-spacing:1px;text-align:center;line-height:1.25}
+  .skillBtn:active{transform:scale(.94)}
+  .skillBtn .cdMask{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+  .skillBtn .sName{position:relative;padding:0 6px}
+  .skillBtn .sCd{position:absolute;font-size:22px;font-weight:800;opacity:0;
+    text-shadow:0 2px 8px rgba(0,0,0,.8);color:#dbe9ff}
+
+  /* ---------- 覆盖层 ---------- */
+  .ov{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;padding:22px;
+    background:rgba(6,9,16,.9);backdrop-filter:blur(6px);overflow-y:auto}
+  .ov.show{display:flex}
+  .ovTitle{font-size:25px;font-weight:800;color:#e8f0ff;letter-spacing:3px}
+  .ovSub{font-size:13px;color:#8fa3c4;letter-spacing:.5px;text-align:center;line-height:1.7}
+  .btn{margin-top:6px;padding:13px 46px;border-radius:999px;font-size:16px;font-weight:700;
+    color:#eaf2ff;letter-spacing:3px;cursor:pointer;
+    background:linear-gradient(135deg,#3b82f6,#6366f1);box-shadow:0 6px 24px rgba(59,130,246,.4);
+    transition:transform .12s}
+  .btn:active{transform:scale(.95)}
+
+  /* 角色选择 */
+  #charList{display:grid;grid-template-columns:1fr 1fr;gap:11px;width:min(560px,94vw)}
+  .charCard{background:linear-gradient(180deg,#161e2d,#111722);border:2px solid #24304a;
+    border-radius:14px;padding:13px 13px 12px;cursor:pointer;transition:.14s;position:relative;overflow:hidden}
+  .charCard:active{transform:scale(.97)}
+  .charCard.sel{border-color:var(--c);box-shadow:0 0 22px -4px var(--c)}
+  .charCard .cName{font-size:16px;font-weight:800;color:var(--c);letter-spacing:1px}
+  .charCard .cTitle{font-size:10px;color:#63799b;margin:2px 0 9px;letter-spacing:1px}
+  .charCard .line{font-size:11.5px;color:#94a9c8;line-height:1.5;margin-top:5px}
+  .charCard .line b{color:#cfe0ff;font-weight:700}
+  .charCard .line.p b{color:#7ee0a8}
+
+  /* 升级卡 */
+  .cards{display:flex;flex-direction:column;gap:11px;width:min(400px,92vw)}
+  .card{background:linear-gradient(180deg,#1a2233,#131a27);border:1px solid #2b3a55;
+    border-radius:14px;padding:14px 17px;cursor:pointer;transition:.13s;position:relative}
+  .card:active{transform:scale(.97);border-color:#4f8cff}
+  .card .kind{position:absolute;right:14px;top:14px;font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:99px;letter-spacing:1px}
+  .card .kind.skill{background:rgba(79,140,255,.18);color:#7fb0ff}
+  .card .kind.passive{background:rgba(126,224,168,.15);color:#7ee0a8}
+  .card .kind.base{background:rgba(255,255,255,.07);color:#8fa3c4}
+  .card h3{font-size:16px;color:#e8f0ff;margin-bottom:5px;letter-spacing:.5px;padding-right:60px}
+  .card p{font-size:12.5px;color:#8fa3c4;line-height:1.5}
 </style>
 </head>
 <body>
 
-<div id="statusBar">
-  <span id="regionLabel">主教室</span>
-  <span id="timeLabel">00:00</span>
-  <span id="aliveLabel">11 人</span>
-</div>
+<canvas id="game"></canvas>
 
-<div id="topBar">
-  <div id="dialog">
-    <div id="avatarBox"></div>
-    <div id="dialogBody">
-      <div id="speaker"></div>
-      <div id="line"></div>
-      <div id="choices"></div>
-    </div>
+<div id="hud">
+  <div id="hpWrap">
+    <div id="lvTag">Lv.1</div>
+    <div class="bar" id="hpBar"><i></i></div>
+  </div>
+  <div id="xpBar"><i></i></div>
+  <div id="meta">
+    <span id="timer">00:00</span>
+    <span id="kills">击杀 0</span>
   </div>
 </div>
 
-<div id="stage"><canvas id="game"></canvas></div>
+<div class="stick" id="stickL"><div class="knob"></div></div>
+<div class="stick" id="stickR"><div class="knob"></div></div>
 
-<div id="joystick"><div id="knob"></div></div>
-<div id="actionBtn">交互</div>
+<div id="skillBtns"></div>
 
-<div id="overlay">
-  <h1 id="overlayTitle"></h1>
-  <p id="overlayBody"></p>
-  <button id="overlayBtn">重来</button>
+<!-- 角色选择 -->
+<div class="ov show" id="charOv">
+  <h2 class="ovTitle">选 择 角 色</h2>
+  <div id="charList"></div>
+  <div class="btn" id="startBtn">开 始</div>
 </div>
 
-<div id="struggle">
-  <div class="s-title">挣脱</div>
-  <div class="s-hint">快按！</div>
-  <div class="s-btn" id="struggleBtn">按</div>
+<!-- 升级 -->
+<div class="ov" id="levelOv"></div>
+
+<!-- 结束 -->
+<div class="ov" id="overOv">
+  <h2 class="ovTitle" style="color:#ff6b81">你 已 倒 下</h2>
+  <p class="ovSub" id="overStats"></p>
+  <div class="btn" id="retryBtn">再 来 一 局</div>
 </div>
 
 <script>
-/* ==========================================================
-   A · 配置 / 全局状态
-   ========================================================== */
-const DEBUG = true;
+/* =========================================================
+   工具
+========================================================= */
+const TAU = Math.PI * 2;
+const $ = s => document.querySelector(s);
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
-const CONFIG = {
-  MAX_SPEED:        240,
-  ACCEL:            11,
-  INTERACT_PAD:     34,
-  DOOR_COOLDOWN:    0.8,
-  MEMORY_CAP:       40,
-  TIME_SCALE:       540,
-  ESCAPE_GAME_SEC:  36 * 3600,
-  MAX_KILLS:        2,
-  STRUGGLE_WINDOW:  2.0,
-  WIN_REMAIN:       2,
-  KILL_DISTANCE:    30,
-  VOTE_FORCE_TIME:  240,
-  NPC_SPEED:        70,
-  NPC_SPEED_PANIC:  130,
-  /* 跟随系统 */
-  FOLLOW_DURATION:  6,      /* 跟随持续秒数 */
-  FOLLOW_COOLDOWN:  25,     /* 跟随冷却秒数 */
-  FOLLOW_TRIGGER_DIST: 150, /* 距离超过这个才跟 */
-};
-
-const world = {
-  time:            0,
-  gameTime:        0,
-  phase:           'calm',
-  region:          'main',
-  actors:          [],
-  player:          null,
-  dead:            [],
-  jailed:          [],
-  killers:         [],
-  killEvents:      [],
-  escapeTimers:    {},
-  playerIsKiller:  false,
-  playerKillCount: 0,
-  playerWeaponId:  null,
-  playerLies:      [],
-  voteHistory:     [],
-  gameOver:        false,
-  winner:          null,
-  ending:          null,
-  doorCooldown:    0,
-  fade:            0,
-  activeInteractable: null,
-  struggleActive:  false,
-  struggleKiller:  null,
-  struggleStart:   0,
-};
-
-const dialogue = {
-  active: false,
-  mode: 'hidden',
-  persistent: false,
-  timer: 0,
-};
-
-const keys = new Set();
-const joyVec = { x: 0, y: 0 };
-let joyId = null;
-let lastTime = performance.now();
-const debugState = { god: false };
-
-/* ==========================================================
-   B · 区域数据
-   ========================================================== */
-const REGIONS = {
-  main: {
-    id: 'main', name: '主教室', bg: 'classroom',
-    bounds: { x: 0, y: 0, w: 700, h: 500 },
-    solids: [
-      { x: 270, y: 30,  w: 160, h: 40, kind: 'podium', name: '讲台',
-        examine: '黑板上写着：今天随堂小测。字迹不是老师的。' },
-      { x: 180, y: 180, w: 70, h: 45, kind: 'desk', name: '课桌' },
-      { x: 340, y: 180, w: 70, h: 45, kind: 'desk', name: '课桌' },
-      { x: 500, y: 180, w: 70, h: 45, kind: 'desk', name: '课桌' },
-      { x: 180, y: 320, w: 70, h: 45, kind: 'desk', name: '课桌' },
-      { x: 340, y: 320, w: 70, h: 45, kind: 'desk', name: '课桌',
-        examine: '桌洞里塞着一张揉皱的纸，展开："别告诉任何人"。' },
-      { x: 500, y: 320, w: 70, h: 45, kind: 'desk', name: '课桌' },
-    ],
-    doors: [
-      { x: 620, y: 450, r: 36, to: 'hall', spawn: { x: 170, y: 150 }, label: '走廊' },
-    ],
-    props: [],
-  },
-  hall: {
-    id: 'hall', name: '走廊', bg: 'hallway',
-    bounds: { x: 0, y: 0, w: 1200, h: 300 },
-    solids: [
-      { x: 460, y: 130, w: 80, h: 24, kind: 'bench', name: '长椅' },
-      { x: 760, y: 130, w: 80, h: 24, kind: 'bench', name: '长椅',
-        examine: '椅子下面有一个打火机。谁丢的？' },
-    ],
-    doors: [
-      { x: 80,   y: 150, r: 36, to: 'main',      spawn: { x: 550, y: 450 }, label: '主教室' },
-      { x: 300,  y: 60,  r: 36, to: 'next',      spawn: { x: 200, y: 320 }, label: '隔壁教室' },
-      { x: 500,  y: 60,  r: 36, to: 'storage',   spawn: { x: 200, y: 320 }, label: '储藏室' },
-      { x: 700,  y: 60,  r: 36, to: 'canteen',   spawn: { x: 250, y: 320 }, label: '食堂' },
-      { x: 900,  y: 60,  r: 36, to: 'infirmary', spawn: { x: 250, y: 320 }, label: '医务室' },
-      { x: 1140, y: 150, r: 36, to: 'washroom',  spawn: { x: 200, y: 220 }, label: '洗手间' },
-      { x: 600,  y: 260, r: 36, to: 'roof',      spawn: { x: 300, y: 320 }, label: '天台' },
-    ],
-    props: [],
-  },
-  next: {
-    id: 'next', name: '隔壁教室', bg: 'classroom',
-    bounds: { x: 0, y: 0, w: 400, h: 400 },
-    solids: [
-      { x: 150, y: 150, w: 100, h: 60, kind: 'desk', name: '课桌',
-        examine: '桌上有半截没抽完的烟。' },
-      { x: 260, y: 260, w: 60, h: 40, kind: 'chair', name: '椅子' },
-    ],
-    doors: [
-      { x: 200, y: 380, r: 36, to: 'hall', spawn: { x: 300, y: 130 }, label: '走廊' },
-    ],
-    props: [],
-  },
-  storage: {
-    id: 'storage', name: '储藏室', bg: 'storage',
-    bounds: { x: 0, y: 0, w: 400, h: 400 },
-    solids: [
-      { x: 60,  y: 60,  w: 280, h: 60, kind: 'shelf', name: '货架',
-        examine: '架子上的东西被翻过。少了几样。' },
-      { x: 60,  y: 220, w: 120, h: 60, kind: 'shelf', name: '货架',
-        examine: '一条绳子。末端有磨损。' },
-      { x: 220, y: 220, w: 120, h: 60, kind: 'shelf', name: '货架',
-        examine: '工具箱。里面的东西少了一半。' },
-    ],
-    doors: [
-      { x: 200, y: 380, r: 36, to: 'hall', spawn: { x: 500, y: 130 }, label: '走廊' },
-    ],
-    props: [
-      { x: 100, y: 320, r: 12, name: '扫帚', examine: '靠在墙边的扫帚。柄上有血迹？不，是锈。' },
-      { x: 300, y: 320, r: 12, name: '旧箱子', examine: '里面有一些旧报纸。日期都是去年的。' },
-    ],
-  },
-  canteen: {
-    id: 'canteen', name: '食堂', bg: 'canteen',
-    bounds: { x: 0, y: 0, w: 500, h: 400 },
-    solids: [
-      { x: 100, y: 100, w: 120, h: 60, kind: 'table', name: '餐桌' },
-      { x: 280, y: 100, w: 120, h: 60, kind: 'table', name: '餐桌',
-        examine: '桌上有一杯没喝完的茶，还温着。' },
-      { x: 100, y: 230, w: 120, h: 60, kind: 'table', name: '餐桌' },
-      { x: 280, y: 230, w: 120, h: 60, kind: 'table', name: '餐桌' },
-    ],
-    doors: [
-      { x: 250, y: 380, r: 36, to: 'hall', spawn: { x: 700, y: 130 }, label: '走廊' },
-    ],
-    props: [
-      { x: 30,  y: 30,  r: 15, name: '灶台', examine: '灶台还热着。锅里的水快烧干了。' },
-      { x: 470, y: 30,  r: 15, name: '冰箱', examine: '冰箱里有半盒牛奶。刀架空了。' },
-    ],
-  },
-  washroom: {
-    id: 'washroom', name: '洗手间', bg: 'washroom',
-    bounds: { x: 0, y: 0, w: 400, h: 300 },
-    solids: [
-      { x: 60,  y: 60, w: 80, h: 100, kind: 'stall', name: '隔间',
-        examine: '门虚掩着。里面没声音。' },
-      { x: 260, y: 60, w: 80, h: 100, kind: 'stall', name: '隔间' },
-    ],
-    doors: [
-      { x: 200, y: 280, r: 36, to: 'hall', spawn: { x: 1080, y: 150 }, label: '走廊' },
-    ],
-    props: [
-      { x: 200, y: 40, r: 18, name: '镜子', examine: '镜子上有一个叉。但左侧的镜片碎了。' },
-    ],
-  },
-  roof: {
-    id: 'roof', name: '天台', bg: 'rooftop',
-    bounds: { x: 0, y: 0, w: 600, h: 400 },
-    solids: [],
-    doors: [
-      { x: 300, y: 380, r: 36, to: 'hall', spawn: { x: 600, y: 190 }, label: '走廊' },
-    ],
-    props: [
-      { x: 100, y: 100, r: 15, name: '水塔', examine: '铁梯向上延伸。太高了，看不清上面。' },
-      { x: 500, y: 100, r: 15, name: '通风口', examine: '通风口的盖子松了。有人在里面塞了东西。' },
-      { x: 300, y: 300, r: 12, name: '栏杆', examine: '栏杆有一处被磨得很亮。有人经常趴在这里。' },
-    ],
-  },
-  infirmary: {
-    id: 'infirmary', name: '医务室', bg: 'infirmary',
-    bounds: { x: 0, y: 0, w: 500, h: 400 },
-    solids: [
-      { x: 60,  y: 80, w: 100, h: 180, kind: 'bed', name: '病床',
-        examine: '床铺很整齐，像是很久没人用过。' },
-      { x: 340, y: 80, w: 100, h: 180, kind: 'cabinet', name: '药柜',
-        examine: '药柜的锁被撬过。几瓶药不见了。' },
-    ],
-    doors: [
-      { x: 250, y: 380, r: 36, to: 'hall', spawn: { x: 900, y: 130 }, label: '走廊' },
-    ],
-    props: [
-      { x: 250, y: 60,  r: 18, name: '办公桌',
-        examine: '桌上有翻开的笔记本。最后一行："今晚谁都不能睡。"' },
-    ],
-  },
-};
-
-/* ==========================================================
-   C · 画布 / 工具
-   ========================================================== */
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const cvs = $('#game');
+const ctx = cvs.getContext('2d');
 let W = 0, H = 0, DPR = 1;
-let camX = 0, camY = 0;
 
 function resize() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  const w = canvas.clientWidth || 1;
-  const h = canvas.clientHeight || 1;
-  W = w; H = h;
-  canvas.width  = Math.round(w * DPR);
-  canvas.height = Math.round(h * DPR);
+  W = window.innerWidth; H = window.innerHeight;
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 160));
 resize();
 
-function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
-function rr(x, y, w, h, r) {
-  ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
-  else {
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+/* =========================================================
+   双摇杆
+========================================================= */
+function createStick(el, maxR) {
+  const knob = el.querySelector('.knob');
+  const out = { x: 0, y: 0, power: 0, active: false };
+  let pid = null, cx = 0, cy = 0;
+
+  function move(e) {
+    const dx = e.clientX - cx, dy = e.clientY - cy;
+    const d = Math.hypot(dx, dy);
+    const k = d > maxR ? maxR / d : 1;
+    knob.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
+    const power = d / maxR;
+    out.power = power < 0.14 ? 0 : Math.min(power, 1);
+    out.active = out.power > 0;
+    if (d > 0.001) { out.x = dx / d; out.y = dy / d; }
   }
-}
-function camAxis(p, view, size) {
-  if (size <= view) return (size - view) / 2;
-  return clamp(p - view / 2, 0, size - view);
-}
-function formatGameTime(gameSec) {
-  const h = Math.floor(gameSec / 3600);
-  const m = Math.floor((gameSec % 3600) / 60);
-  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-}
-function formatEscapeRemaining(gameSec) {
-  const h = Math.floor(gameSec / 3600);
-  const m = Math.floor((gameSec % 3600) / 60);
-  return `${h}h ${m}m`;
+
+  el.addEventListener('pointerdown', e => {
+    if (pid !== null) return;
+    pid = e.pointerId;
+    el.setPointerCapture(pid);
+    const r = el.getBoundingClientRect();
+    cx = r.left + r.width / 2;
+    cy = r.top + r.height / 2;
+    move(e);
+  });
+  el.addEventListener('pointermove', e => { if (e.pointerId === pid) move(e); });
+
+  function end(e) {
+    if (e.pointerId !== pid) return;
+    pid = null;
+    out.x = out.y = out.power = 0; out.active = false;
+    knob.style.transform = 'translate(0,0)';
+  }
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  return out;
 }
 
-/* ==========================================================
-   D · 角色定义
-   ========================================================== */
-const CHARACTER_DEFS = {
-  player: { name: '你', r: 14, anchor: 'player', avatar: 'player', style: 'player', faction: 'none' },
+const stickL = createStick($('#stickL'), 44);
+const stickR = createStick($('#stickR'), 44);
 
-  zhangxiang: {
-    name: '张响', r: 12, anchor: 'book', avatar: 'zhangxiang',
-    style: 'analytic', faction: 'lone',
-    intro: '（他抱着一本厚书，抬眼看你）……有事？',
-    alibi: '走廊。我在走廊看书，从头到尾。',
-    secret: '昨晚他听到有人在储藏室翻东西，但他没去看。',
-    secretLine: '我……我听到了。在储藏室。但我没去看。',
-    trust: 40, killIntent: 10, observe: 80, loyalty: 0,
-  },
-  zhangsien: {
-    name: '张思恩', r: 15, anchor: 'shoulder', avatar: 'zhangsien',
-    style: 'leader', faction: 'si-en',
-    intro: '（他站得很直，目光平静）你来了。',
-    alibi: '教室。我一直在教室里。',
-    secret: '他在封锁发生时偷偷把校门的钥匙藏在了自己身上。',
-    secretLine: '钥匙在我这。我只是……不想让所有人为了它打起来。',
-    trust: 30, killIntent: 40, observe: 60, loyalty: 100,
-  },
+/* =========================================================
+   ★ 主动技能冷却计算：每升 1 级 CD 减少 7%
+========================================================= */
+function getSkillCd(sk, lv) {
+  if (lv == null) lv = (G.skillLv[sk.id] || 1);
+  const v = sk.cd * Math.pow(0.93, lv - 1);
+  return Math.round(v * 10) / 10;
+}
+
+/* =========================================================
+   角色表
+========================================================= */
+const CHARS = {
   zhiyuchen: {
-    name: '智宇晨', r: 14, anchor: 'backpack', avatar: 'zhiyuchen',
-    style: 'loyal', faction: 'si-en',
-    intro: '（他背着旧书包，有点紧张）……你好。',
-    alibi: '我和张思恩在一起。',
-    secret: '他昨晚看到许云汐独自去天台，但没告诉张思恩。',
-    secretLine: '她求我别说的……她说如果我说出去，她就完了。',
-    trust: 50, killIntent: 15, observe: 40, loyalty: 80,
-  },
-  yangkaidong: {
-    name: '杨开冬', r: 18, anchor: 'big', avatar: 'yangkaidong',
-    style: 'blunt', faction: 'kai-dong',
-    intro: '（他站在储藏室门口）有话快说。',
-    alibi: '储藏室。',
-    secret: '他拿了储藏室的绳子，本来想自己逃出去。',
-    secretLine: '绳子是我拿的。怎么，我就该是凶手？',
-    trust: 25, killIntent: 50, observe: 30, loyalty: 60,
-  },
-  lubiao: {
-    name: '陆标', r: 13, anchor: 'coin', avatar: 'lubiao',
-    style: 'joke', faction: 'si-en',
-    intro: '（他手里转着硬币）哟，来聊两句？',
-    alibi: '到处转悠呗。',
-    secret: '他看到张思恩往口袋里塞了什么东西，但装作没看见。',
-    secretLine: '我看见了。张思恩塞进口袋的。',
-    trust: 45, killIntent: 30, observe: 55, loyalty: 30,
-  },
-  ruanrou: {
-    name: '阮柔', r: 12, anchor: 'arms', avatar: 'ruanrou',
-    style: 'sharp', faction: 'kai-dong',
-    intro: '（她抱着手臂，没看你）……干嘛。',
-    alibi: '我在教室里。',
-    secret: '她暗恋主角，昨晚一直在偷偷跟着主角。',
-    secretLine: '……我跟着你的。从你走出教室开始。',
-    trust: 55, killIntent: 35, observe: 70, loyalty: 20,
-  },
-  xuyunxi: {
-    name: '许云汐', r: 15, anchor: 'bow', avatar: 'xuyunxi',
-    style: 'smooth', faction: 'yunxi',
-    intro: '（她站在天台边缘，慢慢转身）你也上来了。',
-    alibi: '天台。一个人待着。',
-    secret: '她昨晚约了顾庭雨来天台，想让顾庭雨替她背锅。',
-    secretLine: '（她顿了一下）……我叫她来，是想让顾庭雨替我做点事。',
-    trust: 20, killIntent: 70, observe: 65, loyalty: 10,
-  },
-  gutingyu: {
-    name: '顾庭雨', r: 11, anchor: 'shrink', avatar: 'gutingyu',
-    style: 'weak', faction: 'yunxi',
-    intro: '（她缩在角落，小声）……你好。',
-    alibi: '我、我一直在洗手间……',
-    secret: '她根本没去洗手间，她昨晚在医务室藏东西。',
-    secretLine: '（她哭出来）是她让我藏的……',
-    trust: 45, killIntent: 45, observe: 50, loyalty: 70,
-  },
-  zhiban: {
-    name: '智板', r: 12, anchor: 'point', avatar: 'zhiban',
-    style: 'argue', faction: 'lone',
-    intro: '（他抬手指了指你）你来干嘛？',
-    alibi: '走廊。有问题？',
-    secret: '他看到了凶手动手的瞬间，但他不打算说。',
-    secretLine: '我看见了。但我为什么要告诉你？',
-    trust: 15, killIntent: 25, observe: 90, loyalty: 0,
-  },
-  lujiancheng: {
-    name: '陆建成', r: 13, anchor: 'shoe', avatar: 'lujiancheng',
-    style: 'lucky', faction: 'lone',
-    intro: '（他晃了晃）啊，是你。',
-    alibi: '走廊瞎溜达。',
-    secret: '他在走廊捡到了一把带血的刀，但他藏起来了。',
-    secretLine: '（他沉默了几秒）我本来不想说的。',
-    trust: 40, killIntent: 30, observe: 45, loyalty: 0,
-  },
-};
-
-const FACTIONS = {
-  'si-en':   { leader: 'zhangsien',   members: ['zhangsien', 'zhiyuchen', 'lubiao'] },
-  'kai-dong':{ leader: 'yangkaidong', members: ['yangkaidong', 'ruanrou'] },
-  'yunxi':   { leader: 'xuyunxi',     members: ['xuyunxi', 'gutingyu'] },
-  'lone':    { leader: null,          members: ['zhangxiang', 'zhiban', 'lujiancheng'] },
-  'none':    { leader: null,          members: [] },
-};
-
-const INITIAL_SPAWNS = [
-  { id: 'zhangsien',   region: 'main',     x: 280, y: 260, facing: Math.PI / 2 + 0.2 },
-  { id: 'zhiyuchen',   region: 'main',     x: 450, y: 260, facing: Math.PI / 2 - 0.3 },
-  { id: 'lubiao',      region: 'main',     x: 280, y: 400, facing: Math.PI / 2 },
-  { id: 'ruanrou',     region: 'main',     x: 450, y: 400, facing: Math.PI / 2 + 0.4 },
-  { id: 'zhangxiang',  region: 'hall',     x: 380, y: 150, facing: 0 },
-  { id: 'lujiancheng', region: 'hall',     x: 820, y: 150, facing: Math.PI },
-  { id: 'yangkaidong', region: 'storage',  x: 200, y: 320, facing: Math.PI / 2 },
-  { id: 'xuyunxi',     region: 'roof',     x: 300, y: 200, facing: Math.PI / 2 + 0.15 },
-  { id: 'gutingyu',    region: 'washroom', x: 200, y: 200, facing: Math.PI },
-  { id: 'zhiban',      region: 'next',     x: 200, y: 280, facing: 0 },
-];
-
-/* ==========================================================
-   E · 头像 SVG
-   ========================================================== */
-function avatarSVG(kind) {
-  const open = `<svg viewBox="0 0 64 64" fill="none" stroke="#111111"
-    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">`;
-  const person = `<circle cx="32" cy="24" r="11"/><path d="M27 36.5 L23 57"/><path d="M37 36.5 L41 57"/>`;
-  switch (kind) {
-    case 'zhangxiang': return open + person + `
-      <path d="M24 23h6M34 23h6" stroke-width="2.2"/>
-      <rect x="20" y="42" width="24" height="15" rx="2"/></svg>`;
-    case 'zhangsien': return open + person + `
-      <path d="M26 36l-2 8M38 36l2 8" stroke-width="2"/>
-      <path d="M24 38h16" stroke-width="2.4"/></svg>`;
-    case 'zhiyuchen': return open + person + `
-      <path d="M22 38v16M42 38v16" stroke-width="2"/></svg>`;
-    case 'yangkaidong': return open + `
-      <circle cx="32" cy="24" r="10"/>
-      <path d="M14 40 Q 20 34, 26 38" stroke-width="3.5"/>
-      <path d="M50 40 Q 44 34, 38 38" stroke-width="3.5"/></svg>`;
-    case 'lubiao': return open + person + `
-      <circle cx="50" cy="42" r="3" fill="#111"/></svg>`;
-    case 'ruanrou': return open + `
-      <circle cx="32" cy="24" r="10"/>
-      <path d="M20 38 L 44 38" stroke-width="3.5"/></svg>`;
-    case 'xuyunxi': return open + person + `
-      <g transform="translate(24,14) rotate(-30)">
-        <ellipse cx="-4" cy="0" rx="5" ry="3.2" fill="#e8a0b4"/>
-        <ellipse cx="4" cy="0" rx="5" ry="3.2" fill="#e8a0b4"/>
-      </g></svg>`;
-    case 'gutingyu': return open + `
-      <circle cx="32" cy="26" r="9"/>
-      <path d="M24 36 Q 22 44, 26 54" stroke-width="2"/>
-      <path d="M40 36 Q 42 44, 38 54" stroke-width="2"/></svg>`;
-    case 'zhiban': return open + person + `
-      <path d="M44 40 L 54 36" stroke-width="2.4"/></svg>`;
-    case 'lujiancheng': return open + person + `
-      <ellipse cx="24" cy="59" rx="5" ry="2.4"/></svg>`;
-    case 'obj': return open + `<rect x="17" y="26" width="30" height="22" rx="4"/></svg>`;
-    case 'dead': return open + `<circle cx="32" cy="26" r="11" stroke-dasharray="4 4"/></svg>`;
-    default: return open + person + `</svg>`;
-  }
-}
-
-/* ==========================================================
-   F · Actor 系统
-   ========================================================== */
-function createActor(id, def, spawn) {
-  return {
-    id, name: def.name, isPlayer: id === 'player',
-    r: def.r, anchor: def.anchor, avatar: def.avatar,
-    style: def.style || 'default',
-    faction: def.faction || 'none',
-    intro: def.intro || '……',
-    alibi: def.alibi || '……',
-    secret: def.secret || null,
-    secretLine: def.secretLine || '……',
-    trust: def.trust ?? 50,
-    killIntent: def.killIntent ?? 30,
-    observe: def.observe ?? 50,
-    loyalty: def.loyalty ?? 50,
-    secretKnownByPlayer: false,
-    region: spawn.region,
-    x: spawn.x, y: spawn.y,
-    facing: spawn.facing ?? -Math.PI / 2,
-    vx: 0, vy: 0, moving: false,
-    moveSpeed: id === 'player' ? CONFIG.MAX_SPEED : CONFIG.NPC_SPEED,
-    bobPhase: Math.random() * Math.PI * 2,
-    desire: 'idle',
-    target: null,
-    waitTimer: 1 + Math.random() * 3,
-    thinkTimer: 0.5 + Math.random() * 1.5,
-    memory: [],
-    suspicion: {},
-    fear: 0, anger: 0,
-    alive: true,
-    hasWeapon: null,
-    kills: [],
-    killer: false,
-    escaped: false,
-    jailed: false,
-    discoveredBodies: [],
-    panicTimer: 0,
-    /* 跟随系统 */
-    followUntil: 0,
-    followCooldownUntil: 0,
-  };
-}
-
-function spawnAllActors() {
-  world.actors.length = 0;
-  const p = createActor('player', CHARACTER_DEFS.player, {
-    region: 'main', x: 350, y: 460, facing: -Math.PI / 2,
-  });
-  world.player = p;
-  world.actors.push(p);
-  for (const sp of INITIAL_SPAWNS) {
-    const def = CHARACTER_DEFS[sp.id];
-    if (!def) continue;
-    world.actors.push(createActor(sp.id, def, sp));
-  }
-}
-
-function getActor(id) { return world.actors.find(a => a.id === id) || null; }
-function getActorName(id) {
-  if (!id) return '？';
-  const a = getActor(id);
-  return a ? a.name : '？';
-}
-function canKill(actor) { return (actor.kills || []).length < CONFIG.MAX_KILLS; }
-
-/* ==========================================================
-   G · 事件总线 / 目击 / 记忆
-   ========================================================== */
-const bus = {
-  handlers: [],
-  on(fn) { this.handlers.push(fn); },
-  emit(event) {
-    event.time = world.time;
-    event.gameTime = world.gameTime;
-    event.region = event.region ?? world.region;
-    for (const h of this.handlers) {
-      try { h(event); } catch (e) { console.error('[bus]', e); }
-    }
-  },
-};
-
-function witnessEvent(event) {
-  const witnesses = world.actors.filter(a =>
-    a.alive && a.region === event.region && a.id !== event.actorId
-  );
-  for (const w of witnesses) {
-    const clarity = w.observe >= 70 ? 'full'
-                  : w.observe >= 30 ? 'partial' : 'vague';
-    addMemory(w, event, clarity);
-    updateSuspicion(w, event, clarity);
-    updateEmotion(w, event);
-    reactToEvent(w, event, clarity);
-  }
-}
-
-function addMemory(actor, event, clarity) {
-  const mem = {
-    type: event.type,
-    actorId: event.actorId,
-    actorName: event.actorName || getActorName(event.actorId),
-    targetId: event.targetId || null,
-    targetName: event.targetName || (event.targetId ? getActorName(event.targetId) : null),
-    detail: event.detail || null,
-    clarity, time: event.time, gameTime: event.gameTime, region: event.region,
-    strength: 100,
-  };
-  actor.memory.push(mem);
-  if (actor.memory.length > CONFIG.MEMORY_CAP) {
-    actor.memory.sort((a, b) => (a.strength - b.strength) || (a.time - b.time));
-    actor.memory.shift();
-  }
-}
-
-function updateSuspicion(watcher, event, clarity) {
-  const weight = clarity === 'full' ? 3 : clarity === 'partial' ? 2 : 1;
-  switch (event.type) {
-    case 'talk':
-      if (event.actorId !== watcher.id && event.targetId !== watcher.id) {
-        if (watcher.style === 'leader') {
-          bump(watcher, event.actorId, 4 * weight);
-          bump(watcher, event.targetId, 2 * weight);
-        } else if (watcher.style === 'analytic') {
-          bump(watcher, event.actorId, 2 * weight);
-        } else if (watcher.style === 'smooth') {
-          bump(watcher, event.actorId, 3 * weight);
-          bump(watcher, event.targetId, 3 * weight);
-        } else {
-          bump(watcher, event.actorId, 1 * weight);
-        }
-      }
-      break;
-    case 'examine':
-      if (watcher.style === 'analytic') bump(watcher, event.actorId, 5 * weight);
-      else if (watcher.style === 'smooth') bump(watcher, event.actorId, 4 * weight);
-      else if (watcher.style === 'argue') bump(watcher, event.actorId, 3 * weight);
-      else bump(watcher, event.actorId, 2 * weight);
-      break;
-    case 'pick_weapon':
-      bump(watcher, event.actorId, 15 * weight);
-      break;
-    case 'threat':
-      if (event.targetId === watcher.id) bump(watcher, event.actorId, 10 * weight);
-      else bump(watcher, event.actorId, 5 * weight);
-      break;
-    case 'kill':
-      bump(watcher, event.actorId, 80 * weight);
-      break;
-    case 'lie':
-      if (event.targetId === watcher.id) bump(watcher, event.actorId, 30 * weight);
-      break;
-  }
-}
-
-function bump(watcher, subjectId, delta) {
-  if (!watcher.suspicion[subjectId]) watcher.suspicion[subjectId] = 0;
-  watcher.suspicion[subjectId] = Math.min(100, watcher.suspicion[subjectId] + delta);
-}
-
-function updateEmotion(actor, event) {
-  switch (event.type) {
-    case 'kill':
-      actor.fear = Math.min(100, actor.fear + 50);
-      actor.anger = Math.min(100, actor.anger + 25);
-      actor.panicTimer = 8;
-      actor.thinkTimer = 0;
-      break;
-    case 'pick_weapon':
-      actor.fear = Math.min(100, actor.fear + 15);
-      break;
-    case 'threat':
-      if (event.targetId === actor.id) {
-        actor.fear = Math.min(100, actor.fear + 15);
-        actor.anger = Math.min(100, actor.anger + 10);
-      }
-      break;
-    case 'found_body':
-      actor.fear = Math.min(100, actor.fear + 40);
-      actor.panicTimer = 6;
-      actor.thinkTimer = 0;
-      break;
-    case 'lie':
-      if (event.targetId === actor.id) {
-        actor.anger = Math.min(100, actor.anger + 20);
-        actor.trust = Math.max(0, actor.trust - 15);
-      }
-      break;
-  }
-}
-
-function reactToEvent(actor, event, clarity) {
-  if (actor.id === 'zhiyuchen' && event.actorId === 'zhangsien') {
-    actor.trust = Math.min(100, actor.trust + 1);
-  }
-  if (actor.id === 'ruanrou' && event.actorId === 'player') {
-    actor.trust = Math.min(100, actor.trust + 0.5);
-  }
-  if (actor.style === 'smooth' && event.type === 'talk') {
-    actor.trust = Math.max(0, actor.trust - 0.5);
-  }
-}
-
-bus.on(witnessEvent);
-
-function narrateMemory(mem, style) {
-  const A = mem.actorName || '？';
-  const T = mem.targetName || null;
-  const P = mem.detail?.propName;
-  const unclear = mem.clarity === 'vague';
-  const partial = mem.clarity === 'partial';
-
-  switch (mem.type) {
-    case 'talk':
-      if (unclear) return `好像看到${A}跟谁在说话。`;
-      if (partial) return `${A}跟${T}说了话。`;
-      if (style === 'analytic') return `记录：${A}与${T}进行了私下对话。`;
-      if (style === 'sharp')    return `${A}去找${T}了。`;
-      if (style === 'smooth')   return `${A}和${T}聊了一会儿。`;
-      if (style === 'leader')   return `${A}和${T}有交流。`;
-      return `${A}和${T}说了话。`;
-    case 'examine':
-      if (unclear) return `有人动了什么东西。`;
-      return `${A}在${P || '那儿'}翻了翻。`;
-    case 'pick_weapon':
-      if (unclear) return `有人拿了什么东西。`;
-      return `${A}拿走了${P || '一样东西'}。`;
-    case 'kill':
-      if (unclear) return `有人倒下了。我没看清是谁。`;
-      if (partial) return `我看见${A}对${T}动了手。`;
-      if (style === 'weak') return `（她在发抖）${A}……${A}杀了${T}……`;
-      return `${A}杀了${T}。我亲眼看见的。`;
-    case 'found_body':
-      return `我看到${T}了。躺在地上。没有动。`;
-    case 'lie':
-      return `${A}对我撒了谎。`;
-    case 'threat':
-      if (style === 'sharp') return `${A}威胁了${T}。`;
-      return `${A}对${T}说了什么。不太友好。`;
-  }
-  return null;
-}
-
-function mostSuspicious(actor, excludeIds = []) {
-  let best = null, bestScore = 0;
-  for (const [id, score] of Object.entries(actor.suspicion)) {
-    if (excludeIds.includes(id)) continue;
-    if (id === actor.id) continue;
-    const target = getActor(id);
-    if (!target || !target.alive) continue;
-    if (score > bestScore) { bestScore = score; best = target; }
-  }
-  return best ? { actor: best, score: bestScore } : null;
-}
-
-function memoriesAbout(actor, subjectId) {
-  return actor.memory.filter(m =>
-    m.actorId === subjectId || m.targetId === subjectId
-  );
-}
-
-/* ==========================================================
-   H · 广播
-   ========================================================== */
-const broadcastLog = [];
-function broadcast(text, duration = 3.5) {
-  broadcastLog.push({ text, until: world.time + duration });
-}
-
-/* ==========================================================
-   I · 对话 UI
-   ========================================================== */
-const dialogueUI = {
-  el: document.getElementById('dialog'),
-  avatarBox: document.getElementById('avatarBox'),
-  speaker: document.getElementById('speaker'),
-  line: document.getElementById('line'),
-  choices: document.getElementById('choices'),
-  timer: 0,
-  persistent: false,
-};
-
-function pickByStyle(style, map) {
-  return map[style] || map.default || '……';
-}
-
-/* ==========================================================
-   J · 对话系统
-   ========================================================== */
-function openDialogueForNpc(npc) {
-  if (!npc || !npc.alive) return;
-  dialogue.active = true;
-  dialogue.persistent = true;
-  dialogue.timer = 0;
-
-  document.getElementById('joystick').classList.add('locked');
-  document.getElementById('actionBtn').classList.add('hidden');
-
-  const p = world.player;
-  npc.facing = Math.atan2(p.y - npc.y, p.x - npc.x);
-
-  bus.emit({
-    type: 'talk',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-  });
-
-  showNpcGreeting(npc);
-}
-
-function showNpcGreeting(npc) {
-  let text = npc.intro;
-
-  const panicMem = npc.memory
-    .filter(m => (m.type === 'kill' || m.type === 'found_body') &&
-                 (world.time - m.time) < 120)
-    .sort((a, b) => b.time - a.time)[0];
-
-  if (panicMem) {
-    const killerName = panicMem.actorName;
-    const victimName = panicMem.targetName;
-    if (panicMem.type === 'kill') {
-      text = pickByStyle(npc.style, {
-        leader:  `（他喘着气）你看到刚才了吗。\n${killerName}……${killerName}杀了${victimName}。\n我不确定自己有没有看错。`,
-        analytic:`（他声音发抖）\n记录：${killerName}对${victimName}实施暴力。\n记录结束。我不确定。`,
-        sharp:   `（她抓住你的袖子）\n${killerName}！\n我看见了！${victimName}——你听见我说的了吗！`,
-        weak:    `（她在发抖）\n${killerName}……${victimName}……血……\n对不起……对不起……`,
-        smooth:  `（她脸色发白）\n${killerName}刚动了手。\n${victimName}已经……\n你想知道，我就告诉你。`,
-        blunt:   `（他喘着气）\n${killerName}。\n杀了人。`,
-        argue:   `（他语速很快）\n我看见了——${killerName}。\n你去问他。别问我。`,
-        loyal:   `（他浑身发抖）\n${victimName}……${killerName}把${victimName}……\n我该怎么办……`,
-        joke:    `（他手里的硬币掉了）\n……${killerName}。\n不搞笑。一点都不搞笑。`,
-        lucky:   `（他咬着牙）\n${killerName}。\n巧的是，我看得一清二楚。`,
-      });
-    } else {
-      text = pickByStyle(npc.style, {
-        leader:  `（他压低声音）\n我找到${victimName}了。\n没有呼吸。\n别惊动别人。`,
-        analytic:`（他推了推眼镜，但手在抖）\n${victimName}。已死亡。\n原因不明。`,
-        sharp:   `（她抓住你的手）\n${victimName}死了。\n在那边。\n跟我来。`,
-        weak:    `（她哭着说不出话）\n${victimName}……我、我路过……\n他不动了……`,
-        smooth:  `（她声音很轻）\n${victimName}死了。\n就在那儿。\n你最好自己去看。`,
-        blunt:   `（他脸色发青）\n${victimName}。死了。`,
-        argue:   `（他喘气）\n${victimName}。\n别看我。你自己去看。`,
-        loyal:   `（他哭出来了）\n${victimName}……\n我、我刚才还在跟他说话……`,
-        joke:    `（他笑得很勉强）\n${victimName}……\n不，这不是玩笑。`,
-        lucky:   `（他闭了一下眼）\n${victimName}。\n我走运的不是这个。`,
-      });
-    }
-  } else if (npc.fear >= 70) {
-    text = pickByStyle(npc.style, {
-      leader:  '（他四处张望）现在不安全。\n我们最好待在一起。',
-      analytic:'（他很紧张）\n环境威胁等级上升。\n我建议结伴行动。',
-      sharp:   '（她靠近你一点）\n……别走开。',
-      weak:    '（她一直看着四周）\n我、我能跟着你吗……',
-      smooth:  '（她笑得很浅）\n你不觉得这里越来越冷了吗。',
-      blunt:   '（他皱眉头）\n这里不对劲。',
-      argue:   '（他警觉地看了一圈）\n刚才那个声音是什么？',
-      loyal:   '（他小声）\n……我们小心点。',
-      joke:    '（他没在转硬币）\n说实话，我有点怕。',
-      lucky:   '（他抿着嘴）\n我的直觉告诉我，现在不该一个人。',
-    });
-  } else {
-    const threatenedBefore = npc.memory.some(m =>
-      m.actorId === 'player' && m.type === 'threat'
-    );
-    if (threatenedBefore && npc.trust < 30) {
-      text = pickByStyle(npc.style, {
-        leader:  '（他看着你，眼神很冷）还有事？',
-        sharp:   '（她往后退半步）你又来干什么。',
-        weak:    '（她缩得更紧）……别再那样了。',
-        smooth:  '（她笑了一下，但没到眼睛里）你又来了。',
-        blunt:   '（他把脸转开）滚。',
-        analytic:'（他合上书）如果没有新的信息，我不想再重复。',
-        argue:   '（他抬起下巴）你想好了怎么回答我的问题了吗？',
-        loyal:   '（他低着头）……我不想跟你说话。',
-        joke:    '（他转了转硬币，没笑）',
-        lucky:   '（他摊了摊手）又来？',
-      });
-    }
-  }
-
-  renderNpcDialogue(npc, text, buildNpcMenu(npc));
-}
-
-function buildNpcMenu(npc) {
-  const opts = [];
-  opts.push({ label: '你昨晚在哪？', key: 'ask_alibi' });
-  opts.push({ label: '你看到什么了？', key: 'ask_witness' });
-  opts.push({ label: '你怀疑谁？', key: 'ask_suspect' });
-
-  const others = world.actors.filter(a =>
-    !a.isPlayer && a.alive && a.id !== npc.id
-  );
-  if (others.length) opts.push({ label: '关于某个人……', key: 'ask_about_open' });
-
-  if (npc.secret && !npc.secretKnownByPlayer) {
-    opts.push({ label: '（盯住他）你有事瞒着我。', key: 'try_secret' });
-  }
-  if (world.playerIsKiller && (world.playerKillCount || 0) > 0) {
-    opts.push({ label: '（说谎）我昨晚什么都没做。', key: 'lie', lie: true });
-    opts.push({ label: '（说谎）我一直和别人在一起。', key: 'lie2', lie: true });
-  }
-  opts.push({ label: '别让我怀疑你。', key: 'threaten', danger: true });
-  opts.push({ label: '你还好吗？', key: 'comfort' });
-  if (npc.trust >= 55) {
-    opts.push({ label: '我们合作吧。', key: 'recruit' });
-  }
-  opts.push({ label: '没事了。', key: 'bye' });
-  return opts;
-}
-
-function renderNpcDialogue(npc, text, opts) {
-  dialogueUI.speaker.textContent = npc.name;
-  dialogueUI.avatarBox.innerHTML = avatarSVG(npc.avatar);
-  dialogueUI.line.textContent = text;
-  dialogueUI.el.classList.add('show');
-  dialogueUI.timer = 0;
-  dialogueUI.persistent = true;
-  dialogueUI.choices.innerHTML = '';
-
-  for (const o of opts) {
-    const b = document.createElement('button');
-    let cls = 'choice';
-    if (o.danger) cls += ' danger';
-    if (o.lie)    cls += ' lie';
-    b.className = cls;
-    b.type = 'button';
-    b.textContent = o.label;
-    b.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleNpcAction(npc, o.key);
-    });
-    dialogueUI.choices.appendChild(b);
-  }
-}
-
-function handleNpcAction(npc, key) {
-  switch (key) {
-    case 'bye': closeDialogue(); return;
-    case 'ask_alibi':
-      renderNpcDialogue(npc, answerAlibi(npc), buildNpcMenu(npc)); return;
-    case 'ask_witness':
-      renderNpcDialogue(npc, answerWitness(npc), buildNpcMenu(npc)); return;
-    case 'ask_suspect':
-      renderNpcDialogue(npc, answerSuspect(npc), buildNpcMenu(npc)); return;
-    case 'ask_about_open': {
-      const others = world.actors.filter(a =>
-        !a.isPlayer && a.alive && a.id !== npc.id
-      );
-      const subOpts = others.map(o => ({
-        label: o.name, key: 'ask_about:' + o.id,
-      }));
-      subOpts.push({ label: '← 返回', key: 'back' });
-      renderNpcDialogue(npc, '你想问谁？', subOpts);
-      return;
-    }
-    case 'back':
-      renderNpcDialogue(npc, npc.intro, buildNpcMenu(npc)); return;
-    case 'threaten':
-      renderNpcDialogue(npc, doThreaten(npc), buildNpcMenu(npc)); return;
-    case 'comfort':
-      renderNpcDialogue(npc, doComfort(npc), buildNpcMenu(npc)); return;
-    case 'recruit':
-      renderNpcDialogue(npc, doRecruit(npc), buildNpcMenu(npc)); return;
-    case 'try_secret':
-      renderNpcDialogue(npc, tryRevealSecret(npc), buildNpcMenu(npc)); return;
-    case 'lie':
-      renderNpcDialogue(npc, doLie(npc, 0), buildNpcMenu(npc)); return;
-    case 'lie2':
-      renderNpcDialogue(npc, doLie(npc, 1), buildNpcMenu(npc)); return;
-  }
-  if (key.startsWith('ask_about:')) {
-    const targetId = key.slice('ask_about:'.length);
-    renderNpcDialogue(npc, answerAbout(npc, targetId), buildNpcMenu(npc));
-  }
-}
-
-const LIE_TEXTS = [
-  '我昨晚什么都没做。我就在走廊里待着。',
-  '我一直和别人在一起。你可以去问。',
-];
-
-function doLie(npc, lieIndex) {
-  const lieText = LIE_TEXTS[lieIndex] || LIE_TEXTS[0];
-  world.playerLies.push({ npcId: npc.id, text: lieText, time: world.time });
-
-  const witnessed = npc.memory.some(m =>
-    m.type === 'kill' && m.actorId === 'player' && m.clarity === 'full'
-  );
-
-  if (witnessed) {
-    npc.suspicion['player'] = Math.min(100, (npc.suspicion['player'] || 0) + 25);
-    npc.trust = Math.max(0, npc.trust - 20);
-    npc.anger = Math.min(100, npc.anger + 15);
-
-    bus.emit({
-      type: 'lie',
-      actorId: 'player', actorName: '你',
-      targetId: npc.id, targetName: npc.name,
-      region: world.region,
-      detail: { lieText, exposed: true },
-    });
-
-    return pickByStyle(npc.style, {
-      leader:  '（他冷冷地看着你）你觉得我没看见？\n（他后退一步）\n别靠近我。',
-      sharp:   '（她站起来）你骗我？\n我亲眼看见的！\n你也太不要脸了。',
-      weak:    '（她哭）你、你刚才还在骗我……\n我都看见了……',
-      smooth:  '（她的笑容一下子消失了）\n你这个人。\n真的很有意思。\n（她后退）',
-      blunt:   '（他往前走一步）你再说一遍。\n我看见了。',
-      analytic:'（他推了推眼镜，声音很平）\n与我的记录不符。\n你刚才说的不是事实。\n我建议你换一个谎言。',
-      argue:   '（他冷笑）\n你说你昨晚什么都没做？\n我可以接受你在撒谎。但我不能接受你觉得我蠢。',
-      loyal:   '（他退后一步，摇着头）\n……我、我看见了的。\n你为什么要骗我……',
-      joke:    '（他没笑）\n……你也太不会撒了吧。\n我看见了。',
-      lucky:   '（他叹了口气）\n巧的是，我恰好在场。\n你这谎撒得也太差了。',
-    });
-  }
-
-  npc.suspicion['player'] = Math.max(0, (npc.suspicion['player'] || 0) - 15);
-  npc.trust = Math.min(100, npc.trust + 5);
-
-  bus.emit({
-    type: 'lie',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-    detail: { lieText, exposed: false },
-  });
-
-  return pickByStyle(npc.style, {
-    leader:  '（他盯着你看了几秒）\n……好。\n暂时信你。',
-    sharp:   '（她哼了一声）\n……行吧。',
-    weak:    '（她小声）嗯……\n我信你……',
-    smooth:  '（她慢慢笑起来）\n好呀。\n我信你。\n（她笑得很温柔）',
-    blunt:   '（他哼了一声）\n行。',
-    analytic:'（他记录了什么）\n数据更新。\n暂时不构成怀疑。',
-    argue:   '（他打量你）\n……算你过关。',
-    loyal:   '（他点点头）\n嗯。\n我信你。',
-    joke:    '（他重新拿出硬币，转了一下）\n行行行，我信。',
-    lucky:   '（他耸耸肩）\n姑且信你。',
-  });
-}
-
-function answerAlibi(npc) {
-  let base = npc.alibi;
-  if (npc.trust < 30) {
-    return base + '\n\n' + pickByStyle(npc.style, {
-      leader: '我没有必要再重复一次。',
-      sharp:  '你想查我？',
-      weak:   '……我说过了。',
-      smooth: '（她慢慢地说）你已经问过了。',
-      blunt:  '你聋了？',
-      analytic:'数据已提供。',
-      argue:  '你为什么不问问你自己？',
-      loyal:  '……你不信我吗。',
-      joke:   '哟，查户口了？',
-      lucky:  '第二次问同一个问题，通常不是好兆头。',
-    });
-  }
-  if (npc.trust >= 70) {
-    return base + '\n\n' + pickByStyle(npc.style, {
-      leader: '（补充）如果需要，我可以让智宇晨也确认。',
-      sharp:  '（她语气软了）……你知道我不会骗你。',
-      weak:   '（她小声）真的，我一直在那儿。',
-      smooth: '（她微笑）你想问的，其实不是这个吧。',
-      analytic:'补充：时间点为封锁后约 20 分钟。',
-      loyal:  '我一直和张思恩在一起。',
-      joke:   '你要不信，我转个硬币给你看。',
-      blunt:  '我说了就是说了。',
-      argue:  '你可以去问走廊里任何一个人。',
-      lucky:  '巧的是，我当时还看了表。',
-    });
-  }
-  return base;
-}
-
-function answerWitness(npc) {
-  const relevant = npc.memory
-    .filter(m => ['talk', 'examine', 'pick_weapon', 'kill', 'found_body'].includes(m.type))
-    .filter(m => m.actorId !== 'player' || m.targetId !== npc.id)
-    .slice(-4);
-
-  if (!relevant.length) {
-    return pickByStyle(npc.style, {
-      leader:  '这段时间里没有值得注意的事。',
-      sharp:   '我什么都没看到。你问这个干嘛？',
-      weak:    '我、我没看到什么……',
-      smooth:  '（她温柔地）你希望我看到什么？',
-      blunt:   '没有。',
-      analytic:'记录为空。',
-      argue:   '你问这个是不是因为你心里有鬼？',
-      loyal:   '……我没注意到。',
-      joke:    '我这人嘛，什么都记不住。',
-      lucky:   '我看到的一切都太正常了。正常得不正常。',
-    });
-  }
-
-  const limit = npc.trust >= 70 ? 4 : npc.trust >= 40 ? 3 : 2;
-  const lines = [];
-  for (let i = 0; i < Math.min(limit, relevant.length); i++) {
-    const line = narrateMemory(relevant[i], npc.style);
-    if (line) lines.push(line);
-  }
-
-  if (!lines.length) return '……我什么都没看到。';
-
-  const prefix = pickByStyle(npc.style, {
-    leader:  '我注意到几件事。',
-    sharp:   '就你问得最多——好吧。',
-    weak:    '我、我看到……',
-    smooth:  '（她慢慢地说）',
-    blunt:   '',
-    analytic:'记录如下。',
-    argue:   '你要听？那你要认真听。',
-    loyal:   '……我记得。',
-    joke:    '让我想想啊——',
-    lucky:   '巧的是，我都看到了。',
-  });
-
-  return (prefix ? prefix + '\n' : '') + lines.join('\n');
-}
-
-function answerSuspect(npc) {
-  const top = mostSuspicious(npc, ['player']);
-  if (!top || top.score < 5) {
-    return pickByStyle(npc.style, {
-      leader:  '暂时不下结论。先看清每个人在做什么。',
-      sharp:   '谁都可疑。包括你。',
-      weak:    '我、我不敢乱说……',
-      smooth:  '（她侧头）没有证据，谈不上怀疑。',
-      blunt:   '没。',
-      analytic:'数据不足。',
-      argue:   '你先说说你怀疑谁？',
-      loyal:   '我不想怀疑任何人。',
-      joke:    '我怀疑所有人，也怀疑我自己。',
-      lucky:   '我有个感觉，但说不上来是谁。',
-    });
-  }
-  const who = top.actor.name;
-  return pickByStyle(npc.style, {
-    leader:  `我在看${who}。他今天有点不自然。`,
-    sharp:   `${who}。你不觉得吗？`,
-    weak:    `……${who}……他好像……有点奇怪……`,
-    smooth:  `（慢慢地说）${who}今晚很安静。安静得不像他。`,
-    blunt:   `${who}。`,
-    analytic:`根据观察，${who}的行为偏离基准。`,
-    argue:   `${who}？你先告诉我你为什么不怀疑他？`,
-    loyal:   `……我不太愿意说是谁。但${who}让我有点不安。`,
-    joke:    `${who}。他心虚得比我还明显。`,
-    lucky:   `${who}。我的直觉从没错过。`,
-  });
-}
-
-function answerAbout(npc, targetId) {
-  const target = getActor(targetId);
-  if (!target || !target.alive) return '……';
-  const suspicion = npc.suspicion[targetId] || 0;
-  const mems = memoriesAbout(npc, targetId).slice(-2);
-  const memLines = mems.map(m => narrateMemory(m, npc.style)).filter(Boolean);
-
-  let opinion;
-  if (suspicion >= 30) {
-    opinion = pickByStyle(npc.style, {
-      leader:  `我一直觉得${target.name}有点问题。`,
-      sharp:   `${target.name}？离他远点。`,
-      weak:    `他、他好像对我不太友好……`,
-      smooth:  `${target.name}很有意思。有意思到让人不舒服。`,
-      blunt:   `不喜欢。`,
-      analytic:`${target.name}的行为模式偏离度最高。`,
-      argue:   `你自己没看出来吗？`,
-      loyal:   `……我不太想说他。`,
-      joke:    `${target.name}？他太安静了。安静的人最可怕。`,
-      lucky:   `${target.name}。我总觉得他会出事。`,
-    });
-  } else if (suspicion >= 10) {
-    opinion = pickByStyle(npc.style, {
-      leader:  `不好说。还在观察。`,
-      sharp:   `还行吧。没特别的感觉。`,
-      weak:    `我觉得他还好……`,
-      smooth:  `他挺不错的。至少表面上是。`,
-      blunt:   `没感觉。`,
-      analytic:`目前没有足够数据。`,
-      argue:   `你为什么这么在意他？`,
-      loyal:   `他人挺好的。`,
-      joke:    `老好人一个。`,
-      lucky:   `他运气应该不错。`,
-    });
-  } else {
-    opinion = pickByStyle(npc.style, {
-      leader:  `没怎么注意过。`,
-      sharp:   `不重要。`,
-      weak:    `我、我不太认识他……`,
-      smooth:  `他不是什么重要的人吧。`,
-      blunt:   `不认识。`,
-      analytic:`缺乏交集。`,
-      argue:   `你问这个做什么？`,
-      loyal:   `还好。`,
-      joke:    `普通得不能再普通。`,
-      lucky:   `平平无奇。`,
-    });
-  }
-  if (memLines.length) return memLines.join('\n') + '\n\n' + opinion;
-  return opinion;
-}
-
-function doThreaten(npc) {
-  bus.emit({
-    type: 'threat',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-  });
-  npc.trust = Math.max(0, npc.trust - 10);
-  npc.fear = Math.min(100, npc.fear + 15);
-  npc.killIntent = Math.min(100, npc.killIntent + 5);
-
-  switch (npc.style) {
-    case 'leader':  npc.anger = Math.min(100, npc.anger + 20);
-      return '（他抬起眼睛）你可以试着威胁我。\n但你要想清楚，站在你面前的不是一个人。';
-    case 'sharp':   npc.anger = Math.min(100, npc.anger + 10);
-      return '（她后退半步，然后停住）\n威胁我？你先看看你自己。';
-    case 'weak':    npc.fear = Math.min(100, npc.fear + 25);
-      return '（她眼睛立刻红了）\n对不起……你想知道什么我都说……';
-    case 'smooth':  return '（她笑得更深）威胁我？真有意思。\n（轻轻摇头）行，我记住你了。';
-    case 'blunt':   npc.anger = Math.min(100, npc.anger + 30);
-      return '（他往前走一步，影子压在你身上）\n再说一遍。';
-    case 'analytic':return '（他合上书）威胁是一种低效的信息获取方式。\n你想问什么，可以直接问。';
-    case 'argue':   npc.anger = Math.min(100, npc.anger + 15);
-      return '（他冷笑）威胁？你拿什么威胁我？\n你有没有想过，我可能比你知道更多？';
-    case 'loyal':   return '（他往后退一步）\n……我、我不喜欢这样。\n你要问什么……你问就是了。';
-    case 'joke':    return '（他把硬币塞回口袋，笑容没了）\n……你看，刚刚还挺好的。';
-    case 'lucky':   return '（他耸耸肩）威胁我没什么用。我是个走运的人。\n你试试看。';
-  }
-  return '（对方沉默着看着你）';
-}
-
-function doComfort(npc) {
-  bus.emit({
-    type: 'comfort',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-  });
-  /* 信任增加上限，避免无限叠加 */
-  npc.trust = Math.min(65, npc.trust + 3);
-  npc.fear = Math.max(0, npc.fear - 15);
-  npc.killIntent = Math.max(0, npc.killIntent - 3);
-
-  switch (npc.style) {
-    case 'leader':  return '（他愣了一下，然后点点头）\n……谢谢。\n（顿了顿）你也保重。';
-    case 'sharp':   return '（她别过头）谁要你安慰。\n（声音小下去）……谢谢。';
-    case 'weak':    return '（她眼泪一下子掉下来）\n我……我真的好害怕……\n你能陪我一会儿吗……';
-    case 'smooth':  return '（她微微一愣，然后恢复笑）你这个人，真有意思。\n……谢谢。';
-    case 'blunt':   return '（他哼了一声）用不着。\n（但他没有转身）';
-    case 'analytic':return '（他推了推眼镜）……这是一种非理性的行为。\n但，谢谢。';
-    case 'argue':   return '（他张了张嘴，然后闭上）\n……\n（他抬起手，最后只是摆了摆）';
-    case 'loyal':   return '（他用力点点头）嗯！你也是。';
-    case 'joke':    return '（他重新拿出硬币，转了一下）放心，我这人命硬。';
-    case 'lucky':   return '（他难得认真）谢了。真的。';
-  }
-  return '（对方轻轻点了点头）';
-}
-
-function doRecruit(npc) {
-  bus.emit({
-    type: 'recruit',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-  });
-  const faction = FACTIONS[npc.faction];
-  const inFaction = faction && faction.members.length > 1 && npc.loyalty >= 60;
-
-  if (inFaction) {
-    npc.trust = Math.max(0, npc.trust - 5);
-    switch (npc.style) {
-      case 'leader': return '（他笑了笑）我有自己的人。\n你也是。';
-      case 'loyal':  return '（认真地摇头）对不起。\n张思恩他……他不会希望这样的。';
-      case 'weak':   return '（她抱着自己）我、我不能……真的不能……';
-      default:       return '（对方摇了摇头）';
-    }
-  }
-  npc.trust = Math.min(100, npc.trust + 10);
-  npc.loyalty = Math.max(0, npc.loyalty - 5);
-  switch (npc.style) {
-    case 'analytic': return '（他沉思）在逻辑上，这是最优解。\n好。';
-    case 'argue':    return '（打量你几秒）你比我想的聪明一点。\n行。';
-    case 'joke':     return '（他笑出声）哟，拉帮结伙？\n算我一个。';
-    case 'sharp':    return '（她看了你一会儿）……我只说一次。\n我会看着你。';
-    case 'lucky':    return '（耸耸肩）行。反正我也一个人。';
-    case 'blunt':    return '（想了想）行。\n但你别让我失望。';
-    case 'loyal':    return '（犹豫了一下）……好。\n我信你。';
-    case 'smooth':   return '（轻轻笑了）好啊。\n（伸手）合作愉快。';
-    case 'leader':   return '（认真看你）我不需要盟友。\n但我可以给你一个机会。';
-    case 'weak':     return '（点头，小声）嗯……我会帮你的……';
-  }
-  return '（对方点了点头）';
-}
-
-function tryRevealSecret(npc) {
-  if (!npc.secret) return '（对方避开你的目光）你想说什么？';
-  if (npc.trust < 45) {
-    npc.trust = Math.max(0, npc.trust - 15);
-    npc.fear = Math.min(100, npc.fear + 10);
-    return pickByStyle(npc.style, {
-      leader:  '（他打断你）够了。\n你没资格审问我。',
-      sharp:   '（她突然激动）我有什么事瞒着你？！\n你自己做了什么？',
-      weak:    '（她哭起来）我、我不知道你在说什么……',
-      smooth:  '（她笑得很温和）你在说什么？\n我听不懂。',
-      blunt:   '（他往前走一步）你再说一遍试试。',
-      analytic:'（他合上书）你的假设缺乏证据支持。',
-      argue:   '（冷笑）你说我有事瞒着你？\n你有什么证据？没有？那你就是在诬陷。',
-      loyal:   '（他退后一步）我、我没有……',
-      joke:    '（他笑容消失）……你今天不太对劲。',
-      lucky:   '（他皱眉）我？你确定你找对人了吗？',
-    });
-  }
-  npc.secretKnownByPlayer = true;
-  npc.trust = Math.max(0, npc.trust - 5);
-  bus.emit({
-    type: 'reveal_secret',
-    actorId: 'player', actorName: '你',
-    targetId: npc.id, targetName: npc.name,
-    region: world.region,
-  });
-  return npc.secretLine;
-}
-
-function openDialogueForProp(prop) {
-  dialogue.active = true;
-  dialogue.persistent = false;
-  dialogue.timer = 3.0;
-  document.getElementById('joystick').classList.add('locked');
-  document.getElementById('actionBtn').classList.add('hidden');
-  bus.emit({
-    type: 'examine',
-    actorId: 'player', actorName: '你',
-    region: world.region,
-    detail: { propName: prop.name, propKind: prop.kind || 'prop' },
-  });
-  dialogueUI.speaker.textContent = prop.name || '物件';
-  dialogueUI.avatarBox.innerHTML = avatarSVG('obj');
-  dialogueUI.line.textContent = prop.examine || '看不出什么。';
-  dialogueUI.choices.innerHTML = '';
-  dialogueUI.el.classList.add('show');
-  const btn = document.createElement('button');
-  btn.className = 'choice';
-  btn.textContent = '离开';
-  btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    closeDialogue();
-  });
-  dialogueUI.choices.appendChild(btn);
-}
-
-function closeDialogue() {
-  dialogue.active = false;
-  dialogue.persistent = false;
-  dialogue.timer = 0;
-  dialogueUI.el.classList.remove('show');
-  dialogueUI.choices.innerHTML = '';
-  document.getElementById('joystick').classList.remove('locked');
-  document.getElementById('actionBtn').classList.remove('hidden');
-}
-
-/* ==========================================================
-   K · 玩家控制
-   ========================================================== */
-function updatePlayerInput(dt) {
-  const P = world.player;
-  if (!P || !P.alive) return;
-  let ix = 0, iy = 0;
-  if (!dialogue.active && !world.struggleActive && !world.gameOver && !voteState.active) {
-    if (keys.has('ArrowLeft')  || keys.has('KeyA')) ix -= 1;
-    if (keys.has('ArrowRight') || keys.has('KeyD')) ix += 1;
-    if (keys.has('ArrowUp')    || keys.has('KeyW')) iy -= 1;
-    if (keys.has('ArrowDown')  || keys.has('KeyS')) iy += 1;
-    const jm = Math.hypot(joyVec.x, joyVec.y);
-    if (jm > 0.12) {
-      const k = (jm - 0.12) / (1 - 0.12);
-      ix += (joyVec.x / jm) * k;
-      iy += (joyVec.y / jm) * k;
-    }
-  }
-  const len = Math.hypot(ix, iy);
-  if (len > 1) { ix /= len; iy /= len; }
-  const tvx = ix * CONFIG.MAX_SPEED;
-  const tvy = iy * CONFIG.MAX_SPEED;
-  const f = 1 - Math.exp(-CONFIG.ACCEL * dt);
-  P.vx += (tvx - P.vx) * f;
-  P.vy += (tvy - P.vy) * f;
-  if (Math.abs(P.vx) < 0.6) P.vx = 0;
-  if (Math.abs(P.vy) < 0.6) P.vy = 0;
-  const spd = Math.hypot(P.vx, P.vy);
-  if (spd > 8) P.facing = Math.atan2(P.vy, P.vx);
-  P.moving = spd > 20;
-  P.x += P.vx * dt;
-  P.y += P.vy * dt;
-}
-
-function resolvePlayerCollisions() {
-  if (debugState.god) return;
-  const P = world.player;
-  if (!P || !P.alive) return;
-  const R = REGIONS[world.region];
-  const B = R.bounds;
-  for (const s of R.solids) {
-    const nx = clamp(P.x, s.x, s.x + s.w);
-    const ny = clamp(P.y, s.y, s.y + s.h);
-    const dx = P.x - nx;
-    const dy = P.y - ny;
-    const d = Math.hypot(dx, dy);
-    if (d < P.r) {
-      if (d === 0) {
-        const left = P.x - s.x, right = s.x + s.w - P.x;
-        const top = P.y - s.y, bottom = s.y + s.h - P.y;
-        const m = Math.min(left, right, top, bottom);
-        if (m === left)        P.x = s.x - P.r;
-        else if (m === right)  P.x = s.x + s.w + P.r;
-        else if (m === top)    P.y = s.y - P.r;
-        else                   P.y = s.y + s.h + P.r;
-      } else {
-        const push = (P.r - d) / d;
-        P.x += dx * push;
-        P.y += dy * push;
-      }
-    }
-  }
-  P.x = clamp(P.x, B.x + P.r, B.x + B.w - P.r);
-  P.y = clamp(P.y, B.y + P.r, B.y + B.h - P.r);
-}
-
-function resolveActorCollisions() {
-  const P = world.player;
-  if (!P || !P.alive) return;
-  for (const a of world.actors) {
-    if (a.isPlayer || !a.alive || a.region !== world.region) continue;
-    const dx = P.x - a.x, dy = P.y - a.y;
-    const d = Math.hypot(dx, dy);
-    const minD = P.r + a.r;
-    if (d < minD && d > 0.001) {
-      const push = (minD - d) / d * 0.5;
-      P.x += dx * push;
-      P.y += dy * push;
-    }
-  }
-}
-
-function checkDoors(dt) {
-  if (world.doorCooldown > 0) { world.doorCooldown -= dt; return; }
-  if (dialogue.active || world.struggleActive || world.gameOver) return;
-  if (voteState.active) return;
-  const P = world.player;
-  const R = REGIONS[world.region];
-  for (const d of R.doors) {
-    if (Math.hypot(P.x - d.x, P.y - d.y) < d.r) {
-      switchRegion(d.to, d.spawn);
-      return;
-    }
-  }
-}
-
-function switchRegion(toId, spawn) {
-  const R = REGIONS[toId];
-  if (!R) return;
-  const prevRegion = world.region;
-  world.region = toId;
-  world.player.region = toId;
-  world.player.x = spawn.x;
-  world.player.y = spawn.y;
-  world.player.vx = world.player.vy = 0;
-  world.player.moving = false;
-  world.player.facing = -Math.PI / 2;
-  world.doorCooldown = CONFIG.DOOR_COOLDOWN;
-  world.fade = 1;
-  document.getElementById('regionLabel').textContent = R.name;
-  bus.emit({
-    type: 'leave', actorId: 'player', actorName: '你',
-    region: prevRegion, detail: { to: toId },
-  });
-  bus.emit({
-    type: 'enter', actorId: 'player', actorName: '你',
-    region: toId, detail: { from: prevRegion },
-  });
-}
-
-/* ==========================================================
-   L · NPC 大脑（含跟随冷却）
-   ========================================================== */
-function thinkActor(actor, dt) {
-  if (!actor.alive || actor.isPlayer) return;
-  if (actor.desire === 'cross_region') return;
-
-  actor.thinkTimer -= dt;
-  if (actor.thinkTimer > 0) return;
-  actor.thinkTimer = 1.2 + Math.random() * 1.5;
-
-  if (actor.panicTimer > 0) actor.panicTimer -= 1.5;
-
-  /* ---------- 恐慌 → 聚集 ---------- */
-  if (actor.panicTimer > 0 || actor.fear >= 60) {
-    const closest = findNearestActor(actor, a =>
-      a.id !== actor.id && a.alive && a.region === actor.region
-    );
-    if (closest) {
-      actor.desire = 'gather';
-      actor.target = { kind: 'actor', id: closest.id };
-    } else {
-      const otherRegion = findNearestOccupiedRegion(actor);
-      if (otherRegion) setCrossRegion(actor, otherRegion);
-      else { actor.desire = 'idle'; actor.waitTimer = 2; }
-    }
-    return;
-  }
-
-  /* ---------- 杀意极高 ---------- */
-  if (actor.killIntent >= 80 && !actor.killer && canKill(actor)) {
-    if (actor.hasWeapon) {
-      let victim = null, vd = Infinity;
-      for (const a of world.actors) {
-        if (!a.alive || a.id === actor.id) continue;
-        if (a.region !== actor.region) continue;
-        if (a.isPlayer && debugState.god) continue;
-        const d = Math.hypot(a.x - actor.x, a.y - actor.y);
-        if (d < vd) { vd = d; victim = a; }
-      }
-      if (victim) {
-        actor.desire = 'approach_target';
-        actor.target = { kind: 'actor', id: victim.id };
-      } else {
-        const targetRegion = findNearestOccupiedRegion(actor);
-        if (targetRegion) setCrossRegion(actor, targetRegion);
-        else { actor.desire = 'idle'; actor.waitTimer = 2; }
-      }
-    } else {
-      actor.desire = 'seek_weapon';
-    }
-    return;
-  }
-
-  /* ---------- 愤怒 → 追玩家 ---------- */
-  if (actor.anger >= 50 && world.player.alive) {
-    if (world.player.region !== actor.region) {
-      setCrossRegion(actor, world.player.region);
-      return;
-    }
-    actor.desire = 'approach_target';
-    actor.target = { kind: 'actor', id: 'player' };
-    return;
-  }
-
-  /* ---------- 怀疑 → 观察 ---------- */
-  const topSusp = mostSuspicious(actor, ['player']);
-  if (topSusp && topSusp.score >= 25) {
-    const t = topSusp.actor;
-    if (t.region !== actor.region) {
-      if (Math.random() < 0.35) {
-        setCrossRegion(actor, t.region);
-        return;
-      }
-    } else {
-      actor.desire = 'observe';
-      actor.target = { kind: 'actor', id: t.id };
-      return;
-    }
-  }
-
-  /* ---------- 信任玩家 → 短期跟随（有冷却） ---------- */
-  if (actor.trust >= 65 && world.player.alive &&
-      actor.followCooldownUntil < world.time) {
-    const distToPlayer = actor.region === world.player.region
-      ? Math.hypot(actor.x - world.player.x, actor.y - world.player.y)
-      : Infinity;
-    /* 距离够远才触发跟随 */
-    if (distToPlayer > CONFIG.FOLLOW_TRIGGER_DIST) {
-      if (actor.region !== world.player.region && Math.random() < 0.25) {
-        setCrossRegion(actor, world.player.region);
-        return;
-      } else if (actor.region === world.player.region) {
-        actor.desire = 'approach_player';
-        actor.target = { kind: 'actor', id: 'player' };
-        actor.followUntil = world.time + CONFIG.FOLLOW_DURATION;
-        return;
-      }
-    }
-  }
-
-  /* ---------- 游荡 ---------- */
-  if (actor.waitTimer > 0) {
-    actor.desire = 'idle';
-    return;
-  }
-  actor.desire = 'wander';
-  pickWanderTarget(actor);
-  actor.waitTimer = 3 + Math.random() * 5;
-}
-
-function pickWanderTarget(actor) {
-  const R = REGIONS[actor.region];
-  if (!R) return;
-  const B = R.bounds;
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const x = B.x + actor.r + 20 + Math.random() * (B.w - actor.r * 2 - 40);
-    const y = B.y + actor.r + 20 + Math.random() * (B.h - actor.r * 2 - 40);
-    let blocked = false;
-    for (const s of R.solids) {
-      if (x > s.x - actor.r && x < s.x + s.w + actor.r &&
-          y > s.y - actor.r && y < s.y + s.h + actor.r) {
-        blocked = true; break;
-      }
-    }
-    if (blocked) continue;
-    let nearDoor = false;
-    for (const d of R.doors) {
-      if (Math.hypot(x - d.x, y - d.y) < d.r + 30) { nearDoor = true; break; }
-    }
-    if (nearDoor) continue;
-    actor.target = { kind: 'point', x, y };
-    return;
-  }
-}
-
-function updateNpcMovement(actor, dt) {
-  if (!actor.alive || actor.isPlayer) return;
-
-  if (actor.desire === 'idle') {
-    actor.vx = actor.vy = 0;
-    actor.moving = false;
-    if (actor.waitTimer > 0) actor.waitTimer -= dt;
-    return;
-  }
-
-  if (actor.desire === 'cross_region' && actor.target?.kind === 'door') {
-    const door = actor.target.door;
-    const d = Math.hypot(actor.x - door.x, actor.y - door.y);
-    if (d < door.r + 15) {
-      actor.region = door.to;
-      actor.x = door.spawn.x;
-      actor.y = door.spawn.y;
-      actor.vx = actor.vy = 0;
-      actor.moving = false;
-      actor.target = null;
-      actor.desire = 'idle';
-      actor.waitTimer = 0.5;
-      actor.thinkTimer = 0.3;
-      return;
-    }
-    moveNpcTowards(actor, door.x, door.y, dt);
-    return;
-  }
-
-  if (actor.desire === 'gather') {
-    const other = getActor(actor.target?.id);
-    if (!other || !other.alive || other.region !== actor.region) {
-      actor.desire = 'idle';
-      actor.waitTimer = 1;
-      return;
-    }
-    const d = Math.hypot(actor.x - other.x, actor.y - other.y);
-    if (d > 50) moveNpcTowards(actor, other.x, other.y, dt);
-    else { actor.vx = actor.vy = 0; actor.moving = false; }
-    return;
-  }
-
-  if (actor.desire === 'seek_weapon') {
-    const ws = weaponsInRegion(actor.region);
-    if (ws.length) {
-      const w = ws[0];
-      const d = Math.hypot(w.x - actor.x, w.y - actor.y);
-      if (d < 30) {
-        pickUpWeapon(actor, w.id);
-        actor.desire = 'idle';
-        actor.waitTimer = 1;
-      } else {
-        moveNpcTowards(actor, w.x, w.y, dt);
-      }
-    } else {
-      const targetRegion = findRegionWithWeapon();
-      if (targetRegion && targetRegion !== actor.region) {
-        setCrossRegion(actor, targetRegion);
-      } else {
-        actor.desire = 'idle';
-        actor.waitTimer = 2;
-      }
-    }
-    return;
-  }
-
-  if (!actor.target) {
-    actor.desire = 'idle';
-    actor.waitTimer = 1;
-    return;
-  }
-
-  if (actor.target.kind === 'point') {
-    moveNpcTowards(actor, actor.target.x, actor.target.y, dt);
-    return;
-  }
-
-  if (actor.target.kind === 'actor') {
-    const other = getActor(actor.target.id);
-    if (!other || !other.alive) {
-      actor.target = null;
-      actor.desire = 'idle';
-      actor.waitTimer = 1;
-      return;
-    }
-    if (other.region !== actor.region) {
-      setCrossRegion(actor, other.region);
-      return;
-    }
-    const d = Math.hypot(actor.x - other.x, actor.y - other.y);
-
-    if (actor.desire === 'approach_target') {
-      if (d > 40) moveNpcTowards(actor, other.x, other.y, dt);
-      else { actor.vx = actor.vy = 0; actor.moving = false; }
-    } else if (actor.desire === 'approach_player') {
-      /* 跟随超时 → 停止并进入冷却 */
-      if (world.time > actor.followUntil) {
-        actor.desire = 'idle';
-        actor.target = null;
-        actor.waitTimer = 2 + Math.random() * 3;
-        actor.followCooldownUntil = world.time + CONFIG.FOLLOW_COOLDOWN;
-        actor.vx = actor.vy = 0;
-        actor.moving = false;
-        return;
-      }
-      /* 太近了也停 */
-      if (d > 80) moveNpcTowards(actor, other.x, other.y, dt);
-      else { actor.vx = actor.vy = 0; actor.moving = false; }
-    } else if (actor.desire === 'observe') {
-      if (d > 200) moveNpcTowards(actor, other.x, other.y, dt);
-      else if (d < 120) {
-        const dx = actor.x - other.x, dy = actor.y - other.y;
-        const dd = Math.hypot(dx, dy) || 1;
-        moveNpcTowards(actor, actor.x + (dx / dd) * 150,
-                       actor.y + (dy / dd) * 150, dt);
-      } else { actor.vx = actor.vy = 0; actor.moving = false; }
-    }
-  }
-}
-
-function moveNpcTowards(actor, tx, ty, dt) {
-  const dx = tx - actor.x;
-  const dy = ty - actor.y;
-  const d = Math.hypot(dx, dy);
-  if (d < 5) {
-    actor.vx = actor.vy = 0;
-    actor.moving = false;
-    if (actor.desire === 'wander') {
-      actor.target = null;
-      actor.desire = 'idle';
-      actor.waitTimer = 2 + Math.random() * 4;
-    }
-    return;
-  }
-  const R = REGIONS[actor.region];
-  const B = R.bounds;
-  let nx = dx / d, ny = dy / d;
-  const lookAhead = actor.r + 8;
-  const probeX = actor.x + nx * lookAhead;
-  const probeY = actor.y + ny * lookAhead;
-  for (const s of R.solids) {
-    if (probeX > s.x && probeX < s.x + s.w &&
-        probeY > s.y && probeY < s.y + s.h) {
-      const perpX = -ny, perpY = nx;
-      nx = nx * 0.3 + perpX * 0.7;
-      ny = ny * 0.3 + perpY * 0.7;
-      break;
-    }
-  }
-  const speed = (actor.panicTimer > 0 || actor.fear >= 60)
-    ? CONFIG.NPC_SPEED_PANIC : CONFIG.NPC_SPEED;
-  actor.vx = nx * speed;
-  actor.vy = ny * speed;
-  actor.x += actor.vx * dt;
-  actor.y += actor.vy * dt;
-  actor.facing = Math.atan2(actor.vy, actor.vx);
-  actor.moving = true;
-  actor.x = clamp(actor.x, B.x + actor.r, B.x + B.w - actor.r);
-  actor.y = clamp(actor.y, B.y + actor.r, B.y + B.h - actor.r);
-}
-
-function findNearestActor(self, filterFn) {
-  let best = null, bestD = Infinity;
-  for (const a of world.actors) {
-    if (a.id === self.id) continue;
-    if (!filterFn(a)) continue;
-    const d = Math.hypot(a.x - self.x, a.y - self.y);
-    if (d < bestD) { bestD = d; best = a; }
-  }
-  return best;
-}
-
-function setCrossRegion(actor, targetRegionId) {
-  if (actor.region === targetRegionId) return;
-  const R = REGIONS[actor.region];
-  let door = R.doors.find(d => d.to === targetRegionId);
-  if (!door) {
-    const intermediate = findPathThrough(actor.region, targetRegionId);
-    if (intermediate) door = R.doors.find(d => d.to === intermediate);
-  }
-  if (!door) {
-    actor.desire = 'idle';
-    actor.waitTimer = 2;
-    return;
-  }
-  actor.desire = 'cross_region';
-  actor.target = { kind: 'door', door };
-}
-
-function findPathThrough(fromRegion, toRegion) {
-  const fromR = REGIONS[fromRegion];
-  const toR = REGIONS[toRegion];
-  if (!fromR || !toR) return null;
-  if (fromR.doors.some(d => d.to === toRegion)) return toRegion;
-  if (fromRegion !== 'hall' && toRegion !== 'hall') {
-    if (fromR.doors.some(d => d.to === 'hall') &&
-        toR.doors.some(d => d.to === 'hall')) {
-      return 'hall';
-    }
-  }
-  return null;
-}
-
-function findNearestOccupiedRegion(actor) {
-  const regions = new Set();
-  for (const a of world.actors) {
-    if (a.alive && a.id !== actor.id && a.region !== actor.region) {
-      regions.add(a.region);
-    }
-  }
-  const candidates = [...regions];
-  if (!candidates.length) return null;
-  return candidates[Math.floor(Math.random() * candidates.length)];
-}
-
-function findRegionWithWeapon() {
-  for (const w of Object.values(worldWeapons)) {
-    if (w.onGround && w.region) return w.region;
-  }
-  return null;
-}
-
-/* ==========================================================
-   M · 凶器系统
-   ========================================================== */
-const WEAPON_DEFS = {
-  ruler: { id: 'ruler', name: '三角尺', region: 'main', x: 380, y: 90,
-    clues: ['伤口呈直角状，边缘异常整齐。',
-            '尺子的金属边缘有细微血迹。',
-            '死者手背有金属刮擦痕。'] },
-  compass: { id: 'compass', name: '圆规', region: 'main', x: 340, y: 320,
-    clues: ['死者的颈部有一个极小的穿刺孔。',
-            '圆规的尖端有暗红色痕迹。',
-            '现场遗留一小段折断的铅笔芯。'] },
-  extinguisher: { id: 'extinguisher', name: '灭火器', region: 'hall', x: 500, y: 250,
-    clues: ['死者头骨有明显凹陷。',
-            '现场有白色粉末残留。',
-            '灭火器底部有血迹。'] },
-  ironBar: { id: 'ironBar', name: '消防铁棍', region: 'hall', x: 900, y: 250,
-    clues: ['死者的肋骨有多处骨折。',
-            '现场有铁锈痕迹。',
-            '铁棍的一端沾有毛发。'] },
-  chairLeg: { id: 'chairLeg', name: '椅子腿', region: 'next', x: 260, y: 260,
-    clues: ['死者后脑有钝器击打痕迹，呈长条形。',
-            '现场有木屑，和椅子腿断口吻合。',
-            '地上有重物被拖拽的痕迹。'] },
-  eraser: { id: 'eraser', name: '黑板擦', region: 'next', x: 200, y: 150,
-    clues: ['死者脸上有大量白色粉尘。',
-            '现场粉尘被踩过。',
-            '死者鼻腔里有粉笔灰。'] },
-  rope: { id: 'rope', name: '绳子', region: 'storage', x: 100, y: 280,
-    clues: ['死者颈部有细而深的勒痕。',
-            '地上有断裂的麻绳纤维。',
-            '死者手腕有摩擦伤。'] },
-  cutter: { id: 'cutter', name: '美工刀', region: 'storage', x: 280, y: 280,
-    clues: ['伤口边缘异常整齐。',
-            '地上有刀片屑。',
-            '死者手背有划痕。'] },
-  hammer: { id: 'hammer', name: '铁锤', region: 'storage', x: 150, y: 100,
-    clues: ['死者颅骨碎裂。',
-            '铁锤头部有血迹和毛发。',
-            '现场有重物被移动的痕迹。'] },
-  knife: { id: 'knife', name: '水果刀', region: 'canteen', x: 420, y: 80,
-    clues: ['伤口不深但位置极准。',
-            '血迹呈喷溅状。',
-            '现场有血脚印。'] },
-  cleaver: { id: 'cleaver', name: '菜刀', region: 'canteen', x: 60, y: 60,
-    clues: ['伤口极深，几乎切断。',
-            '菜刀刀口有卷刃。',
-            '血迹从操作台一路滴到门口。'] },
-  mirrorShard: { id: 'mirrorShard', name: '碎镜片', region: 'washroom', x: 260, y: 200,
-    clues: ['伤口是极薄的切割伤。',
-            '现场有玻璃碎片。',
-            '洗手池里有带血的镜片。'] },
-  brick: { id: 'brick', name: '砖块', region: 'roof', x: 200, y: 350,
-    clues: ['死者后脑有钝击伤。',
-            '砖块上有血迹。',
-            '天台边缘有拖拽痕迹。'] },
-  pill: { id: 'pill', name: '药瓶', region: 'infirmary', x: 380, y: 240,
-    clues: ['死者无明显外伤，嘴唇发紫。',
-            '桌上有一只空杯子。',
-            '死者手里攥着一片药。'] },
-  syringe: { id: 'syringe', name: '注射器', region: 'infirmary', x: 420, y: 100,
-    clues: ['死者手臂上有针孔。',
-            '注射器里有残留液体。',
-            '死者表情安详。'] },
-};
-
-const worldWeapons = {};
-
-function initWorldWeapons() {
-  for (const k of Object.keys(worldWeapons)) delete worldWeapons[k];
-  for (const w of Object.values(WEAPON_DEFS)) {
-    worldWeapons[w.id] = {
-      id: w.id, name: w.name, region: w.region, x: w.x, y: w.y,
-      clues: [...w.clues],
-      heldBy: null, onGround: true, usedInKill: false,
-    };
-  }
-}
-
-function weaponsInRegion(regionId) {
-  return Object.values(worldWeapons).filter(w =>
-    w.region === regionId && w.onGround && !w.heldBy
-  );
-}
-
-/* ---------- 拾取（禁止双持） ---------- */
-function pickUpWeapon(actor, weaponId) {
-  /* 已经持有武器 → 拒绝 */
-  if (actor.hasWeapon) {
-    if (actor.isPlayer) broadcast('你手上已经有一件凶器了。先放下再拿。');
-    return false;
-  }
-  const w = worldWeapons[weaponId];
-  if (!w || w.heldBy || !w.onGround) return false;
-  if (w.region !== actor.region) return false;
-
-  w.onGround = false;
-  w.heldBy = actor.id;
-  w.region = null;
-  actor.hasWeapon = weaponId;
-
-  bus.emit({
-    type: 'pick_weapon',
-    actorId: actor.id, actorName: actor.name,
-    region: actor.region,
-    detail: { weaponId, weaponName: w.name, propName: w.name },
-  });
-
-  for (const other of world.actors) {
-    if (other.isPlayer) continue;
-    if (!other.alive) continue;
-    if (other.region !== actor.region) continue;
-    if (other.id === actor.id) continue;
-    const d = Math.hypot(other.x - actor.x, other.y - actor.y);
-    if (d < 300) {
-      other.fear = Math.min(100, other.fear + 20);
-      other.trust = Math.max(0, other.trust - 10);
-      if (other.style === 'leader' || other.style === 'blunt') {
-        other.anger = Math.min(100, other.anger + 15);
-      }
-    }
-  }
-
-  if (actor.isPlayer) {
-    broadcast(`你拿起了 ${w.name}。`);
-    world.playerWeaponId = weaponId;
-  } else if (world.player.alive && world.player.region === actor.region) {
-    const dx = actor.x - world.player.x;
-    const dy = actor.y - world.player.y;
-    if (Math.hypot(dx, dy) < 400) {
-      broadcast(`${actor.name} 拿起了 ${w.name}。`);
-    }
-  }
-  return true;
-}
-
-function dropWeapon(actor) {
-  if (!actor.hasWeapon) return;
-  const w = worldWeapons[actor.hasWeapon];
-  if (!w) { actor.hasWeapon = null; return; }
-  w.onGround = true;
-  w.heldBy = null;
-  w.region = actor.region;
-  w.x = actor.x + (Math.random() - 0.5) * 30;
-  w.y = actor.y + (Math.random() - 0.5) * 30;
-  actor.hasWeapon = null;
-  if (actor.isPlayer) world.playerWeaponId = null;
-}
-
-function dropWeaponUI() {
-  if (!world.playerWeaponId) return;
-  const w = worldWeapons[world.playerWeaponId];
-  if (!w) {
-    world.playerWeaponId = null;
-    world.player.hasWeapon = null;
-    return;
-  }
-  const name = w.name;
-  dropWeapon(world.player);
-  broadcast(`你放下了 ${name}。`);
-}
-
-/* ==========================================================
-   N · 杀人系统
-   ========================================================== */
-function executeKill(killer, victim) {
-  if (!killer || !victim) return false;
-  if (!killer.alive || !victim.alive) return false;
-  if (killer.id === victim.id) return false;
-  if (killer.region !== victim.region) return false;
-  if (!killer.hasWeapon) return false;
-  const w = worldWeapons[killer.hasWeapon];
-  if (!w) return false;
-  if (!canKill(killer)) {
-    if (killer.isPlayer) broadcast('你不能再杀人了。');
-    return false;
-  }
-  if (victim.isPlayer) {
-    if (!world.struggleActive && !world.gameOver) startStruggle(killer);
-    return false;
-  }
-  doKill(killer, victim, w);
-  return true;
-}
-
-function doKill(killer, victim, weapon) {
-  victim.alive = false;
-  world.dead.push(victim.id);
-  killer.killer = true;
-  killer.kills = killer.kills || [];
-  killer.kills.push(world.time);
-  if (!world.killers.includes(killer.id)) world.killers.push(killer.id);
-  killer.hasWeapon = null;
-  if (killer.isPlayer) {
-    world.playerIsKiller = true;
-    world.playerKillCount = (world.playerKillCount || 0) + 1;
-  }
-  const w = worldWeapons[weapon.id];
-  w.onGround = true;
-  w.heldBy = null;
-  w.region = victim.region;
-  w.x = victim.x + 8;
-  w.y = victim.y + 8;
-  w.usedInKill = true;
-  const shuffled = [...w.clues].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, 2 + Math.floor(Math.random() * 2));
-  const evt = {
-    killerId: killer.id, killerName: killer.name,
-    victimId: victim.id, victimName: victim.name,
-    weaponId: weapon.id, weaponName: weapon.name,
-    time: world.time, gameTime: world.gameTime, region: victim.region,
-    clues: picked, witnessed: [],
-  };
-  world.killEvents.push(evt);
-  const witnesses = world.actors.filter(a =>
-    a.alive && !a.isPlayer &&
-    a.region === victim.region &&
-    a.id !== killer.id && a.id !== victim.id
-  );
-  evt.witnessed = witnesses.map(a => a.id);
-  bus.emit({
-    type: 'kill',
-    actorId: killer.id, actorName: killer.name,
-    targetId: victim.id, targetName: victim.name,
-    region: victim.region,
-    detail: { weaponId: weapon.id, weaponName: weapon.name },
-  });
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    a.fear = Math.min(100, a.fear + 20);
-    if (a.region === victim.region) {
-      a.fear = Math.min(100, a.fear + 30);
-      a.panicTimer = 10;
-      a.thinkTimer = 0;
-      if (a.id !== killer.id) {
-        a.desire = 'gather';
-        a.target = null;
-        a.waitTimer = 0;
-      }
-    }
-  }
-  for (const wId of evt.witnessed) {
-    const wActor = getActor(wId);
-    if (!wActor) continue;
-    const mem = wActor.memory.find(m =>
-      m.type === 'kill' && m.actorId === killer.id && m.targetId === victim.id
-    );
-    if (mem) mem.strength = 9999;
-  }
-  startEscapeTimer(killer.id);
-  if (killer.isPlayer) {
-    broadcast(`你杀了 ${victim.name}。`, 5);
-  } else if (world.player.alive) {
-    if (world.player.region === victim.region) {
-      broadcast(`${victim.name} 倒下了。凶手是 ${killer.name}。`, 5);
-    } else {
-      broadcast(`远处传来一声响。${victim.name} 出事了。`, 5);
-    }
-  }
-  if (world.phase === 'calm') world.phase = 'tense';
-  else if (world.killEvents.length >= 3) world.phase = 'chaos';
-  checkAliveCount();
-  return evt;
-}
-
-function killConsequences(killerId, victimId) {
-  const killer = getActor(killerId);
-  const victim = getActor(victimId);
-  if (!killer || !victim) return;
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    if (a.id === killerId) continue;
-    if (a.faction === killer.faction && a.faction !== 'none' && a.faction !== 'lone') {
-      a.trust = Math.max(0, a.trust - 20);
-      a.anger = Math.min(100, a.anger + 20);
-      a.killIntent = Math.min(100, a.killIntent + 10);
-    }
-    if (a.faction === victim.faction && a.faction !== 'none' && a.faction !== 'lone') {
-      a.anger = Math.min(100, a.anger + 40);
-      a.killIntent = Math.min(100, a.killIntent + 15);
-      const faction = FACTIONS[a.faction];
-      if (faction && faction.leader === victim.id) {
-        for (const memberId of faction.members) {
-          const m = getActor(memberId);
-          if (m && m.alive) m.loyalty = 0;
-        }
-      }
-    }
-    if (a.id === 'zhiyuchen' && victimId === 'zhangsien') {
-      a.fear = 100; a.anger = 100; a.killIntent = 100; a.trust = 0;
-    }
-    if (a.id === 'ruanrou' && victimId === 'player') {
-      a.anger = 100; a.killIntent = 100; a.fear = 80;
-    }
-  }
-  if (killer.isPlayer) {
-    for (const a of world.actors) {
-      if (!a.alive || a.isPlayer) continue;
-      a.trust = Math.max(0, a.trust - 25);
-    }
-  }
-}
-
-bus.on((event) => {
-  if (event.type === 'kill') killConsequences(event.actorId, event.targetId);
-});
-
-function checkAliveCount() {
-  const alive = world.actors.filter(a => a.alive).length;
-  if (alive <= CONFIG.WIN_REMAIN && !world.gameOver) {
-    if (world.player.alive) triggerGameEnd('survive');
-    else if (world.ending !== 'player_dead') triggerGameEnd('all_dead');
-  }
-}
-
-function startEscapeTimer(killerId) {
-  world.escapeTimers[killerId] = CONFIG.ESCAPE_GAME_SEC;
-}
-
-function tickEscapeTimers(dt) {
-  const gameDt = dt * CONFIG.TIME_SCALE;
-  for (const killerId of Object.keys(world.escapeTimers)) {
-    world.escapeTimers[killerId] -= gameDt;
-    if (world.escapeTimers[killerId] <= 0) {
-      executeEscape(killerId);
-      delete world.escapeTimers[killerId];
-    }
-  }
-}
-
-function executeEscape(killerId) {
-  const killer = getActor(killerId);
-  if (!killer || !killer.alive) return;
-  killer.alive = false;
-  killer.escaped = true;
-  world.dead.push(killer.id);
-  broadcast(`${killer.name} 走出了校门。`, 6);
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    if (a.id === killer.id) continue;
-    addMemory(a, {
-      type: 'escape', actorId: killer.id, actorName: killer.name,
-      region: a.region, time: world.time, gameTime: world.gameTime,
-    }, 'full');
-    a.fear = Math.min(100, a.fear + 30);
-  }
-  if (killer.isPlayer) { triggerGameEnd('player_escape'); return; }
-  checkAliveCount();
-}
-
-function tickMemoryDecay(dt) {
-  const decay = dt * (1 / 60);
-  for (const a of world.actors) {
-    if (!a.alive) continue;
-    for (let i = a.memory.length - 1; i >= 0; i--) {
-      const m = a.memory[i];
-      if (m.strength === 9999) continue;
-      m.strength -= decay;
-      if (m.strength <= 0) { a.memory.splice(i, 1); continue; }
-      if (m.strength > 70)      m.clarity = 'full';
-      else if (m.strength > 30) m.clarity = 'partial';
-      else                      m.clarity = 'vague';
-    }
-  }
-}
-
-function checkBodyDiscoveries() {
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    for (const evt of world.killEvents) {
-      if (a.discoveredBodies.includes(evt.victimId)) continue;
-      const victim = getActor(evt.victimId);
-      if (!victim || victim.alive) continue;
-      const witnessed = a.memory.some(m =>
-        m.type === 'kill' && m.targetId === evt.victimId
-      );
-      if (witnessed) {
-        a.discoveredBodies.push(evt.victimId);
-        continue;
-      }
-      if (a.region !== evt.region) continue;
-      const d = Math.hypot(victim.x - a.x, victim.y - a.y);
-      if (d < 100) {
-        a.discoveredBodies.push(evt.victimId);
-        a.fear = Math.min(100, a.fear + 40);
-        a.anger = Math.min(100, a.anger + 15);
-        a.panicTimer = 8;
-        a.thinkTimer = 0;
-        addMemory(a, {
-          type: 'found_body',
-          actorId: 'unknown', actorName: '？',
-          targetId: evt.victimId, targetName: evt.victimName,
-          region: a.region, time: world.time, gameTime: world.gameTime,
-          detail: { weaponName: evt.weaponName },
-        }, 'full');
-        if (world.player.alive) {
-          broadcast(`${a.name} 发现了 ${evt.victimName}。`, 5);
-        }
-        for (const other of world.actors) {
-          if (other.alive && !other.isPlayer && other.id !== a.id) {
-            other.fear = Math.min(100, other.fear + 10);
+    id: 'zhiyuchen', name: '智宇晨', title: '音波使者', color: '#5ea9ff',
+    base: { maxHp: 95, speed: 210, dmg: 13, fireRate: 0.36, bulletSpeed: 640, bulletRange: 560, bulletR: 5 },
+    passive: {
+      name: '疾风', max: 5,
+      desc: lv => `射击速度与移动速度 +${25 + (lv - 1) * 7}%`,
+      mul: lv => 1 + (25 + (lv - 1) * 7) / 100,
+    },
+    passiveApply(p, lv) {
+      const o = lv <= 1 ? 1 : this.passive.mul(lv - 1);
+      const n = this.passive.mul(lv);
+      p.speed = p.speed / o * n;
+      p.fireRate = p.fireRate * o / n;
+    },
+    actives: [
+      {
+        id: 'sonic', name: '音波震慑', short: '震慑', cd: 20, max: 5, button: true,
+        desc: lv => `半径 ${260 + (lv - 1) * 45} · 范围内全部敌人减速 ${55 - (lv - 1) * 5}% · 持续 ${(3 + (lv - 1) * 0.5).toFixed(1)}s`,
+        run(p, lv) {
+          const R = 260 + (lv - 1) * 45;
+          const slowMul = 1 - (55 - (lv - 1) * 5) / 100;
+          const dur = 3 + (lv - 1) * 0.5;
+          for (const e of G.enemies) {
+            if (Math.hypot(e.x - p.x, e.y - p.y) < R + e.r) {
+              e.slowT = Math.max(e.slowT, dur);
+              e.slowMul = Math.min(e.slowMul, slowMul);
+            }
           }
+          G.rings.push({ x: p.x, y: p.y, r: 12, maxR: R, life: 0.65, max: 0.65, color: '#5ea9ff', w: 8 });
+          burst(p.x, p.y, '#8fc9ff', 26, 300);
+        }
+      },
+      {
+        id: 'blink', name: '瞬移', short: '瞬移', cd: 8, max: 5,
+        button: false, tap: true,
+        radius: lv => 180 + (lv - 1) * 30,
+        desc: lv => `瞬移半径 ${180 + (lv - 1) * 30} · 点击范围内任意点`,
+        run(p, lv, wx, wy) {
+          burst(p.x, p.y, '#8fc9ff', 14, 220);
+          G.rings.push({ x: p.x, y: p.y, r: 8, maxR: 70, life: 0.35, max: 0.35, color: '#5ea9ff', w: 4 });
+          p.x = wx; p.y = wy;
+          burst(p.x, p.y, '#cfe4ff', 14, 220);
+          G.rings.push({ x: p.x, y: p.y, r: 8, maxR: 70, life: 0.35, max: 0.35, color: '#cfe4ff', w: 4 });
         }
       }
-    }
-  }
-}
+    ]
+  },
 
-let backgroundTick = 0;
-let lastKillTime = -999;
-
-function simulateBackgroundRegions(dt) {
-  backgroundTick += dt;
-  if (backgroundTick < 10) return;
-  backgroundTick = 0;
-  if (world.time - lastKillTime < 90) return;
-  const allRegions = Object.keys(REGIONS);
-  for (const regionId of allRegions) {
-    if (regionId === world.region) continue;
-    const actorsHere = world.actors.filter(a =>
-      a.alive && !a.isPlayer && a.region === regionId
-    );
-    if (actorsHere.length < 2) continue;
-    for (const killer of actorsHere) {
-      if (killer.killIntent < 85) continue;
-      if (!canKill(killer)) continue;
-      if (!killer.hasWeapon) {
-        const ws = weaponsInRegion(regionId);
-        if (ws.length) pickUpWeapon(killer, ws[0].id);
-        continue;
-      }
-      const candidates = actorsHere.filter(a => a.id !== killer.id && a.alive);
-      if (!candidates.length) continue;
-      candidates.sort((a, b) => {
-        const sa = killer.suspicion[a.id] || 0;
-        const sb = killer.suspicion[b.id] || 0;
-        if (sa !== sb) return sb - sa;
-        return a.trust - b.trust;
-      });
-      const victim = candidates[0];
-      doKill(killer, victim, worldWeapons[killer.hasWeapon]);
-      lastKillTime = world.time;
-      return;
-    }
-  }
-}
-
-function tryNpcKill(actor) {
-  if (!actor.alive || actor.isPlayer) return;
-  if (!actor.hasWeapon) return;
-  if (actor.killIntent < 80) return;
-  if (actor.panicTimer > 0 || actor.fear >= 70) return;
-  if (!canKill(actor)) return;
-  let best = null, bestD = Infinity;
-  for (const a of world.actors) {
-    if (!a.alive) continue;
-    if (a.id === actor.id) continue;
-    if (a.region !== actor.region) continue;
-    if (a.isPlayer && debugState.god) continue;
-    const d = Math.hypot(a.x - actor.x, a.y - actor.y);
-    if (d < 120 && d < bestD) { bestD = d; best = a; }
-  }
-  if (!best) return;
-  if (Math.random() < 0.05) executeKill(actor, best);
-}
-
-function tryPlayerKillTarget(npc) {
-  if (!npc || !npc.alive) return;
-  if (!world.playerWeaponId) return;
-  if (!canKill(world.player)) {
-    broadcast('你已经杀过两个人了。不能再动手。');
-    return;
-  }
-  const w = worldWeapons[world.playerWeaponId];
-  if (!w) return;
-  const d = Math.hypot(npc.x - world.player.x, npc.y - world.player.y);
-  if (d > CONFIG.KILL_DISTANCE + 10) {
-    broadcast('太远了，走近点。');
-    return;
-  }
-  const confirmed = confirm(`用 ${w.name} 杀了 ${npc.name}？\n\n你现在是凶手了。`);
-  if (!confirmed) return;
-  const success = executeKill(world.player, npc);
-  if (success) lastKillTime = world.time;
-}
-
-function getBodyAt(regionId, x, y, r = 25) {
-  for (const evt of world.killEvents) {
-    if (evt.region !== regionId) continue;
-    const victim = getActor(evt.victimId);
-    if (!victim) continue;
-    if (!victim.alive) {
-      const d = Math.hypot(victim.x - x, victim.y - y);
-      if (d < r + 20) return { event: evt, victim };
-    }
-  }
-  return null;
-}
-
-function examineBody(body) {
-  const lines = [`${body.victim.name}。`];
-  if (body.event.clues.length) {
-    for (const c of body.event.clues) lines.push('· ' + c);
-  }
-  if (body.event.witnessed.includes('player')) {
-    lines.push(`· 你看到是 ${body.event.killerName} 动的手。`);
-  }
-  if (body.victim.trust >= 65) {
-    lines.push(`· （你想起${body.victim.name}之前对你说过的话。）`);
-  }
-  dialogue.active = true;
-  dialogue.persistent = false;
-  dialogue.timer = 4.5;
-  document.getElementById('joystick').classList.add('locked');
-  document.getElementById('actionBtn').classList.add('hidden');
-  dialogueUI.speaker.textContent = '现场';
-  dialogueUI.avatarBox.innerHTML = avatarSVG('dead');
-  dialogueUI.line.textContent = lines.join('\n');
-  dialogueUI.choices.innerHTML = '';
-  dialogueUI.el.classList.add('show');
-  const btn = document.createElement('button');
-  btn.className = 'choice';
-  btn.textContent = '离开';
-  btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    closeDialogue();
-  });
-  dialogueUI.choices.appendChild(btn);
-  bus.emit({
-    type: 'examine',
-    actorId: 'player', actorName: '你',
-    region: body.event.region,
-    detail: { propName: '尸体', propKind: 'body' },
-  });
-}
-
-/* ==========================================================
-   O · 投票系统
-   ========================================================== */
-const voteState = {
-  active: false, phase: 'idle', speakers: [], speakerIndex: -1,
-  speeches: {}, npcVotes: {}, playerVote: null,
-  savedPositions: {}, jailedId: null,
-};
-let lastForceVoteTime = 0;
-
-function canStartVote() {
-  if (voteState.active) return false;
-  if (dialogue.active) return false;
-  if (world.struggleActive || world.gameOver) return false;
-  const aliveActors = world.actors.filter(a => a.alive);
-  if (aliveActors.length <= CONFIG.WIN_REMAIN) return false;
-  const aliveNpcs = aliveActors.filter(a => !a.isPlayer);
-  if (aliveNpcs.length < 1) return false;
-  return true;
-}
-
-function startVote() {
-  if (!canStartVote()) { broadcast('现在还不适合。'); return; }
-  voteState.active = true;
-  voteState.phase = 'speech';
-  voteState.speeches = {};
-  voteState.npcVotes = {};
-  voteState.playerVote = null;
-  voteState.jailedId = null;
-  voteState.savedPositions = {};
-  broadcast('有人在主教室喊了一声："都过来！"', 4);
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    voteState.savedPositions[a.id] = { region: a.region, x: a.x, y: a.y };
-  }
-  const R = REGIONS.main;
-  const aliveNpcs = world.actors.filter(a => a.alive && !a.isPlayer);
-  aliveNpcs.forEach((a, i) => {
-    const angle = (i / aliveNpcs.length) * Math.PI * 2;
-    const rx = 350 + Math.cos(angle) * 180;
-    const ry = 250 + Math.sin(angle) * 150;
-    a.region = 'main';
-    a.x = clamp(rx, R.bounds.x + a.r, R.bounds.x + R.bounds.w - a.r);
-    a.y = clamp(ry, R.bounds.y + a.r, R.bounds.y + R.bounds.h - a.r);
-    a.vx = a.vy = 0;
-    a.moving = false;
-    a.facing = Math.atan2(250 - a.y, 350 - a.x);
-    a.desire = 'idle';
-    a.waitTimer = 999;
-  });
-  if (world.player.alive && world.region !== 'main') {
-    switchRegion('main', { x: 350, y: 460 });
-  }
-  xuyunxiShadowAction();
-  voteState.speakers = aliveNpcs.sort((a, b) => {
-    if (a.style === 'leader') return -1;
-    if (b.style === 'leader') return 1;
-    return (b.observe || 0) - (a.observe || 0);
-  });
-  voteState.speakerIndex = -1;
-  advanceSpeech();
-}
-
-function xuyunxiShadowAction() {
-  const xuyunxi = getActor('xuyunxi');
-  if (!xuyunxi || !xuyunxi.alive) return;
-  const herSuspicion = estimateSuspicionOn(xuyunxi.id);
-  if (herSuspicion < 30) return;
-  const targets = world.actors
-    .filter(a => a.alive && !a.isPlayer && a.id !== 'xuyunxi')
-    .filter(a => a.observe < 60 || a.trust < 50)
-    .slice(0, 2);
-  for (const t of targets) {
-    const scapegoat = world.actors
-      .filter(a => a.alive && !a.isPlayer && a.id !== 'xuyunxi' && a.id !== t.id)
-      .sort((a, b) => estimateSuspicionOn(b.id) - estimateSuspicionOn(a.id))[0];
-    if (scapegoat) {
-      t.suspicion[scapegoat.id] = Math.min(100, (t.suspicion[scapegoat.id] || 0) + 15);
-    }
-  }
-}
-
-function estimateSuspicionOn(targetId) {
-  let total = 0, count = 0;
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    if (a.id === targetId) continue;
-    total += (a.suspicion[targetId] || 0);
-    count++;
-  }
-  return count > 0 ? total / count : 0;
-}
-
-function generateSpeech(npc) {
-  const recentKill = npc.memory.filter(m => m.type === 'kill').sort((a, b) => b.time - a.time)[0];
-  const recentWeapon = npc.memory.filter(m => m.type === 'pick_weapon').sort((a, b) => b.time - a.time)[0];
-  const recentLie = npc.memory.filter(m => m.type === 'lie' && m.actorId === 'player').sort((a, b) => b.time - a.time)[0];
-
-  if (recentKill && recentKill.clarity === 'full') {
-    switch (npc.style) {
-      case 'leader':   return `（他站起来，声音很稳）\n我看见${recentKill.actorName}动了手。\n这不是猜测。${recentKill.targetName}倒下的时候，我就在不远处。`;
-      case 'analytic': return `（他推了推眼镜）\n我记录如下：${recentKill.actorName}在${formatGameTime(recentKill.gameTime)}，对${recentKill.targetName}实施了致命行为。\n没有其他解释空间。`;
-      case 'sharp':    return `（她一下子站起来）\n${recentKill.actorName}！\n我看见了，就在${recentKill.targetName}旁边。\n我一直在看着。`;
-      case 'weak':     return `（她颤抖着举起手）\n我、我看见了……${recentKill.actorName}……他把${recentKill.targetName}……\n对不起……对不起我不是不想说……`;
-      case 'smooth':   return `（她慢慢开口，语气很轻）\n我其实不想说的。\n但我看见了${recentKill.actorName}。\n在那个时刻，他就在${recentKill.targetName}身边。`;
-      case 'blunt':    return `（他直接看向${recentKill.actorName}）\n是你。\n我看见了。`;
-      case 'argue':    return `（他站起来，指着${recentKill.actorName}）\n你要解释一下吗？\n${recentKill.targetName}倒下的时候，你就在那儿。别告诉我你只是路过。`;
-      case 'loyal':    return `（他咬着嘴唇）\n我看见了……是${recentKill.actorName}。\n我……我不想相信。但我看见了。`;
-      case 'joke':     return `（他难得没有笑）\n……我看见${recentKill.actorName}了。\n我不想当那个说话的人，但我看见了。`;
-      case 'lucky':    return `（他苦笑了一下）\n巧的是，我看得一清二楚。\n${recentKill.actorName}。`;
-    }
-  }
-  if (recentLie) {
-    return pickByStyle(npc.style, {
-      leader:  '（他冷冷地说）\n有人对我说了谎。\n我不打算公开是谁。\n但那个人自己心里清楚。',
-      analytic:'（他翻着笔记本）\n记录：有人说谎。\n数据对比不一致。',
-      sharp:   '（她看了你一眼）\n有人不老实。\n我不想点名。但你要知道，我记性很好。',
-      weak:    '（她小声）\n……有人骗我了……\n我不想说是谁……',
-      smooth:  '（她笑得很温和）\n有人撒了个小谎。\n真的。就一个小小的谎。',
-      blunt:   '（他抱着手臂）\n有人撒谎。\n我记着。',
-      argue:   '（他冷笑）\n有人对我说了假话。\n我希望他自己站起来说清楚。',
-      loyal:   '（他低着头）\n……有人骗我了。\n我不太想相信。',
-      joke:    '（他没笑）\n有人对我说了谎。\n这不好笑。',
-      lucky:   '（他摊了摊手）\n巧的是，我刚好发现有个谎。',
-    });
-  }
-  if (recentWeapon && recentWeapon.clarity !== 'vague') {
-    return generateWeaponSpeech(npc, recentWeapon);
-  }
-  const top = mostSuspicious(npc, []);
-  const topIsPlayer = top && top.actor.isPlayer;
-  if (!top || top.score < 10) return generateVagueSpeech(npc);
-  const targetName = topIsPlayer ? '你' : top.actor.name;
-  switch (npc.style) {
-    case 'leader':   return `（他扫视了一圈）\n我看${targetName}。\n不是因为证据。是因为他今天的每个动作，都不像他平时的样子。\n我需要一个解释。`;
-    case 'analytic': return `（他翻了一页笔记）\n数据分析：${targetName}的行为模式，与基准偏离最大。\n我不会下结论。但这是唯一值得关注的人。`;
-    case 'sharp':    return `（她抱着手臂，目光很冷）\n${targetName}。\n我早就觉得他不对劲了。\n你们爱信不信。`;
-    case 'weak':     return `（她小声说）\n我、我不确定……\n但${targetName}……他今天让我有点害怕……`;
-    case 'smooth':   return `（她轻轻笑了一下）\n我不好说。\n但${targetName}今天很安静。安静得让人不舒服。\n我只是说说而已。`;
-    case 'blunt':    return `（他直接开口）\n${targetName}。\n感觉不对。`;
-    case 'argue':    return `（他抬起下巴）\n${targetName}。\n我想听他怎么解释。\n不解释，就是默认。`;
-    case 'loyal':    return `（他低着头，声音很小）\n我不想说人坏话。\n但${targetName}……我真的有点担心。`;
-    case 'joke':     return `（他转了转手里的硬币）\n我不太会分析啊。\n但${targetName}今天，怎么说呢……像是有事。`;
-    case 'lucky':    return `（他看了看${targetName}）\n我的直觉一向挺准。\n${targetName}。`;
-  }
-  return `${targetName}。`;
-}
-
-function generateWeaponSpeech(npc, mem) {
-  const s = mem.actorName;
-  const wn = mem.detail?.weaponName || '一把凶器';
-  switch (npc.style) {
-    case 'leader':   return `（他语气很重）\n我看见${s}拿了${wn}。\n这不是一件小事。\n无论他拿去做什么，我们都应该搞清楚。`;
-    case 'analytic': return `（他平静地说）\n记录：${s}在${formatGameTime(mem.gameTime)}，拿走了${wn}。\n这件事本身不构成杀人证据。\n但它需要解释。`;
-    case 'sharp':    return `（她直接看向${s}）\n你拿了${wn}。\n别否认，我看见了。\n你拿去干什么了？`;
-    case 'weak':     return `（她很小声）\n${s}……拿了${wn}……\n我看见了……我不敢说……`;
-    case 'smooth':   return `（她缓缓地说）\n${s}拿了${wn}。\n我没有别的意思。\n只是想问问，那是用来做什么的？`;
-    case 'blunt':    return `（他直说）\n${s}拿了${wn}。\n我要知道为什么。`;
-    case 'argue':    return `（他冷冷地）\n${s}，你拿${wn}干什么？\n你可以不回答。但答案会说明一切。`;
-    case 'loyal':    return `（他犹豫了很久）\n……我看见${s}拿了${wn}。\n我不想想太多。但……`;
-    case 'joke':     return `（他笑容有点僵）\n${s}拿了${wn}。\n说真的，我希望只是个误会。`;
-    case 'lucky':    return `（他摸摸口袋）\n${s}拿了${wn}。\n巧的是，我当时就在旁边。`;
-  }
-  return `${s}拿了${wn}。`;
-}
-
-function generateVagueSpeech(npc) {
-  switch (npc.style) {
-    case 'leader':   return `（他沉默了一会儿）\n我没有证据。\n但我建议所有人接下来不要单独行动。`;
-    case 'analytic': return `（他推了推眼镜）\n目前数据不足以下结论。\n但我建议，先观察，不要急着投任何人。`;
-    case 'sharp':    return `（她翻了个白眼）\n我看不出来。\n但我不相信任何人。`;
-    case 'weak':     return `（她缩着肩膀）\n我、我什么都不知道……\n我真的不知道……`;
-    case 'smooth':   return `（她慢慢地环视一圈）\n大家都很好。\n我希望大家都很好。\n但我心里有点……说不出的感觉。`;
-    case 'blunt':    return `（他抱着手臂）\n我没感觉。\n随便。`;
-    case 'argue':    return `（他摊了摊手）\n你们想投谁就投谁。\n我保留意见。`;
-    case 'loyal':    return `（他低着头）\n我……我不想投任何人。\n大家都不像坏人。`;
-    case 'joke':     return `（他笑了一下）\n我今天什么都没看见。\n也许我该去配副眼镜。`;
-    case 'lucky':    return `（他摸摸头）\n我觉得今天有个人不对劲。\n但我一时说不上来。`;
-  }
-  return '……';
-}
-
-function advanceSpeech() {
-  voteState.speakerIndex++;
-  if (voteState.speakerIndex >= voteState.speakers.length) {
-    beginPlayerVote();
-    return;
-  }
-  const speaker = voteState.speakers[voteState.speakerIndex];
-  if (!speaker || !speaker.alive) { advanceSpeech(); return; }
-  if (!voteState.speeches[speaker.id]) {
-    voteState.speeches[speaker.id] = generateSpeech(speaker);
-  }
-  dialogue.active = true;
-  dialogue.mode = 'vote_speech';
-  dialogue.persistent = true;
-  dialogueUI.speaker.textContent = speaker.name + ' 的发言';
-  dialogueUI.avatarBox.innerHTML = avatarSVG(speaker.avatar);
-  dialogueUI.line.textContent = voteState.speeches[speaker.id];
-  dialogueUI.el.classList.add('show');
-  dialogueUI.choices.innerHTML = '';
-  const continueBtn = document.createElement('button');
-  continueBtn.className = 'choice';
-  continueBtn.type = 'button';
-  const remaining = voteState.speakers.length - voteState.speakerIndex - 1;
-  continueBtn.textContent = remaining > 0
-    ? `继续（还剩 ${remaining} 人发言）` : '开始投票';
-  continueBtn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    advanceSpeech();
-  });
-  dialogueUI.choices.appendChild(continueBtn);
-}
-
-function beginPlayerVote() {
-  voteState.phase = 'player_vote';
-  dialogue.active = true;
-  dialogue.mode = 'vote_choice';
-  dialogue.persistent = true;
-  dialogueUI.speaker.textContent = '投 票';
-  dialogueUI.avatarBox.innerHTML = avatarSVG('player');
-  dialogueUI.line.textContent = '你要把票投给谁？\n（票数最高的人将被关押）';
-  dialogueUI.el.classList.add('show');
-  dialogueUI.choices.innerHTML = '';
-  const candidates = world.actors.filter(a =>
-    a.alive && !a.isPlayer &&
-    !world.jailed.includes(a.id) && !a.escaped
-  );
-  for (const c of candidates) {
-    const btn = document.createElement('button');
-    btn.className = 'choice danger';
-    btn.type = 'button';
-    btn.textContent = c.name;
-    btn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      castPlayerVote(c.id);
-    });
-    dialogueUI.choices.appendChild(btn);
-  }
-  const abstainBtn = document.createElement('button');
-  abstainBtn.className = 'choice';
-  abstainBtn.type = 'button';
-  abstainBtn.textContent = '（弃权）';
-  abstainBtn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    castPlayerVote(null);
-  });
-  dialogueUI.choices.appendChild(abstainBtn);
-}
-
-function castPlayerVote(targetId) {
-  voteState.playerVote = targetId;
-  voteState.phase = 'result';
-  collectNpcVotes();
-  const tally = tallyVotes();
-  showVoteResult(tally);
-}
-
-function collectNpcVotes() {
-  voteState.npcVotes = {};
-  for (const npc of world.actors) {
-    if (!npc.alive || npc.isPlayer) continue;
-    if (world.jailed.includes(npc.id) || npc.escaped) continue;
-    voteState.npcVotes[npc.id] = decideNpcVote(npc);
-  }
-  applyInfluence();
-}
-
-function decideNpcVote(npc) {
-  const killMem = npc.memory.filter(m => m.type === 'kill' && m.clarity === 'full').sort((a, b) => b.time - a.time)[0];
-  if (killMem) return killMem.actorId;
-  if (npc.style === 'leader') {
-    const top = mostSuspicious(npc, []);
-    if (top && top.score >= 15) return top.actor.id;
-  }
-  if (npc.style === 'sharp' && npc.trust >= 60 && voteState.playerVote) {
-    const myS = npc.suspicion[voteState.playerVote] || 0;
-    if (myS >= 5) return voteState.playerVote;
-  }
-  if (npc.style === 'weak') {
-    const top = mostSuspicious(npc, []);
-    if (top && top.score >= 10) return top.actor.id;
-    return null;
-  }
-  if (npc.style === 'argue') {
-    const candidates = world.actors
-      .filter(a => a.alive && a.id !== npc.id && !a.isPlayer)
-      .sort((a, b) => (npc.suspicion[a.id] || 0) - (npc.suspicion[b.id] || 0));
-    if (candidates.length) return candidates[0].id;
-    return null;
-  }
-  if (npc.style === 'lucky') {
-    const realKillers = world.killers.filter(id => {
-      const a = getActor(id);
-      return a && a.alive && !world.jailed.includes(id);
-    });
-    if (realKillers.length && Math.random() < 0.6) {
-      return realKillers[Math.floor(Math.random() * realKillers.length)];
-    }
-    const candidates = world.actors.filter(a =>
-      a.alive && a.id !== npc.id && !a.isPlayer
-    );
-    if (candidates.length) {
-      return candidates[Math.floor(Math.random() * candidates.length)].id;
-    }
-    return null;
-  }
-  const top = mostSuspicious(npc, []);
-  if (top && top.score >= 10) return top.actor.id;
-  return null;
-}
-
-function applyInfluence() {
-  const zhangsien = getActor('zhangsien');
-  if (zhangsien && zhangsien.alive && voteState.npcVotes[zhangsien.id]) {
-    const hisTarget = voteState.npcVotes[zhangsien.id];
-    const zhiyuchen = getActor('zhiyuchen');
-    if (zhiyuchen && zhiyuchen.alive && zhiyuchen.loyalty >= 60) {
-      if (Math.random() < 0.6) voteState.npcVotes[zhiyuchen.id] = hisTarget;
-    }
-    const lubiao = getActor('lubiao');
-    if (lubiao && lubiao.alive && lubiao.loyalty >= 25) {
-      if (Math.random() < 0.4) voteState.npcVotes[lubiao.id] = hisTarget;
-    }
-  }
-  const yangVotes = Object.values(voteState.npcVotes).filter(v => v === 'yangkaidong').length;
-  if (yangVotes >= 2) {
-    for (const [voterId, targetId] of Object.entries(voteState.npcVotes)) {
-      if (targetId === 'yangkaidong' && voterId !== 'ruanrou' && voterId !== 'zhiban') {
-        const voter = getActor(voterId);
-        if (voter && voter.style !== 'blunt' && Math.random() < 0.5) {
-          const other = mostSuspicious(voter, ['yangkaidong']);
-          if (other && other.score >= 5) voteState.npcVotes[voterId] = other.actor.id;
-          else delete voteState.npcVotes[voterId];
-          break;
+  zhiban: {
+    id: 'zhiban', name: '智板', title: '时之停者', color: '#a78bfa',
+    base: { maxHp: 140, speed: 215, dmg: 15, fireRate: 0.38, bulletSpeed: 680, bulletRange: 600, bulletR: 6 },
+    passive: null,
+    actives: [
+      {
+        id: 'timestop', name: '时间暂停', short: '时停', cd: 30, max: 5, button: true,
+        desc: lv => `冻结全场 ${(2.5 + (lv - 1) * 0.6).toFixed(1)}s`,
+        run(p, lv) {
+          const t = 2.5 + (lv - 1) * 0.6;
+          G.timeStop = Math.max(G.timeStop, t);
+          G.rings.push({ x: p.x, y: p.y, r: 20, maxR: Math.max(W, H), life: 0.75, max: 0.75, color: '#c4b5fd', w: 9 });
+          burst(p.x, p.y, '#c4b5fd', 26, 300);
         }
       }
-    }
-  }
-  const guVotes = Object.entries(voteState.npcVotes).filter(([, t]) => t === 'gutingyu');
-  if (guVotes.length > 0 && Math.random() < 0.3) {
-    const [voterId] = guVotes[0];
-    const voter = getActor(voterId);
-    if (voter && voter.style !== 'blunt' && voter.style !== 'argue') {
-      delete voteState.npcVotes[voterId];
-    }
-  }
-  const ruanrou = getActor('ruanrou');
-  if (ruanrou && ruanrou.alive && ruanrou.trust >= 60 && voteState.playerVote) {
-    const myS = ruanrou.suspicion[voteState.playerVote] || 0;
-    if (myS >= 3) voteState.npcVotes[ruanrou.id] = voteState.playerVote;
-  }
-}
+    ]
+  },
 
-function tallyVotes() {
-  const tally = {};
-  for (const [, targetId] of Object.entries(voteState.npcVotes)) {
-    if (!targetId) continue;
-    tally[targetId] = (tally[targetId] || 0) + 1;
-  }
-  if (voteState.playerVote) {
-    tally[voteState.playerVote] = (tally[voteState.playerVote] || 0) + 1;
-  }
-  return tally;
-}
-
-function showVoteResult(tally) {
-  const entries = Object.entries(tally).sort((a, b) => b[1] - a[1]);
-  let text = '';
-  if (entries.length === 0) {
-    text = '没有人被投票。\n所有人沉默地看着彼此。';
-  } else {
-    const topScore = entries[0][1];
-    const topCandidates = entries.filter(([, v]) => v === topScore);
-    text += '【投票结果】\n';
-    for (const [voterId, targetId] of Object.entries(voteState.npcVotes)) {
-      if (!targetId) continue;
-      const voter = getActor(voterId);
-      const target = getActor(targetId);
-      if (voter && target) text += `${voter.name} → ${target.name}\n`;
-    }
-    if (voteState.playerVote) {
-      const target = getActor(voteState.playerVote);
-      if (target) text += `你 → ${target.name}\n`;
-    }
-    text += '\n';
-    if (topCandidates.length === 1) {
-      const [targetId, votes] = topCandidates[0];
-      const target = getActor(targetId);
-      if (target) {
-        text += `【${target.name} 被关押】\n（${votes} 票）`;
-        voteState.jailedId = targetId;
+  zhangsien: {
+    id: 'zhangsien', name: '张思恩', title: '爆裂学者', color: '#fb923c',
+    base: { maxHp: 108, speed: 200, dmg: 16, fireRate: 0.42, bulletSpeed: 610, bulletRange: 540, bulletR: 5 },
+    passive: {
+      name: '求知', max: 5,
+      desc: lv => `经验获取 +${10 + (lv - 1) * 5}%`,
+      mul: lv => 1 + (10 + (lv - 1) * 5) / 100,
+    },
+    passiveApply(p, lv) { G.xpMul = this.passive.mul(lv); },
+    actives: [
+      {
+        id: 'blast', name: '湮灭爆炸', short: '爆炸', cd: 40, max: 5, button: true,
+        desc: lv => `半径 ${210 + (lv - 1) * 45} · 伤害 ${140 + (lv - 1) * 90}`,
+        run(p, lv) {
+          const R = 210 + (lv - 1) * 45;
+          const dmg = 140 + (lv - 1) * 90;
+          for (const e of G.enemies) {
+            if (Math.hypot(e.x - p.x, e.y - p.y) < R + e.r) {
+              e.hp -= dmg; e.hurtT = 0.16;
+              addText(e.x, e.y - e.r - 6, Math.round(dmg), '#ffb26b');
+              if (e.hp <= 0) killEnemy(e);
+            }
+          }
+          G.rings.push({ x: p.x, y: p.y, r: 14, maxR: R, life: 0.7, max: 0.7, color: '#fb923c', w: 12 });
+          burst(p.x, p.y, '#ffb26b', 42, 440);
+          G.shake = 0.32;
+        }
       }
-    } else {
-      const names = topCandidates.map(([id]) => getActor(id)?.name || '？').join('、');
-      text += `【平票：${names}】\n没有人被关押。\n所有人都不满意地散开。`;
-    }
+    ]
+  },
+
+  lujiancheng: {
+    id: 'lujiancheng', name: '陆建成', title: '铁壁守卫', color: '#34d399',
+    base: { maxHp: 105, speed: 185, dmg: 15, fireRate: 0.44, bulletSpeed: 590, bulletRange: 520, bulletR: 6 },
+    passive: {
+      name: '坚韧', max: 5,
+      desc: lv => `生命上限 +${35 + (lv - 1) * 12}%`,
+      mul: lv => 1 + (35 + (lv - 1) * 12) / 100,
+    },
+    passiveApply(p, lv) {
+      const o = lv <= 1 ? 1 : this.passive.mul(lv - 1);
+      const n = this.passive.mul(lv);
+      const oldMax = p.maxHp;
+      p.maxHp = p.maxHp / o * n;
+      p.hp = Math.min(p.maxHp, p.hp + (p.maxHp - oldMax));
+    },
+    actives: [
+      {
+        id: 'heal', name: '生命祝福', short: '回血', cd: 15, max: 5, button: true,
+        desc: lv => `立即回复 ${40 + (lv - 1) * 20} 生命`,
+        run(p, lv) {
+          const heal = 40 + (lv - 1) * 20;
+          p.hp = Math.min(p.maxHp, p.hp + heal);
+          addText(p.x, p.y - 30, '+' + heal, '#4ade80');
+          burst(p.x, p.y, '#4ade80', 22, 200);
+          G.rings.push({ x: p.x, y: p.y, r: 14, maxR: 110, life: 0.5, max: 0.5, color: '#34d399', w: 5 });
+        }
+      }
+    ]
+  },
+
+  lubiao: {
+    id: 'lubiao', name: '陆标', title: '双枪浪客', color: '#fbbf24',
+    base: { maxHp: 115, speed: 200, dmg: 13, fireRate: 0.40, bulletSpeed: 620, bulletRange: 560, bulletR: 5 },
+    damageTakenMul: 1.08,
+    passive: {
+      name: '脆弱', max: 1,
+      desc: () => '受到的伤害 +8%',
+    },
+    passiveApply() {},
+    actives: [
+      {
+        id: 'dual', name: '双持', short: '双持', cd: 14, max: 5, button: true,
+        desc: lv => `持续 ${(4 + (lv - 1) * 0.5).toFixed(1)}s：子弹数×2、体积×2、伤害×1.5`,
+        run(p, lv) {
+          p.dualT = 4 + (lv - 1) * 0.5;
+          burst(p.x, p.y, '#ffd166', 18, 240);
+          G.rings.push({ x: p.x, y: p.y, r: 10, maxR: 80, life: 0.4, max: 0.4, color: '#ffd166', w: 5 });
+        }
+      }
+    ]
   }
-  dialogue.active = true;
-  dialogue.mode = 'vote_result';
-  dialogue.persistent = true;
-  dialogueUI.speaker.textContent = '结 果';
-  dialogueUI.avatarBox.innerHTML = avatarSVG('obj');
-  dialogueUI.line.textContent = text;
-  dialogueUI.el.classList.add('show');
-  dialogueUI.choices.innerHTML = '';
-  const btn = document.createElement('button');
-  btn.className = 'choice';
-  btn.type = 'button';
-  btn.textContent = voteState.jailedId
-    ? `确认关押 ${getActor(voteState.jailedId)?.name}` : '散会';
-  btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    finishVote();
-  });
-  dialogueUI.choices.appendChild(btn);
-}
-
-function finishVote() {
-  closeDialogue();
-  if (voteState.jailedId) jailActor(voteState.jailedId);
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    const saved = voteState.savedPositions[a.id];
-    if (saved) {
-      a.region = saved.region;
-      a.x = saved.x;
-      a.y = saved.y;
-      a.desire = 'idle';
-      a.waitTimer = 2 + Math.random() * 3;
-    }
-  }
-  voteState.active = false;
-  voteState.phase = 'idle';
-  voteState.jailedId = null;
-  voteState.playerVote = null;
-  voteState.npcVotes = {};
-  voteState.speeches = {};
-  voteState.savedPositions = {};
-  checkAliveCount();
-}
-
-function jailActor(actorId) {
-  const actor = getActor(actorId);
-  if (!actor || !actor.alive) return;
-  actor.alive = false;
-  actor.jailed = true;
-  world.jailed.push(actorId);
-  if (actor.hasWeapon) dropWeapon(actor);
-  delete world.escapeTimers[actorId];
-  const isKiller = world.killers.includes(actorId);
-  if (world.player.alive) {
-    broadcast(`${actor.name} 被关进了储藏室旁的小屋。`, 5);
-  }
-  if (actor.isPlayer) { triggerGameEnd('player_jailed'); return; }
-  if (isKiller) {
-    const remainingKillers = world.killers.filter(id => {
-      const a = getActor(id);
-      return a && a.alive && !a.jailed;
-    });
-    if (remainingKillers.length === 0) { triggerGameEnd('caught_killer'); return; }
-    else { broadcast(`还有一个凶手在外面。`, 5); }
-  } else {
-    broadcast(`他也许是无辜的。也许。`, 5);
-    for (const a of world.actors) {
-      if (!a.alive || a.isPlayer) continue;
-      a.fear = Math.min(100, a.fear + 10);
-      a.anger = Math.min(100, a.anger + 5);
-    }
-  }
-  reorganizeFactions(actorId);
-  checkAliveCount();
-}
-
-function reorganizeFactions(removedId) {
-  const removed = getActor(removedId);
-  if (!removed) return;
-  const faction = FACTIONS[removed.faction];
-  if (!faction) return;
-  if (!faction.leader && faction.members.length === 0) return;
-  if (faction.leader === removedId) {
-    for (const memberId of faction.members) {
-      if (memberId === removedId) continue;
-      const m = getActor(memberId);
-      if (!m || !m.alive) continue;
-      m.loyalty = 0;
-      m.faction = 'lone';
-      m.anger = Math.min(100, m.anger + 20);
-      m.killIntent = Math.min(100, m.killIntent + 10);
-    }
-    return;
-  }
-  for (const memberId of faction.members) {
-    if (memberId === removedId) continue;
-    const m = getActor(memberId);
-    if (!m || !m.alive) continue;
-    if (world.killers.includes(removedId)) {
-      m.loyalty = Math.max(0, m.loyalty - 30);
-      m.anger = Math.min(100, m.anger + 30);
-    }
-  }
-}
-
-function checkForceVote() {
-  if (voteState.active) return;
-  if (!canStartVote()) return;
-  if (world.time - lastForceVoteTime < CONFIG.VOTE_FORCE_TIME) return;
-  if (world.time < 60) return;
-  const aliveNpcs = world.actors.filter(a => a.alive && !a.isPlayer);
-  if (aliveNpcs.length < 2) return;
-  lastForceVoteTime = world.time;
-  broadcast('有人开始催促："不能再拖了，投票吧。"', 4);
-  setTimeout(() => {
-    if (!world.gameOver && !voteState.active && !dialogue.active) startVote();
-  }, 1500);
-}
-
-/* ==========================================================
-   P · 挣扎 / 结局
-   ========================================================== */
-let struggleTimerId = null;
-
-function startStruggle(killer) {
-  if (world.struggleActive || world.gameOver) return;
-  if (!killer || !killer.alive) return;
-  world.struggleActive = true;
-  world.struggleStart = performance.now();
-  world.struggleKiller = killer.id;
-  document.getElementById('struggle').classList.add('show');
-  struggleTimerId = setTimeout(() => {
-    if (world.struggleActive) resolveStruggle(false);
-  }, CONFIG.STRUGGLE_WINDOW * 1000);
-}
-
-function onStrugglePress() {
-  if (!world.struggleActive) return;
-  const elapsed = (performance.now() - world.struggleStart) / 1000;
-  clearTimeout(struggleTimerId);
-  let chance;
-  if (elapsed < 0.3)      chance = 0.80;
-  else if (elapsed < 0.6) chance = 0.60;
-  else if (elapsed < 1.0) chance = 0.40;
-  else if (elapsed < 1.5) chance = 0.25;
-  else                    chance = 0.10;
-  resolveStruggle(Math.random() < chance);
-}
-
-function resolveStruggle(success) {
-  if (!world.struggleActive) return;
-  world.struggleActive = false;
-  const killer = getActor(world.struggleKiller);
-  world.struggleKiller = null;
-  document.getElementById('struggle').classList.remove('show');
-  if (!killer) return;
-  if (success) {
-    broadcast(`你挣脱了 ${killer.name}！`, 5);
-    bus.emit({
-      type: 'kill',
-      actorId: killer.id, actorName: killer.name,
-      targetId: 'player', targetName: '你',
-      region: killer.region,
-      detail: { weaponName: '凶器' },
-    });
-    killer.alive = false;
-    killer.captured = true;
-    world.dead.push(killer.id);
-    for (const a of world.actors) {
-      if (!a.alive || a.isPlayer) continue;
-      a.fear = Math.min(100, a.fear + 40);
-    }
-    checkAliveCount();
-  } else {
-    const w = killer.hasWeapon ? worldWeapons[killer.hasWeapon] : null;
-    world.player.alive = false;
-    world.dead.push('player');
-    killer.killer = true;
-    killer.kills = killer.kills || [];
-    killer.kills.push(world.time);
-    if (!world.killers.includes(killer.id)) world.killers.push(killer.id);
-    if (w) {
-      w.onGround = true;
-      w.heldBy = null;
-      w.region = killer.region;
-      w.x = world.player.x + 8;
-      w.y = world.player.y + 8;
-      w.usedInKill = true;
-      killer.hasWeapon = null;
-    }
-    world.killEvents.push({
-      killerId: killer.id, killerName: killer.name,
-      victimId: 'player', victimName: '你',
-      weaponId: w ? w.id : 'unknown',
-      weaponName: w ? w.name : '凶器',
-      time: world.time, gameTime: world.gameTime, region: killer.region,
-      clues: w ? w.clues.slice(0, 2) : [],
-      witnessed: [],
-    });
-    triggerGameEnd('player_dead');
-  }
-}
-
-const ENDINGS = {
-  survive: { title: '你还在',
-    body: `只剩两个人了。\n\n窗外的天亮了。\n门还没开。\n\n你不知道该说什么。\n对面的人也是。` },
-  player_escape: { title: '你出去了',
-    body: `你走出校门的时候，没有人拦你。\n\n有人在背后喊你的名字。\n你没有回头。\n\n外面的风很冷。\n但你没有感觉到。` },
-  caught_killer: { title: '关上了',
-    body: `你指对了人。\n\n他被关进那间小屋的时候，\n一直在看着你。\n\n你没有一种"赢了"的感觉。\n你只是觉得累了。` },
-  player_jailed: { title: '你被关进去了',
-    body: `门在你身后关上。\n\n你听见外面的人在说话。\n他们说的是你的名字。\n\n后来声音小了。\n再后来，什么都没有了。` },
-  player_dead: { title: '你没能挣脱',
-    body: `你听见自己的心跳。\n\n越来越快。\n然后越来越慢。\n\n最后看到的，是那个人的脸。\n你不认识那个表情。` },
-  all_dead: { title: '没有人了',
-    body: `门开了。\n\n没有人出来。\n\n雪落在校门口的台阶上。\n第二天也没人扫。` },
 };
 
-function showEndingOverlay(reason) {
-  const overlay = document.getElementById('overlay');
-  const title = document.getElementById('overlayTitle');
-  const body = document.getElementById('overlayBody');
-  const btn = document.getElementById('overlayBtn');
-  if (!overlay) return;
-  const ending = ENDINGS[reason] || ENDINGS.survive;
-  title.textContent = ending.title;
-  body.textContent = ending.body;
-  overlay.classList.add('show');
-  btn.textContent = '重来';
-  btn.onclick = () => {
-    overlay.classList.remove('show');
-    resetGame();
-  };
-}
-
-function triggerGameEnd(reason) {
-  if (world.gameOver) return;
-  world.gameOver = true;
-  world.winner = ['caught_killer', 'player_escape', 'survive'].includes(reason)
-    ? 'player' : 'npc';
-  world.ending = reason;
-  closeDialogue();
-  showEndingOverlay(reason);
-}
-
-/* ==========================================================
-   Q · 渲染
-   ========================================================== */
-function drawFloorBase(R, gridStep, gridColor) {
-  const B = R.bounds;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(B.x, B.y, B.w, B.h);
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(B.x, B.y, B.w, B.h);
-  ctx.clip();
-  ctx.strokeStyle = gridColor || 'rgba(0,0,0,0.04)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  for (let gx = B.x; gx <= B.x + B.w; gx += gridStep) {
-    ctx.moveTo(gx + 0.5, B.y);
-    ctx.lineTo(gx + 0.5, B.y + B.h);
-  }
-  for (let gy = B.y; gy <= B.y + B.h; gy += gridStep) {
-    ctx.moveTo(B.x, gy + 0.5);
-    ctx.lineTo(B.x + B.w, gy + 0.5);
-  }
-  ctx.stroke();
-  ctx.restore();
-  ctx.strokeStyle = '#111111';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(B.x, B.y, B.w, B.h);
-}
-
-function drawSolids(R) {
-  for (const s of R.solids) {
-    if (s.kind === 'podium') {
-      ctx.fillStyle = '#f7f7f7';
-      ctx.strokeStyle = '#111111';
-      ctx.lineWidth = 2;
-      rr(s.x, s.y, s.w, s.h, 6);
-      ctx.fill(); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(s.x + 14, s.y + s.h / 2);
-      ctx.lineTo(s.x + s.w - 14, s.y + s.h / 2);
-      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-    } else if (s.kind === 'desk' || s.kind === 'table') {
-      ctx.fillStyle = '#fafafa';
-      ctx.strokeStyle = '#111111';
-      ctx.lineWidth = 1.8;
-      rr(s.x, s.y, s.w, s.h, 6);
-      ctx.fill(); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(s.x + 8, s.y + 10);
-      ctx.lineTo(s.x + s.w - 8, s.y + 10);
-      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-    } else {
-      ctx.fillStyle = '#f0f0f0';
-      ctx.strokeStyle = '#111111';
-      ctx.lineWidth = 2;
-      rr(s.x, s.y, s.w, s.h, 6);
-      ctx.fill(); ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(s.x + s.w / 2, s.y + 6);
-      ctx.lineTo(s.x + s.w / 2, s.y + s.h - 6);
-      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
+/* =========================================================
+   基础属性升级池
+========================================================= */
+const UPGRADES = [
+  { id:'dmg',    name:'强化弹头', desc:'子弹伤害 +20%',           max:99, apply(p){ p.dmg *= 1.20; } },
+  { id:'rate',   name:'高速扳机', desc:'射击间隔 -12%',           max:99, apply(p){ p.fireRate = Math.max(0.08, p.fireRate * 0.88); } },
+  { id:'speed',  name:'疾行战靴', desc:'移动速度 +10%',           max:99, apply(p){ p.speed *= 1.10; } },
+  { id:'hp',     name:'强化躯壳', desc:'生命上限 +25 并回复 25',  max:99, apply(p){ p.maxHp += 25; p.hp += 25; } },
+  { id:'bsize',  name:'巨型弹药', desc:'子弹体积 +18%',           max:6,  apply(p){ p.bulletR = Math.min(18, p.bulletR * 1.18); } },
+  { id:'bspd',   name:'加速弹道', desc:'子弹速度 +15%',           max:99, apply(p){ p.bulletSpeed *= 1.15; } },
+  { id:'brng',   name:'远程校准', desc:'子弹射程 +15%',           max:8,  apply(p){ p.bulletRange *= 1.15; } },
+  { id:'multi',  name:'多重射击', desc:'子弹数量 +1',             max:4,  apply(p){ p.bulletCount = Math.min(5, p.bulletCount + 1); } },
+  // ★ 拾取范围加强
+  { id:'magnet', name:'磁力护符', desc:'拾取范围 +60',            max:99, apply(p){ p.pickupRange += 60; } },
+  { id:'regen',  name:'细胞再生', desc:'每秒回复 +0.8',           max:99, apply(p){ p.regen += 0.8; } },
+  { id:'explode', name:'爆裂子弹', max:5,
+    desc() {
+      const nl = (G.player ? G.player.explodeLv : 0) + 1;
+      return `子弹命中产生半径 ${40 + nl * 15} 爆炸，额外造成 ${Math.round((0.35 + nl * 0.10) * 100)}% 子弹伤害`;
+    },
+    apply(p) {
+      p.explodeLv++;
+      p.explodeRadius = 40 + p.explodeLv * 15;
+      p.explodeDmgMul = 0.35 + p.explodeLv * 0.10;
     }
-  }
-}
+  },
+];
 
-function drawBackground(R) {
-  switch (R.bg) {
-    case 'classroom': drawFloorBase(R, 70); drawSolids(R); break;
-    case 'hallway':
-      drawFloorBase(R, 90, 'rgba(0,0,0,0.045)');
-      ctx.strokeStyle = 'rgba(0,0,0,0.03)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(R.bounds.x, R.bounds.y + R.bounds.h / 2);
-      ctx.lineTo(R.bounds.x + R.bounds.w, R.bounds.y + R.bounds.h / 2);
-      ctx.stroke();
-      drawSolids(R); break;
-    case 'storage': drawFloorBase(R, 50, 'rgba(0,0,0,0.06)'); drawSolids(R); break;
-    case 'canteen': drawFloorBase(R, 80); drawSolids(R); break;
-    case 'washroom': drawFloorBase(R, 40, 'rgba(0,0,0,0.05)'); drawSolids(R); break;
-    case 'rooftop':
-      drawFloorBase(R, 100, 'rgba(0,0,0,0.06)');
-      ctx.strokeStyle = '#111111';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(R.bounds.x + 6, R.bounds.y + 6, R.bounds.w - 12, R.bounds.h - 12);
-      drawSolids(R); break;
-    case 'infirmary': drawFloorBase(R, 60, 'rgba(0,0,0,0.04)'); drawSolids(R); break;
-  }
-}
+/* =========================================================
+   敌人模板
+========================================================= */
+const TYPES = {
+  grunt:   { r:13, hp:20,  speed:84,  dmg:8,  xp:1,  color:'#ff6b81' },
+  fast:    { r:10, hp:14,  speed:168, dmg:6,  xp:1,  color:'#5ee1ff' },
+  tank:    { r:24, hp:98,  speed:56,  dmg:16, xp:4,  color:'#ffa94d' },
+  shooter: { r:15, hp:44,  speed:74,  dmg:10, xp:3,  color:'#a78bfa',
+             ranged:true, keepDist:285, shootRange:470, shootInterval:2.0 },
+  boss:    { r:40, hp:880, speed:66,  dmg:26, xp:32, color:'#c084fc' },
+};
 
-function drawDoor(d) {
-  const w = 72;
-  ctx.beginPath();
-  ctx.ellipse(d.x, d.y, w * 0.6, 20, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.04)';
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.strokeStyle = '#111111';
-  ctx.lineWidth = 2.4;
-  rr(d.x - w / 2, d.y - 18, w, 36, 4);
-  ctx.fill(); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(d.x, d.y - 18);
-  ctx.lineTo(d.x, d.y + 18);
-  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(d.x + w / 2 - 12, d.y, 3, 0, Math.PI * 2);
-  ctx.fillStyle = '#111111';
-  ctx.fill();
-  const pulse = 0.5 + Math.sin(world.time * 3.2) * 0.5;
-  ctx.globalAlpha = 0.2 + pulse * 0.4;
-  ctx.beginPath();
-  ctx.moveTo(d.x - 6, d.y - 30);
-  ctx.lineTo(d.x,     d.y - 24);
-  ctx.lineTo(d.x + 6, d.y - 30);
-  ctx.strokeStyle = '#111111';
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.stroke();
-  ctx.globalAlpha = 1;
-  ctx.font = '10px system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.textAlign = 'center';
-  ctx.fillText(d.label || '', d.x, d.y + 34);
-}
+/* =========================================================
+   状态
+========================================================= */
+const G = { player: null, running: false, paused: false };
+let CH = null, uid = 1;
+let skillBtns = [];
 
-function drawActor(a, t) {
-  if (!a.alive) return;
-  const moving = a.moving;
-  const bobFreq = moving ? 9 : 2;
-  const bobAmp = moving ? 0.7 : 1.2;
-  const bob = Math.sin(t * bobFreq + a.bobPhase) * bobAmp;
-  const y = a.y + bob;
-
-  ctx.beginPath();
-  ctx.ellipse(a.x, a.y + a.r * 0.6, a.r * 0.8, a.r * 0.35, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.06)';
-  ctx.fill();
-
-  if (a.id === 'xuyunxi') {
-    ctx.beginPath();
-    ctx.arc(a.x, y, a.r + 11, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(232,160,180,0.15)';
-    ctx.fill();
-  }
-
-  if (a.isPlayer && world.playerWeaponId) {
-    ctx.beginPath();
-    ctx.arc(a.x, y, a.r + 6, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(185,28,28,0.4)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  if (!a.isPlayer && a.panicTimer > 0) {
-    ctx.beginPath();
-    ctx.arc(a.x, y, a.r + 8, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(109,40,217,0.35)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  if (!a.isPlayer && a.desire === 'approach_player') {
-    ctx.beginPath();
-    ctx.arc(a.x, y, a.r + 5, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(34,197,94,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-
-  ctx.beginPath();
-  ctx.arc(a.x, y, a.r, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
-  ctx.fill();
-  ctx.lineWidth = a.isPlayer ? 2.8 : 2.4;
-  ctx.strokeStyle = '#111111';
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(a.x, y, a.r * 0.5, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  ctx.save();
-  ctx.translate(a.x, y);
-  ctx.rotate(a.facing);
-  const ex = a.r * 0.48, eo = a.r * 0.3;
-  const er = Math.max(1.1, a.r * 0.1);
-  ctx.beginPath();
-  ctx.arc(ex, -eo, er, 0, Math.PI * 2);
-  ctx.arc(ex,  eo, er, 0, Math.PI * 2);
-  ctx.fillStyle = '#111111';
-  ctx.fill();
-  ctx.restore();
-
-  drawActorAnchor(a, y, t);
-
-  if (!a.isPlayer) {
-    ctx.font = '9px system-ui, sans-serif';
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.textAlign = 'center';
-    ctx.fillText(a.name, a.x, a.y - a.r - 8);
-  }
-}
-
-function drawActorAnchor(a, y, t) {
-  switch (a.anchor) {
-    case 'book': {
-      ctx.save(); ctx.translate(a.x, y); ctx.rotate(a.facing);
-      ctx.fillStyle = '#fafafa'; ctx.strokeStyle = '#111111'; ctx.lineWidth = 1.6;
-      rr(a.r * 0.15, -a.r * 0.55, a.r * 0.65, a.r * 0.4, 1.5);
-      ctx.fill(); ctx.stroke(); ctx.restore(); break;
-    }
-    case 'shoulder': {
-      ctx.beginPath();
-      ctx.moveTo(a.x - a.r * 0.9, y + a.r * 0.2);
-      ctx.lineTo(a.x + a.r * 0.9, y + a.r * 0.2);
-      ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2; ctx.stroke(); break;
-    }
-    case 'backpack': {
-      const backA = a.facing + Math.PI;
-      const bx = a.x + Math.cos(backA) * a.r * 0.55;
-      const by = y + Math.sin(backA) * a.r * 0.55;
-      ctx.beginPath();
-      ctx.arc(bx, by, a.r * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1.4; ctx.stroke(); break;
-    }
-    case 'big': {
-      ctx.beginPath();
-      ctx.arc(a.x, y, a.r + 4, Math.PI * 0.75, Math.PI * 1.25);
-      ctx.arc(a.x, y, a.r + 4, -Math.PI * 0.25, Math.PI * 0.25);
-      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 2.4; ctx.stroke(); break;
-    }
-    case 'coin': {
-      const coinA = a.facing + Math.PI / 2;
-      const cx = a.x + Math.cos(coinA) * (a.r + 5);
-      const cy = y + Math.sin(coinA) * (a.r + 5);
-      const speed = 3 + (a.fear + a.anger) * 0.08;
-      const wob = Math.sin(t * speed + a.bobPhase) * 0.5;
-      ctx.beginPath();
-      ctx.arc(cx + wob, cy, 2.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#111111'; ctx.fill(); break;
-    }
-    case 'arms': {
-      ctx.save(); ctx.translate(a.x, y); ctx.rotate(a.facing);
-      ctx.beginPath();
-      ctx.moveTo(-a.r * 0.2, -a.r * 0.9);
-      ctx.quadraticCurveTo(-a.r * 0.95, 0, -a.r * 0.2, a.r * 0.9);
-      ctx.moveTo(-a.r * 0.2, -a.r * 0.9);
-      ctx.quadraticCurveTo(a.r * 0.4, 0, -a.r * 0.2, a.r * 0.9);
-      ctx.strokeStyle = 'rgba(0,0,0,0.42)'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.restore(); break;
-    }
-    case 'bow': {
-      const headA = a.facing - Math.PI * 0.55;
-      const bx = a.x + Math.cos(headA) * (a.r + 1);
-      const by = y + Math.sin(headA) * (a.r + 1);
-      ctx.save(); ctx.translate(bx, by);
-      ctx.rotate(headA + Math.PI / 2 + Math.sin(t * 1.7 + a.bobPhase) * 0.055);
-      ctx.fillStyle = '#e8a0b4'; ctx.strokeStyle = '#111111'; ctx.lineWidth = 1.1;
-      ctx.beginPath(); ctx.ellipse(-3.4, 0, 3.6, 2.3, -0.42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(3.4, 0, 3.6, 2.3, 0.42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(0, 0, 1.1, 2.6, 0, 0, Math.PI * 2); ctx.fillStyle = '#111111'; ctx.fill();
-      ctx.restore(); break;
-    }
-    case 'shrink': {
-      ctx.save(); ctx.translate(a.x, y); ctx.rotate(a.facing);
-      ctx.beginPath();
-      ctx.moveTo(-a.r * 0.3, -a.r * 0.7); ctx.lineTo(a.r * 0.1, -a.r * 0.4);
-      ctx.moveTo(-a.r * 0.3,  a.r * 0.7); ctx.lineTo(a.r * 0.1,  a.r * 0.4);
-      ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); break;
-    }
-    case 'point': {
-      ctx.save(); ctx.translate(a.x, y); ctx.rotate(a.facing);
-      ctx.beginPath();
-      ctx.moveTo(a.r * 0.7, -a.r * 0.3); ctx.lineTo(a.r * 1.7, -a.r * 0.55);
-      ctx.strokeStyle = '#111111'; ctx.lineWidth = 1.8; ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(a.r * 1.7, -a.r * 0.55, 1.4, 0, Math.PI * 2);
-      ctx.fillStyle = '#111111'; ctx.fill(); ctx.restore(); break;
-    }
-    case 'shoe': {
-      const wobble = a.moving ? Math.sin(t * 12 + a.bobPhase) * 1.6 : 0;
-      ctx.save(); ctx.translate(a.x, y); ctx.rotate(a.facing);
-      ctx.beginPath();
-      ctx.ellipse(a.r * 0.15 + wobble, -a.r * 0.65, a.r * 0.35, a.r * 0.18, 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill(); ctx.restore(); break;
-    }
-  }
-}
-
-function drawDeadActor(a) {
-  ctx.save();
-  ctx.translate(a.x, a.y);
-  ctx.beginPath();
-  ctx.arc(0, 0, a.r, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  const r = a.r * 0.4;
-  ctx.beginPath();
-  ctx.moveTo(-r, -r); ctx.lineTo(r, r);
-  ctx.moveTo(r, -r);  ctx.lineTo(-r, r);
-  ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawGroundWeapon(w, t) {
-  const bob = Math.sin(t * 2 + w.x) * 1.5;
-  ctx.beginPath();
-  ctx.arc(w.x, w.y + bob, 8, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(w.x, w.y + bob, 5, 0, Math.PI * 2);
-  ctx.fillStyle = w.usedInKill ? '#b91c1c' : '#ffffff';
-  ctx.fill();
-  ctx.strokeStyle = w.usedInKill ? '#b91c1c' : '#111111';
-  ctx.lineWidth = 1.6;
-  ctx.stroke();
-}
-
-function drawActors(t) {
-  const deadInRegion = world.actors.filter(a =>
-    !a.alive && a.region === world.region && !a.escaped && !a.jailed
-  );
-  for (const a of deadInRegion) drawDeadActor(a);
-  const ws = weaponsInRegion(world.region);
-  for (const w of ws) drawGroundWeapon(w, t);
-  const aliveInRegion = world.actors
-    .filter(a => a.alive && a.region === world.region)
-    .sort((a, b) => a.y - b.y);
-  for (const a of aliveInRegion) drawActor(a, t);
-}
-
-function drawHighlight(t) {
-  if (!world.activeInteractable) return;
-  if (dialogue.active) return;
-  const o = world.activeInteractable;
-  const pulse = 0.5 + Math.sin(t * 3.4) * 0.5;
-  const r = (o.r || 20) + 9 + pulse * 3.5;
-  ctx.beginPath();
-  ctx.arc(o.x, o.y, r, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(0,0,0,${0.16 + pulse * 0.28})`;
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([5, 5]);
-  ctx.lineDashOffset = -t * 18;
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.lineDashOffset = 0;
-}
-
-function drawBroadcast() {
-  const active = broadcastLog.filter(b => b.until > world.time);
-  if (!active.length) return;
-  const text = active[active.length - 1].text;
-  const barH = 34;
-  const w = Math.min(W - 40, 460);
-  const x = (W - w) / 2;
-  const y = 30;
-  ctx.beginPath();
-  rr(x, y, w, barH, 8);
-  ctx.fillStyle = 'rgba(17,17,17,0.88)';
-  ctx.fill();
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, x + w / 2, y + barH / 2);
-  ctx.textBaseline = 'alphabetic';
-}
-
-function render(t) {
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, H);
-  const R = REGIONS[world.region];
-  if (!R) return;
-  ctx.save();
-  ctx.translate(-camX, -camY);
-  drawBackground(R);
-  for (const d of R.doors) drawDoor(d);
-  drawActors(t);
-  drawHighlight(t);
-  ctx.restore();
-  if (world.fade > 0) {
-    ctx.fillStyle = `rgba(255,255,255,${world.fade})`;
-    ctx.fillRect(0, 0, W, H);
-  }
-  drawBroadcast();
-}
-
-/* ==========================================================
-   R · 交互 / 更新 / 状态条
-   ========================================================== */
-function findInteractable() {
-  const P = world.player;
-  if (!P || !P.alive) return null;
-  const body = getBodyAt(world.region, P.x, P.y);
-  if (body) return { kind: 'body', ref: body, r: 24, x: body.victim.x, y: body.victim.y };
-
-  /* 玩家已有武器时，地上的武器不作为可交互对象（除非已杀人的作为证据线索） */
-  if (!world.playerWeaponId) {
-    const ws = weaponsInRegion(world.region);
-    let bestW = null, bestWD = Infinity;
-    for (const w of ws) {
-      if (w.usedInKill) continue;
-      const d = Math.hypot(w.x - P.x, w.y - P.y);
-      if (d < P.r + 20 + CONFIG.INTERACT_PAD && d < bestWD) {
-        bestWD = d; bestW = w;
-      }
-    }
-    if (bestW) return { kind: 'weapon', ref: bestW, r: 12, x: bestW.x, y: bestW.y };
-  }
-
-  let best = null, bestD = Infinity;
-  for (const a of world.actors) {
-    if (a.isPlayer || !a.alive || a.region !== world.region) continue;
-    const d = Math.hypot(a.x - P.x, a.y - P.y);
-    const reach = a.r + P.r + CONFIG.INTERACT_PAD;
-    if (d < reach && d < bestD) {
-      bestD = d;
-      best = { kind: 'npc', ref: a, r: a.r, x: a.x, y: a.y };
-    }
-  }
-  const R = REGIONS[world.region];
-  if (R.props) {
-    for (const pr of R.props) {
-      const d = Math.hypot(pr.x - P.x, pr.y - P.y);
-      const reach = (pr.r || 12) + P.r + CONFIG.INTERACT_PAD;
-      if (d < reach && d < bestD) {
-        bestD = d;
-        best = { kind: 'prop', ref: pr, r: pr.r || 12, x: pr.x, y: pr.y };
-      }
-    }
-  }
-  for (const s of R.solids) {
-    if (!s.examine) continue;
-    const nx = clamp(P.x, s.x, s.x + s.w);
-    const ny = clamp(P.y, s.y, s.y + s.h);
-    const d = Math.hypot(P.x - nx, P.y - ny);
-    const reach = P.r + CONFIG.INTERACT_PAD + 8;
-    if (d < reach && d < bestD) {
-      bestD = d;
-      best = {
-        kind: 'prop',
-        ref: { ...s, x: s.x + s.w / 2, y: s.y + s.h / 2 },
-        r: Math.max(s.w, s.h) * 0.4,
-        x: s.x + s.w / 2, y: s.y + s.h / 2,
-      };
-    }
-  }
-  return best;
-}
-
-function onActionPress() {
-  if (dialogue.active) return;
-  if (world.struggleActive || world.gameOver) return;
-  if (voteState.active) {
-    if (dialogue.mode === 'vote_speech') advanceSpeech();
-    return;
-  }
-  const target = world.activeInteractable;
-  if (!target) {
-    if (world.playerWeaponId) dropWeaponUI();
-    return;
-  }
-  if (target.kind === 'body') { examineBody(target.ref); return; }
-  if (target.kind === 'weapon') { pickUpWeapon(world.player, target.ref.id); return; }
-  if (target.kind === 'npc' && world.playerWeaponId) {
-    const npc = target.ref;
-    if (npc.trust >= 65) {
-      if (confirm(`你真的要杀 ${npc.name} 吗？\n\n${npc.name} 一直很相信你。`)) {
-        tryPlayerKillTarget(npc);
-      }
-      return;
-    }
-    tryPlayerKillTarget(npc);
-    return;
-  }
-  if (target.kind === 'npc') openDialogueForNpc(target.ref);
-  else if (target.kind === 'prop') openDialogueForProp(target.ref);
-}
-
-function updateStatusBar() {
-  const alive = world.actors.filter(a => a.alive).length;
-  const aliveEl = document.getElementById('aliveLabel');
-  const timeEl = document.getElementById('timeLabel');
-  if (aliveEl) aliveEl.textContent = alive + ' 人';
-
-  if (timeEl) {
-    let suffix = '';
-    if (world.playerIsKiller && world.escapeTimers['player'] !== undefined) {
-      suffix += ' · 逃 ' + formatEscapeRemaining(world.escapeTimers['player']);
-    }
-    if (world.playerWeaponId) {
-      const w = worldWeapons[world.playerWeaponId];
-      if (w) suffix += ` · ${w.name}(X)`;
-    }
-    if (world.playerIsKiller) {
-      suffix += ` · 杀${world.playerKillCount}/${CONFIG.MAX_KILLS}`;
-    }
-    if (canStartVote() && world.time - lastForceVoteTime > 30) {
-      suffix += ' · V';
-    }
-    timeEl.textContent = formatGameTime(world.gameTime) + suffix;
-  }
-
-  const btn = document.getElementById('actionBtn');
-  if (!btn) return;
-
-  if (world.gameOver || voteState.active) {
-    btn.classList.remove('ready', 'danger-ready');
-    btn.textContent = '';
-    return;
-  }
-  if (world.playerWeaponId && world.activeInteractable &&
-      world.activeInteractable.kind === 'npc') {
-    if (!canKill(world.player)) {
-      btn.classList.remove('danger-ready', 'ready');
-      btn.textContent = '';
-    } else {
-      btn.classList.add('danger-ready');
-      btn.classList.remove('ready');
-      btn.textContent = '动手';
-    }
-  } else if (world.activeInteractable) {
-    btn.classList.remove('danger-ready');
-    btn.classList.add('ready');
-    btn.textContent = '交互';
-  } else if (world.playerWeaponId) {
-    btn.classList.remove('danger-ready');
-    btn.classList.add('ready');
-    btn.textContent = '放下';
-  } else {
-    btn.classList.remove('ready', 'danger-ready');
-    btn.textContent = '';
-  }
-}
-
-function update(dt, t) {
-  if (world.gameOver) return;
-  world.time += dt;
-  world.gameTime += dt * CONFIG.TIME_SCALE;
-
-  updatePlayerInput(dt);
-  resolvePlayerCollisions();
-  checkDoors(dt);
-
-  if (world.fade > 0) world.fade = Math.max(0, world.fade - dt * 3);
-
-  const R = REGIONS[world.region];
-  if (R) {
-    camX = camAxis(world.player.x, W, R.bounds.w);
-    camY = camAxis(world.player.y, H, R.bounds.h);
-  }
-
-  for (const a of world.actors) {
-    if (!a.alive || a.isPlayer) continue;
-    thinkActor(a, dt);
-    updateNpcMovement(a, dt);
-  }
-
-  world.activeInteractable = (dialogue.active || voteState.active)
-    ? null : findInteractable();
-
-  if (dialogueUI.timer > 0) {
-    dialogueUI.timer -= dt;
-    if (dialogueUI.timer <= 0 && !dialogueUI.persistent) closeDialogue();
-  }
-
-  updateStatusBar();
-  tickEscapeTimers(dt);
-  tickMemoryDecay(dt);
-  checkBodyDiscoveries();
-  simulateBackgroundRegions(dt);
-  for (const a of world.actors) {
-    if (a.alive && !a.isPlayer) tryNpcKill(a);
-  }
-  resolveActorCollisions();
-  if (!voteState.active) checkForceVote();
-}
-
-/* ==========================================================
-   S · 主循环 / 重开 / 启动
-   ========================================================== */
-function loop(now) {
-  const dt = Math.min((now - lastTime) / 1000, 0.05);
-  lastTime = now;
-  const t = now / 1000;
-  update(dt, t);
-  render(t);
-  requestAnimationFrame(loop);
+function getTapSkill() {
+  if (!CH || !CH.actives) return null;
+  return CH.actives.find(a => a.tap) || null;
 }
 
 function resetGame() {
-  world.time = 0;
-  world.gameTime = 0;
-  world.phase = 'calm';
-  world.region = 'main';
-  world.dead = [];
-  world.jailed = [];
-  world.killers = [];
-  world.killEvents = [];
-  world.escapeTimers = {};
-  world.playerIsKiller = false;
-  world.playerKillCount = 0;
-  world.playerWeaponId = null;
-  world.playerLies = [];
-  world.voteHistory = [];
-  world.gameOver = false;
-  world.winner = null;
-  world.ending = null;
-  world.doorCooldown = 0;
-  world.fade = 1;
-  world.activeInteractable = null;
-  world.struggleActive = false;
-  world.struggleKiller = null;
+  G.running = true; G.paused = false;
+  G.time = 0; G.timeStop = 0; G.shake = 0;
+  G.enemies = []; G.bullets = []; G.ebullets = []; G.gems = [];
+  G.particles = []; G.texts = []; G.rings = [];
+  G.spawnTimer = 0; G.bossTimer = 55;
+  G.level = 1; G.xp = 0; G.xpNeed = 9; G.kills = 0; G.pending = 0;
+  G.upCounts = {};
+  G.passiveLv = 1;
+  G.xpMul = 1; G.hurtFlash = 0;
 
-  voteState.active = false;
-  voteState.phase = 'idle';
-  voteState.speeches = {};
-  voteState.npcVotes = {};
-  voteState.playerVote = null;
-  voteState.jailedId = null;
-  voteState.savedPositions = {};
+  G.skillLv = {};
+  G.skillCd = {};
+  for (const sk of CH.actives) { G.skillLv[sk.id] = 1; G.skillCd[sk.id] = 0; }
 
-  dialogue.active = false;
-  dialogue.persistent = false;
-  dialogue.timer = 0;
-  document.getElementById('dialog').classList.remove('show');
-
-  broadcastLog.length = 0;
-  document.getElementById('struggle').classList.remove('show');
-  if (struggleTimerId) {
-    clearTimeout(struggleTimerId);
-    struggleTimerId = null;
-  }
-
-  spawnAllActors();
-  initWorldWeapons();
-  lastForceVoteTime = 0;
-  lastKillTime = -999;
-
-  document.getElementById('regionLabel').textContent = '主教室';
-  document.getElementById('aliveLabel').textContent = '11 人';
-
-  const R = REGIONS[world.region];
-  camX = camAxis(world.player.x, W, R.bounds.w);
-  camY = camAxis(world.player.y, H, R.bounds.h);
-
-  document.getElementById('overlay').classList.remove('show');
-  lastTime = performance.now();
-
-  broadcast('校门被封了。没有人能出去。', 6);
-}
-
-if (DEBUG) {
-  window.__game = {
-    get world() { return world; },
-    get weapons() { return worldWeapons; },
-    get vote() { return voteState; },
-    get actors() { return world.actors; },
-    get player() { return world.player; },
-    teleport: (regionId, x, y) => switchRegion(regionId, { x, y }),
-    kill: (killerId, victimId) => {
-      const k = getActor(killerId);
-      const v = getActor(victimId);
-      if (!k || !v) return 'actor 不存在';
-      if (!k.hasWeapon) {
-        const w = Object.values(worldWeapons).find(w => w.onGround);
-        if (w) pickUpWeapon(k, w.id);
-      }
-      return executeKill(k, v);
-    },
-    vote: () => { if (canStartVote()) startVote(); else return '现在不能投票'; },
-    end: (reason) => triggerGameEnd(reason || 'survive'),
-    dump: () => {
-      for (const a of world.actors) {
-        if (!a.alive) continue;
-        console.group(a.name + ` (${a.faction})`);
-        console.log('信任:', a.trust.toFixed(0), '杀意:', a.killIntent.toFixed(0),
-                    '恐惧:', a.fear.toFixed(0), '愤怒:', a.anger.toFixed(0),
-                    '杀人数:', a.kills.length + '/' + CONFIG.MAX_KILLS,
-                    '武器:', a.hasWeapon || '无');
-        console.groupEnd();
-      }
-    },
+  const b = CH.base;
+  const p = G.player = {
+    x: 0, y: 0, r: 16,
+    speed: b.speed, maxHp: b.maxHp, hp: b.maxHp,
+    dmg: b.dmg, fireRate: b.fireRate,
+    bulletSpeed: b.bulletSpeed, bulletRange: b.bulletRange, bulletR: b.bulletR,
+    bulletCount: 1,
+    pickupRange: 180,          // ★ 拾取范围加大
+    regen: 0,
+    aim: -Math.PI / 2,
+    fireCd: 0, hurtCd: 0, hurtFlash: 0,
+    explodeLv: 0, explodeRadius: 0, explodeDmgMul: 0,
+    dualT: 0,
   };
-  Object.defineProperty(window.__game, 'god', {
-    get: () => debugState.god,
-    set: (v) => { debugState.god = v; },
+
+  if (CH.passive) CH.passiveApply(p, 1);
+  p.hp = p.maxHp;
+
+  G.cam = { x: -W / 2, y: -H / 2 };
+}
+
+/* =========================================================
+   特效
+========================================================= */
+function addText(x, y, str, color) {
+  G.texts.push({ x, y, str, color, life: 0.75, vy: -52 });
+}
+function burst(x, y, color, n, spd = 170) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = rand(spd * 0.22, spd);
+    G.particles.push({
+      x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      life: rand(0.25, 0.6), max: 0.6, color, r: rand(1.5, 3.6),
+    });
+  }
+}
+
+/* =========================================================
+   生成（★ 密度大幅下调）
+========================================================= */
+function pickType() {
+  const t = G.time, r = Math.random();
+  if (t < 15) return 'grunt';
+  if (t < 30) return r < 0.22 ? 'fast' : 'grunt';
+  if (t < 50) {
+    if (r < 0.20) return 'fast';
+    if (r < 0.34) return 'shooter';
+    if (r < 0.45) return 'tank';
+    return 'grunt';
+  }
+  if (r < 0.22) return 'fast';
+  if (r < 0.40) return 'shooter';
+  if (r < 0.60) return 'tank';
+  return 'grunt';
+}
+
+function spawnEnemy(type) {
+  const t = TYPES[type], p = G.player;
+  const ang = Math.random() * TAU;
+  const rad = Math.hypot(W, H) / 2 + 110;
+  const hpScale = 1 + G.time * 0.038;
+  const dmgScale = 1 + G.time * 0.018;
+
+  G.enemies.push({
+    id: uid++, type,
+    x: p.x + Math.cos(ang) * rad,
+    y: p.y + Math.sin(ang) * rad,
+    r: t.r,
+    hp: t.hp * hpScale, maxHp: t.hp * hpScale,
+    speed: t.speed * (1 + G.time * 0.002),
+    dmg: t.dmg * dmgScale,
+    xp: t.xp, color: t.color,
+    hurtT: 0, dead: false,
+    slowT: 0, slowMul: 1,
+    ranged: !!t.ranged,
+    keepDist: t.keepDist || 0,
+    shootRange: t.shootRange || 0,
+    shootInterval: t.shootInterval || 2,
+    shootCd: rand(0.6, t.shootInterval || 2),
   });
-  console.log('[封锁] __game 就绪');
 }
 
-window.addEventListener('keydown', (e) => {
-  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
-  keys.add(e.code);
-  if ((e.code === 'KeyE' || e.code === 'Space') && !e.repeat) onActionPress();
-  if (e.code === 'Escape' && dialogue.active && !dialogue.persistent) closeDialogue();
-  if (e.code === 'KeyV' && !e.repeat) {
-    if (canStartVote()) startVote();
-    else broadcast('现在还不是时候。');
-  }
-  if (e.code === 'KeyX' && !e.repeat) {
-    if (world.playerWeaponId) dropWeaponUI();
-  }
-  if (world.struggleActive &&
-      (e.code === 'Space' || e.code === 'KeyE' || e.code === 'Enter')) {
-    e.preventDefault();
-    onStrugglePress();
-  }
-});
-window.addEventListener('keyup', (e) => keys.delete(e.code));
-window.addEventListener('blur', () => { keys.clear(); resetJoy(); });
+function spawnLogic(dt) {
+  if (G.timeStop > 0) return;
 
-const joystickEl = document.getElementById('joystick');
-const knobEl = document.getElementById('knob');
+  // ★ 密度降低：初始间隔更长、衰减更慢、最低间隔抬高
+  G.spawnTimer -= dt;
+  if (G.spawnTimer <= 0) {
+    G.spawnTimer = Math.max(0.32, 1.35 * Math.pow(0.988, G.time));
+    const n = 1 + Math.floor(G.time / 80);
+    for (let i = 0; i < n; i++) spawnEnemy(pickType());
+  }
 
-function updateJoy(e) {
-  const rect = joystickEl.getBoundingClientRect();
-  const cx = rect.left + rect.width / 2;
-  const cy = rect.top + rect.height / 2;
-  const maxR = rect.width * 0.36;
-  let dx = e.clientX - cx;
-  let dy = e.clientY - cy;
-  const d = Math.hypot(dx, dy);
-  if (d > maxR) { dx = dx / d * maxR; dy = dy / d * maxR; }
-  knobEl.style.transform = `translate(${dx}px, ${dy}px)`;
-  joyVec.x = dx / maxR;
-  joyVec.y = dy / maxR;
+  // ★ Boss 出现间隔延长
+  G.bossTimer -= dt;
+  if (G.bossTimer <= 0) { G.bossTimer = 60; spawnEnemy('boss'); }
 }
-function resetJoy() {
-  joyId = null;
-  joyVec.x = joyVec.y = 0;
-  knobEl.style.transform = 'translate(0px, 0px)';
+
+/* =========================================================
+   战斗
+========================================================= */
+function updateWeapon(dt) {
+  const p = G.player;
+  p.fireCd -= dt;
+
+  if (!stickR.active) {
+    if (p.fireCd < 0) p.fireCd = 0;
+    return;
+  }
+
+  p.aim = Math.atan2(stickR.y, stickR.x);
+  if (p.fireCd > 0) return;
+  p.fireCd = p.fireRate;
+
+  const dual = p.dualT > 0;
+  const count = dual ? p.bulletCount * 2 : p.bulletCount;
+  const bR = dual ? p.bulletR * 2 : p.bulletR;
+  const bDmg = dual ? p.dmg * 1.5 : p.dmg;
+  const spread = dual ? 0.10 : 0.14;
+
+  for (let i = 0; i < count; i++) {
+    const a = p.aim + (i - (count - 1) / 2) * spread;
+    G.bullets.push({
+      x: p.x + Math.cos(a) * (p.r + 6),
+      y: p.y + Math.sin(a) * (p.r + 6),
+      vx: Math.cos(a) * p.bulletSpeed,
+      vy: Math.sin(a) * p.bulletSpeed,
+      r: bR, dmg: bDmg,
+      traveled: 0, maxDist: p.bulletRange, life: 3,
+      dual,
+    });
+  }
 }
-joystickEl.addEventListener('pointerdown', (e) => {
-  if (joyId !== null || dialogue.active || world.gameOver) return;
-  joyId = e.pointerId;
-  joystickEl.setPointerCapture(e.pointerId);
-  updateJoy(e);
-  e.preventDefault();
-});
-joystickEl.addEventListener('pointermove', (e) => {
-  if (e.pointerId !== joyId) return;
-  updateJoy(e);
-  e.preventDefault();
-});
-function endJoy(e) { if (e.pointerId === joyId) resetJoy(); }
-joystickEl.addEventListener('pointerup', endJoy);
-joystickEl.addEventListener('pointercancel', endJoy);
-joystickEl.addEventListener('lostpointercapture', endJoy);
 
-const actionBtn = document.getElementById('actionBtn');
-actionBtn.addEventListener('pointerdown', (e) => {
-  e.preventDefault();
-  actionBtn.classList.add('pressed');
-  onActionPress();
-});
-window.addEventListener('pointerup', () => actionBtn.classList.remove('pressed'));
-window.addEventListener('pointercancel', () => actionBtn.classList.remove('pressed'));
+function killEnemy(e) {
+  if (e.dead) return;
+  e.dead = true;
+  G.kills++;
+  burst(e.x, e.y, e.color, e.type === 'boss' ? 28 : 7, e.type === 'boss' ? 320 : 170);
 
-document.getElementById('struggleBtn').addEventListener('pointerdown', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  onStrugglePress();
+  const waveBonus = 1 + Math.floor(G.time / 60);
+  const gemCount = e.type === 'boss' ? 8 : 1;
+  const per = Math.max(1, Math.round(e.xp * waveBonus / gemCount));
+
+  for (let i = 0; i < gemCount; i++) {
+    const a = Math.random() * TAU, d = gemCount > 1 ? Math.random() * 48 : rand(0, 6);
+    G.gems.push({ x: e.x + Math.cos(a) * d, y: e.y + Math.sin(a) * d, value: per, pulse: Math.random() * 6 });
+  }
+}
+
+function updateBullets(dt) {
+  const p = G.player;
+
+  for (let i = G.bullets.length - 1; i >= 0; i--) {
+    const b = G.bullets[i];
+    const sx = b.vx * dt, sy = b.vy * dt;
+    b.x += sx; b.y += sy;
+    b.traveled += Math.hypot(sx, sy);
+    b.life -= dt;
+
+    if (b.life <= 0 || b.traveled >= b.maxDist) { G.bullets.splice(i, 1); continue; }
+
+    let gone = false;
+    for (const e of G.enemies) {
+      if (e.dead) continue;
+      const dx = e.x - b.x, dy = e.y - b.y;
+      const rr = e.r + b.r;
+      if (dx * dx + dy * dy < rr * rr) {
+        e.hp -= b.dmg; e.hurtT = 0.12;
+        addText(e.x + rand(-6, 6), e.y - e.r - 4, Math.round(b.dmg), '#fff');
+        burst(b.x, b.y, b.dual ? '#ffd166' : '#cfe4ff', 3, 120);
+        if (e.hp <= 0) killEnemy(e);
+
+        if (p.explodeRadius > 0) {
+          const exDmg = b.dmg * p.explodeDmgMul;
+          for (const e2 of G.enemies) {
+            if (e2.dead || e2 === e) continue;
+            const edx = e2.x - b.x, edy = e2.y - b.y;
+            const rr2 = p.explodeRadius + e2.r;
+            if (edx * edx + edy * edy < rr2 * rr2) {
+              e2.hp -= exDmg; e2.hurtT = 0.12;
+              addText(e2.x, e2.y - e2.r - 4, Math.round(exDmg), '#ffb26b');
+              if (e2.hp <= 0) killEnemy(e2);
+            }
+          }
+          G.rings.push({ x: b.x, y: b.y, r: 6, maxR: p.explodeRadius,
+                         life: 0.22, max: 0.22, color: '#ffb26b', w: 5 });
+          burst(b.x, b.y, '#ffb26b', 8, 180);
+        }
+
+        gone = true;
+        break;
+      }
+    }
+    if (gone) G.bullets.splice(i, 1);
+  }
+
+  for (let i = G.enemies.length - 1; i >= 0; i--) {
+    if (G.enemies[i].dead) G.enemies.splice(i, 1);
+  }
+}
+
+function hurtPlayer(dmg) {
+  const p = G.player;
+  if (p.hurtCd > 0) return;
+  dmg *= (CH.damageTakenMul || 1);
+
+  p.hp -= dmg;
+  p.hurtCd = 0.35;
+  p.hurtFlash = 0.28;
+  G.hurtFlash = 0.35;
+  G.shake = 0.18;
+  addText(p.x, p.y - 28, '-' + Math.round(dmg), '#ff5c7a');
+  burst(p.x, p.y, '#ff5c7a', 6, 150);
+  if (p.hp <= 0) { p.hp = 0; gameOver(); }
+}
+
+function updateEnemies(dt) {
+  const p = G.player;
+  const frozen = G.timeStop > 0;
+
+  for (const e of G.enemies) {
+    if (e.dead) continue;
+    if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
+    if (frozen) continue;
+
+    if (e.slowT > 0) {
+      e.slowT -= dt;
+      if (e.slowT <= 0) e.slowMul = 1;
+    }
+
+    const spd = e.speed * e.slowMul;
+    const dx = p.x - e.x, dy = p.y - e.y;
+    const d = Math.hypot(dx, dy) || 1;
+
+    if (d > 2600) { e.dead = true; continue; }
+
+    if (e.ranged) {
+      let mx = 0, my = 0;
+      if (d > e.keepDist + 70) { mx = dx / d; my = dy / d; }
+      else if (d < e.keepDist - 70) { mx = -dx / d; my = -dy / d; }
+      else { mx = -dy / d; my = dx / d; }
+      e.x += mx * spd * dt;
+      e.y += my * spd * dt;
+
+      e.shootCd -= dt;
+      if (e.shootCd <= 0 && d < e.shootRange) {
+        e.shootCd = e.shootInterval;
+        const a = Math.atan2(dy, dx);
+        G.ebullets.push({
+          x: e.x + Math.cos(a) * e.r,
+          y: e.y + Math.sin(a) * e.r,
+          vx: Math.cos(a) * 215, vy: Math.sin(a) * 215,
+          r: 6, dmg: e.dmg, life: 4,
+        });
+      }
+    } else {
+      e.x += dx / d * spd * dt;
+      e.y += dy / d * spd * dt;
+      if (d < e.r + p.r) hurtPlayer(e.dmg);
+    }
+  }
+}
+
+function updateEBullets(dt) {
+  if (G.timeStop > 0) return;
+  const p = G.player;
+
+  for (let i = G.ebullets.length - 1; i >= 0; i--) {
+    const b = G.ebullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    b.life -= dt;
+
+    const dx = p.x - b.x, dy = p.y - b.y;
+    if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
+      hurtPlayer(b.dmg);
+      burst(b.x, b.y, '#c084fc', 6, 150);
+      G.ebullets.splice(i, 1);
+      continue;
+    }
+    if (b.life <= 0) G.ebullets.splice(i, 1);
+  }
+}
+
+/* =========================================================
+   经验 / 升级
+========================================================= */
+function gainXp(v) {
+  G.xp += Math.max(1, Math.round(v * G.xpMul));
+  const p = G.player;
+
+  while (G.xp >= G.xpNeed) {
+    G.xp -= G.xpNeed;
+    G.level++;
+    G.xpNeed = Math.round(6 + G.level * 3 + G.level * G.level * 0.4);
+
+    const oldMax = p.maxHp;
+    p.maxHp = oldMax * 1.032;
+    const heal = oldMax * 0.15;
+    p.hp = Math.min(p.maxHp, p.hp + heal);
+    addText(p.x, p.y - 42, `+${Math.round(heal)}`, '#4ade80');
+
+    G.pending++;
+  }
+  if (G.pending > 0 && !G.paused) openLevelUp();
+}
+
+let cardLock = 0;
+
+function buildPool() {
+  const pool = [];
+
+  // 主动技能升级（★ 显示 CD 前后对比）
+  for (const sk of CH.actives) {
+    const lv = G.skillLv[sk.id] || 1;
+    if (lv < sk.max) {
+      const oldCd = getSkillCd(sk, lv);
+      const newCd = getSkillCd(sk, lv + 1);
+      pool.push({
+        kind: 'skill', w: sk.tap ? 1.6 : 2.4,
+        name: `${sk.name} Lv.${lv + 1}`,
+        desc: `${sk.desc(lv + 1)} · CD ${oldCd}s → ${newCd}s`,
+        apply() { G.skillLv[sk.id] = lv + 1; },
+      });
+    }
+  }
+
+  if (CH.passive && G.passiveLv < CH.passive.max) {
+    pool.push({
+      kind: 'passive', w: 2.0,
+      name: `${CH.passive.name} Lv.${G.passiveLv + 1}`,
+      desc: CH.passive.desc(G.passiveLv + 1),
+      apply() {
+        G.passiveLv++;
+        CH.passiveApply(G.player, G.passiveLv);
+      },
+    });
+  }
+
+  for (const u of UPGRADES) {
+    if ((G.upCounts[u.id] || 0) >= u.max) continue;
+    pool.push({
+      kind: 'base', w: 1,
+      name: u.name, desc: u.desc,
+      apply() {
+        u.apply(G.player);
+        G.upCounts[u.id] = (G.upCounts[u.id] || 0) + 1;
+      },
+    });
+  }
+
+  return pool;
+}
+
+function pickN(pool, n) {
+  const arr = pool.slice(), out = [];
+  while (out.length < n && arr.length) {
+    let total = 0;
+    for (const x of arr) total += x.w;
+    let r = Math.random() * total, idx = 0;
+    for (let i = 0; i < arr.length; i++) {
+      r -= arr[i].w;
+      if (r <= 0) { idx = i; break; }
+      idx = i;
+    }
+    out.push(arr.splice(idx, 1)[0]);
+  }
+  return out;
+}
+
+function openLevelUp() {
+  G.paused = true;
+  renderCards();
+  $('#levelOv').classList.add('show');
+}
+
+function renderCards() {
+  const picks = pickN(buildPool(), 3);
+  const ov = $('#levelOv');
+
+  if (!picks.length) { G.pending = 0; closeLevelUp(); return; }
+
+  ov.innerHTML = `
+    <h2 class="ovTitle">等 级 提 升</h2>
+    <p class="ovSub">Lv.${G.level} · 选择一项强化</p>
+    <div class="cards">
+      ${picks.map((u, i) => {
+        const desc = typeof u.desc === 'function' ? u.desc() : u.desc;
+        return `
+          <div class="card" data-i="${i}">
+            <span class="kind ${u.kind}">${u.kind === 'skill' ? '主动技能' : u.kind === 'passive' ? '被动强化' : '属性'}</span>
+            <h3>${u.name}</h3>
+            <p>${desc}</p>
+          </div>`;
+      }).join('')}
+    </div>`;
+
+  ov.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('pointerdown', () => {
+      if (performance.now() < cardLock) return;
+      cardLock = performance.now() + 200;
+
+      picks[+el.dataset.i].apply();
+      G.pending--;
+
+      if (G.pending > 0) renderCards();
+      else closeLevelUp();
+    });
+  });
+}
+
+function closeLevelUp() {
+  $('#levelOv').classList.remove('show');
+  G.paused = false;
+}
+
+/* =========================================================
+   宝石 / 粒子 / 文字 / 冲击环
+========================================================= */
+function updateGems(dt) {
+  const p = G.player;
+  for (let i = G.gems.length - 1; i >= 0; i--) {
+    const g = G.gems[i];
+    g.pulse += dt * 6;
+    const dx = p.x - g.x, dy = p.y - g.y;
+    const d = Math.hypot(dx, dy) || 1;
+
+    if (d < p.pickupRange) {
+      const sp = 320 + (p.pickupRange - d) * 7;
+      g.x += dx / d * sp * dt;
+      g.y += dy / d * sp * dt;
+    }
+    if (d < p.r + 16) {
+      G.gems.splice(i, 1);
+      gainXp(g.value);
+      if (G.paused) return;
+    }
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = G.particles.length - 1; i >= 0; i--) {
+    const q = G.particles[i];
+    q.x += q.vx * dt; q.y += q.vy * dt;
+    q.vx *= 0.94; q.vy *= 0.94;
+    q.life -= dt;
+    if (q.life <= 0) G.particles.splice(i, 1);
+  }
+}
+
+function updateTexts(dt) {
+  for (let i = G.texts.length - 1; i >= 0; i--) {
+    const t = G.texts[i];
+    t.y += t.vy * dt; t.vy *= 0.92; t.life -= dt;
+    if (t.life <= 0) G.texts.splice(i, 1);
+  }
+}
+
+function updateRings(dt) {
+  for (let i = G.rings.length - 1; i >= 0; i--) {
+    const r = G.rings[i];
+    r.life -= dt;
+    if (r.life <= 0) G.rings.splice(i, 1);
+  }
+}
+
+/* =========================================================
+   主更新
+========================================================= */
+function update(dt) {
+  G.time += dt;
+  const p = G.player;
+
+  p.x += stickL.x * stickL.power * p.speed * dt;
+  p.y += stickL.y * stickL.power * p.speed * dt;
+  G.cam.x = p.x - W / 2;
+  G.cam.y = p.y - H / 2;
+
+  if (G.timeStop > 0) G.timeStop = Math.max(0, G.timeStop - dt);
+  if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 1.6);
+  if (p.dualT > 0) p.dualT = Math.max(0, p.dualT - dt);
+  for (const k in G.skillCd) {
+    if (G.skillCd[k] > 0) G.skillCd[k] = Math.max(0, G.skillCd[k] - dt);
+  }
+  if (p.regen > 0) p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
+  p.hurtCd = Math.max(0, p.hurtCd - dt);
+  p.hurtFlash = Math.max(0, p.hurtFlash - dt);
+  G.hurtFlash = Math.max(0, G.hurtFlash - dt);
+
+  updateWeapon(dt);
+  updateEnemies(dt);
+  if (!G.running) return;
+  updateBullets(dt);
+  updateEBullets(dt);
+  updateGems(dt);
+  if (G.paused) return;
+  updateParticles(dt);
+  updateTexts(dt);
+  updateRings(dt);
+  spawnLogic(dt);
+
+  updateHud();
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+const hudCache = { hp: -1, xp: -1, lv: -1, t: '', k: -1 };
+const hpBarEl = $('#hpBar>i');
+const xpBarEl = $('#xpBar>i');
+const lvEl = $('#lvTag');
+const timerEl = $('#timer');
+const killsEl = $('#kills');
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60), ss = Math.floor(s % 60);
+  return String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+}
+
+function updateHud() {
+  const p = G.player;
+  const hpPct = clamp(p.hp / p.maxHp, 0, 1) * 100;
+  const xpPct = clamp(G.xp / G.xpNeed, 0, 1) * 100;
+
+  if (Math.abs(hudCache.hp - hpPct) > 0.4) { hpBarEl.style.width = hpPct + '%'; hudCache.hp = hpPct; }
+  if (Math.abs(hudCache.xp - xpPct) > 0.4) { xpBarEl.style.width = xpPct + '%'; hudCache.xp = xpPct; }
+  if (hudCache.lv !== G.level) { lvEl.textContent = 'Lv.' + G.level; hudCache.lv = G.level; }
+
+  const ts = fmtTime(G.time);
+  if (hudCache.t !== ts) { timerEl.textContent = ts; hudCache.t = ts; }
+  if (hudCache.k !== G.kills) { killsEl.textContent = '击杀 ' + G.kills; hudCache.k = G.kills; }
+
+  // 技能按钮 CD（★ 用动态 CD 计算进度）
+  for (const b of skillBtns) {
+    const cd = G.skillCd[b.skill.id] || 0;
+    if (cd > 0) {
+      const total = getSkillCd(b.skill);
+      const pct = clamp(cd / total, 0, 1);
+      b.maskEl.style.background =
+        `conic-gradient(rgba(6,10,20,.82) ${pct * 360}deg, rgba(0,0,0,0) 0deg)`;
+      b.nameEl.style.opacity = 0;
+      b.cdEl.style.opacity = 1;
+      b.cdEl.textContent = cd.toFixed(1);
+    } else {
+      b.maskEl.style.background = 'none';
+      b.nameEl.style.opacity = 1;
+      b.cdEl.style.opacity = 0;
+    }
+  }
+}
+
+/* =========================================================
+   技能按钮
+========================================================= */
+function rebuildSkillButtons() {
+  const wrap = $('#skillBtns');
+  wrap.innerHTML = '';
+  skillBtns = [];
+
+  const list = CH.actives.filter(a => a.button !== false);
+  list.forEach((sk, i) => {
+    const el = document.createElement('div');
+    el.className = 'skillBtn';
+    el.style.bottom = (186 + i * 96) + 'px';
+    el.style.background = `linear-gradient(135deg, ${CH.color}, #4338ca)`;
+    el.innerHTML = `
+      <div class="cdMask"></div>
+      <div class="sName">${sk.short || sk.name}</div>
+      <div class="sCd"></div>`;
+
+    el.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (!G.running || G.paused) return;
+      const cd = G.skillCd[sk.id] || 0;
+      if (cd > 0) return;
+      sk.run(G.player, G.skillLv[sk.id] || 1);
+      G.skillCd[sk.id] = getSkillCd(sk);     // ★ 动态 CD
+    });
+
+    wrap.appendChild(el);
+    skillBtns.push({
+      el, skill: sk,
+      nameEl: el.querySelector('.sName'),
+      cdEl: el.querySelector('.sCd'),
+      maskEl: el.querySelector('.cdMask'),
+    });
+  });
+}
+
+/* =========================================================
+   瞬移：点击范围内任意点
+========================================================= */
+cvs.addEventListener('pointerdown', e => {
+  if (!G.running || G.paused || !G.player) return;
+  const sk = getTapSkill();
+  if (!sk) return;
+  if ((G.skillCd[sk.id] || 0) > 0) return;
+
+  const p = G.player;
+  const sx = W / 2, sy = H / 2;
+  const dx = e.clientX - sx, dy = e.clientY - sy;
+  const dist = Math.hypot(dx, dy);
+  const R = sk.radius(G.skillLv[sk.id] || 1);
+
+  if (dist > R) return;
+
+  sk.run(p, G.skillLv[sk.id] || 1, p.x + dx, p.y + dy);
+  G.skillCd[sk.id] = getSkillCd(sk);       // ★ 动态 CD
 });
 
-(function boot() {
-  resize();
-  spawnAllActors();
-  initWorldWeapons();
-  const R = REGIONS[world.region];
-  camX = camAxis(world.player.x, W, R.bounds.w);
-  camY = camAxis(world.player.y, H, R.bounds.h);
-  document.getElementById('regionLabel').textContent = R.name;
-  updateStatusBar();
-  broadcast('校门被封了。没有人能出去。', 6);
-  setTimeout(() => broadcast('走廊尽头有人喊了一声："都过来！"', 5), 2500);
-  setTimeout(() => broadcast('有人说：昨晚有人……', 5), 5000);
-  requestAnimationFrame(loop);
+/* =========================================================
+   渲染
+========================================================= */
+function drawGrid() {
+  const step = 90;
+  const ox = -(((G.cam.x % step) + step) % step);
+  const oy = -(((G.cam.y % step) + step) % step);
+  ctx.strokeStyle = 'rgba(90,130,220,0.085)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = ox; x <= W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+  for (let y = oy; y <= H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  ctx.stroke();
+}
+
+function drawGems() {
+  for (const g of G.gems) {
+    const s = 5 + Math.sin(g.pulse) * 1.4;
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, s, 0, TAU);
+    ctx.fillStyle = '#35e6ff';
+    ctx.shadowColor = '#35e6ff';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+function drawEnemies() {
+  for (const e of G.enemies) {
+    if (e.slowT > 0) {
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r + 8, 0, TAU);
+      ctx.strokeStyle = 'rgba(94,169,255,.55)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.r + 5, 0, TAU);
+    ctx.fillStyle = e.color + '22';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.r, 0, TAU);
+    ctx.fillStyle = e.hurtT > 0 ? '#fff' : e.color;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = e.hurtT > 0 ? '#fff' : 'rgba(255,255,255,.28)';
+    ctx.stroke();
+
+    if (e.ranged && e.shootCd < 0.45) {
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r + 10, 0, TAU);
+      ctx.strokeStyle = `rgba(255,120,120,${0.6 * (1 - e.shootCd / 0.45)})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    if (e.type === 'boss') {
+      const w = e.r * 2.2, ratio = clamp(e.hp / e.maxHp, 0, 1);
+      ctx.fillStyle = 'rgba(0,0,0,.55)';
+      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w, 6);
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w * ratio, 6);
+    }
+  }
+}
+
+function drawBullets() {
+  for (const b of G.bullets) {
+    ctx.shadowColor = b.dual ? '#ffd166' : '#5ea9ff';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, TAU);
+    ctx.fillStyle = b.dual ? '#ffe9a8' : '#bfe3ff';
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+}
+
+function drawEBullets() {
+  ctx.shadowColor = '#c084fc';
+  ctx.shadowBlur = 12;
+  for (const b of G.ebullets) {
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, TAU);
+    ctx.fillStyle = '#e9b8ff';
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+}
+
+function drawParticles() {
+  for (const q of G.particles) {
+    ctx.globalAlpha = clamp(q.life / q.max, 0, 1);
+    ctx.fillStyle = q.color;
+    ctx.beginPath();
+    ctx.arc(q.x, q.y, q.r, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawRings() {
+  for (const r of G.rings) {
+    const t = 1 - r.life / r.max;
+    const rad = r.r + (r.maxR - r.r) * (1 - Math.pow(1 - t, 2));
+    ctx.globalAlpha = clamp(1 - t, 0, 1);
+    ctx.strokeStyle = r.color;
+    ctx.lineWidth = Math.max(1, r.w * (1 - t * 0.7));
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, rad, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawBlinkRange() {
+  if (!G.running || G.paused || !G.player) return;
+  const sk = getTapSkill();
+  if (!sk) return;
+  if ((G.skillCd[sk.id] || 0) > 0) return;
+
+  const p = G.player;
+  const R = sk.radius(G.skillLv[sk.id] || 1);
+  const t = G.time;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, R, 0, TAU);
+  ctx.fillStyle = `rgba(120,200,255,${0.05 + 0.03 * Math.sin(t * 4)})`;
+  ctx.fill();
+  ctx.strokeStyle = `rgba(150,220,255,${0.45 + 0.25 * Math.sin(t * 4)})`;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([10, 8]);
+  ctx.lineDashOffset = -t * 30;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawPlayer() {
+  const p = G.player;
+
+  const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 54);
+  g.addColorStop(0, 'rgba(90,160,255,.30)');
+  g.addColorStop(1, 'rgba(90,160,255,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 54, 0, TAU);
+  ctx.fill();
+
+  if (p.dualT > 0) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r + 12, 0, TAU);
+    ctx.strokeStyle = 'rgba(255,209,102,.8)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r + 18, 0, TAU);
+    ctx.strokeStyle = 'rgba(255,209,102,.35)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  if (stickR.active) {
+    ctx.strokeStyle = 'rgba(160,210,255,.30)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(p.x + Math.cos(p.aim) * (p.r + 12), p.y + Math.sin(p.aim) * (p.r + 12));
+    ctx.lineTo(p.x + Math.cos(p.aim) * (p.r + 78), p.y + Math.sin(p.aim) * (p.r + 78));
+    ctx.stroke();
+  }
+
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.aim);
+  ctx.fillStyle = p.dualT > 0 ? '#ffd166' : '#8fc2ff';
+  ctx.fillRect(p.r - 3, -4, 19, 8);
+  if (p.dualT > 0) ctx.fillRect(p.r - 3, -11, 19, 6);
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.r, 0, TAU);
+  ctx.fillStyle = p.hurtFlash > 0 ? '#ff8fa3' : (CH ? CH.color : '#5ea9ff');
+  ctx.fill();
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#d6e8ff';
+  ctx.stroke();
+}
+
+function drawTexts() {
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 14px system-ui, sans-serif';
+  for (const t of G.texts) {
+    ctx.globalAlpha = clamp(t.life / 0.75, 0, 1);
+    ctx.fillStyle = t.color;
+    ctx.fillText(t.str, t.x, t.y);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function render() {
+  ctx.fillStyle = '#0b0e16';
+  ctx.fillRect(0, 0, W, H);
+
+  drawGrid();
+
+  ctx.save();
+
+  if (G.shake > 0) {
+    const s = G.shake * 26;
+    ctx.translate(rand(-s, s), rand(-s, s));
+  }
+  ctx.translate(-G.cam.x, -G.cam.y);
+
+  drawGems();
+  drawEnemies();
+  drawBlinkRange();
+  drawEBullets();
+  drawBullets();
+  drawParticles();
+  drawRings();
+  drawPlayer();
+  drawTexts();
+
+  ctx.restore();
+
+  if (G.timeStop > 0) {
+    ctx.fillStyle = `rgba(150,130,255,${0.10 + 0.05 * Math.sin(G.time * 20)})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (G.hurtFlash > 0) {
+    ctx.fillStyle = `rgba(255,40,70,${G.hurtFlash * 0.45})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+/* =========================================================
+   流程
+========================================================= */
+function gameOver() {
+  G.running = false;
+  G.paused = true;
+  $('#overStats').innerHTML =
+    `${CH.name} · 存活 ${fmtTime(G.time)} · 击杀 ${G.kills} · Lv.${G.level}`;
+  $('#overOv').classList.add('show');
+  $('#levelOv').classList.remove('show');
+}
+
+function startGame() {
+  $('#charOv').classList.remove('show');
+  $('#overOv').classList.remove('show');
+  $('#levelOv').classList.remove('show');
+  resetGame();
+  rebuildSkillButtons();
+  hudCache.hp = hudCache.xp = hudCache.lv = -1;
+  hudCache.t = ''; hudCache.k = -1;
+  updateHud();
+}
+
+/* ---------- 角色选择 UI ---------- */
+(function buildCharList() {
+  const list = $('#charList');
+  list.innerHTML = Object.values(CHARS).map(c => {
+    const activeNames = c.actives.map(a => a.name).join(' / ');
+    const passiveName = c.passive ? c.passive.name : '无';
+    return `
+      <div class="charCard" data-id="${c.id}" style="--c:${c.color}">
+        <div class="cName">${c.name}</div>
+        <div class="cTitle">${c.title}</div>
+        <div class="line"><b>主动</b> ${activeNames}</div>
+        <div class="line p"><b>被动</b> ${passiveName}</div>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('.charCard').forEach(el => {
+    el.addEventListener('pointerdown', () => {
+      list.querySelectorAll('.charCard').forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      CH = CHARS[el.dataset.id];
+    });
+  });
+
+  const first = list.querySelector('.charCard');
+  first.dispatchEvent(new PointerEvent('pointerdown'));
 })();
-</script>
 
+$('#startBtn').addEventListener('click', () => { if (CH) startGame(); });
+$('#retryBtn').addEventListener('click', startGame);
+
+/* =========================================================
+   主循环
+========================================================= */
+let lastT = performance.now();
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  let dt = (now - lastT) / 1000;
+  lastT = now;
+
+  if (!G.running || !G.player) return;
+
+  if (dt > 0.1) dt = 0.1;
+  if (!G.paused) update(Math.min(dt, 0.05));
+
+  render();
+}
+
+requestAnimationFrame(loop);
+</script>
 </body>
 </html>
