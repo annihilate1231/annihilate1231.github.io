@@ -137,8 +137,9 @@
   <div class="k">生命</div><div class="v" id="stHp">-</div>
   <div class="k">弹数</div><div class="v" id="stCnt">-</div>
   <div class="k">射程</div><div class="v" id="stRng">-</div>
-  <div class="k">拾取</div><div class="v" id="stPick">-</div>
-  <div class="k">爆炸</div><div class="v" id="stExp">-</div>
+  <div class="k">穿透</div><div class="v" id="stPie">-</div>
+  <div class="k">暴击</div><div class="v" id="stCrit">-</div>
+  <div class="k">暴伤</div><div class="v" id="stCritDmg">-</div>
 </div>
 
 <div id="zoomCtl">
@@ -173,7 +174,8 @@ const $ = s => document.querySelector(s);
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
-/* 颜色提亮/压暗 */
+const MAP_HALF = 1800;
+
 function shade(hex, amt) {
   const c = parseInt(hex.slice(1), 16);
   let r = (c >> 16) & 255, g = (c >> 8) & 255, b = c & 255;
@@ -202,7 +204,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-/* ---------- 视野缩放 ---------- */
 let zoomLevel = 1.0;
 const ZOOM_MIN = 0.6, ZOOM_MAX = 1.8, ZOOM_STEP = 0.2;
 function setZoom(v) {
@@ -214,7 +215,6 @@ setZoom(1.0);
 $('#zOut').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); setZoom(zoomLevel - ZOOM_STEP); });
 $('#zIn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); setZoom(zoomLevel + ZOOM_STEP); });
 
-/* ---------- 双摇杆 ---------- */
 function createStick(el, maxR) {
   const knob = el.querySelector('.knob');
   const out = { x: 0, y: 0, power: 0, active: false };
@@ -253,48 +253,49 @@ function createStick(el, maxR) {
 const stickL = createStick($('#stickL'), 44);
 const stickR = createStick($('#stickR'), 44);
 
-/* ---------- 技能 CD ---------- */
 function getSkillCd(sk, lv) {
   if (lv == null) lv = (G.skillLv[sk.id] || 1);
-  const v = sk.cd * Math.pow(0.93, lv - 1);
+  const v = sk.cd * Math.pow(0.92, lv - 1);
   return Math.round(v * 10) / 10;
 }
 
 /* =========================================================
-   角色表
+   角色表（★ 所有持续技能时长随等级显著增长）
 ========================================================= */
 const CHARS = {
   zhiyuchen: {
     id: 'zhiyuchen', name: '智宇晨', title: '音波使者', color: '#5ea9ff',
     base: { maxHp: 115, speed: 210, dmg: 13, fireRate: 0.36, bulletSpeed: 640, bulletRange: 560, bulletR: 5 },
-    passive: { name: '疾风', max: 5,
+    passive: { name: '疾风', max: 99,
       desc: lv => `射击速度与移动速度 +${25 + (lv - 1) * 7}%`,
       mul: lv => 1 + (25 + (lv - 1) * 7) / 100 },
     passiveApply(p, lv) {
       const o = lv <= 1 ? 1 : this.passive.mul(lv - 1);
       const n = this.passive.mul(lv);
       p.speed = p.speed / o * n;
-      p.fireRate = p.fireRate * o / n;
+      p.fireRate = p.fireRate / n * o;
     },
     actives: [{
-      id: 'echo', name: '音波回响', short: '回响', cd: 18, max: 5, button: true,
+      id: 'gravity', name: '引力场', short: '引力', cd: 20, max: 99, button: true,
+      persistent: true,
+      duration: lv => 4 + (lv - 1) * 0.6,
       desc: lv => {
-        const R = 150 + (lv - 1) * 50;
-        if (!G.player || !CH) return `半径 ${R} · 伤害/脉冲间隔随移速/攻速提升`;
-        const sf = G.player.speed / CH.base.speed;
-        const rf = CH.base.fireRate / G.player.fireRate;
-        const dynDmg = Math.round(25 * sf * rf);
-        const dynInt = (1.0 / Math.max(0.3, sf * rf)).toFixed(2);
-        return `半径 ${R}（升级+50）· 减速 45% · 持续 7s · 当前脉冲 ${dynDmg} 每 ${dynInt}s`;
+        const R = 140 + (lv - 1) * 22;
+        const pull = 180 + (lv - 1) * 45;
+        const dmg = 18 + (lv - 1) * 12;
+        return `半径 ${R}，吸力 ${pull}/s，场内 ${dmg}/0.5s`;
       },
       run(p, lv) {
-        const R = 150 + (lv - 1) * 50;
-        G.sonicFields.push({
-          x: p.x, y: p.y, r: R, life: 7, max: 7,
-          slowMul: 1 - 0.45, pulseCd: 0.35, rippleT: 0, phase: Math.random() * TAU,
+        const R = 140 + (lv - 1) * 22;
+        const dur = 4 + (lv - 1) * 0.6;
+        const pull = 180 + (lv - 1) * 45;
+        const dmg = 18 + (lv - 1) * 12;
+        G.gravityFields.push({
+          x: p.x, y: p.y, r: R, life: dur, max: dur,
+          pull, dmg, tickCd: 0.3, phase: Math.random() * TAU,
         });
-        G.rings.push({ x: p.x, y: p.y, r: 12, maxR: R, life: 0.55, max: 0.55, color: '#5ea9ff', w: 7 });
-        burst(p.x, p.y, '#8fc9ff', 22, 260);
+        burst(p.x, p.y, '#8fc9ff', 24, 260);
+        G.rings.push({ x: p.x, y: p.y, r: 12, maxR: R, life: 0.5, max: 0.5, color: '#5ea9ff', w: 7 });
       }
     }]
   },
@@ -304,22 +305,24 @@ const CHARS = {
     base: { maxHp: 160, speed: 215, dmg: 15, fireRate: 0.38, bulletSpeed: 680, bulletRange: 600, bulletR: 6 },
     passive: null,
     actives: [{
-      id: 'timestop', name: '时间暂停', short: '时停', cd: 28, max: 5, button: true,
+      id: 'timestop', name: '时间暂停', short: '时停', cd: 28, max: 99, button: true,
+      persistent: true,
+      duration: lv => 3 + (lv - 1) * 0.7,
       desc: lv => {
-        const dur = (3 + (lv - 1) * 0.7).toFixed(1);
-        const atkMul = 50 + (lv - 1) * 25;
-        const dmg = 60 + (lv - 1) * 45;
-        return `冻结全场 ${dur}s，期间攻速 +${atkMul}%；结束对全场 ${dmg} 崩解伤害`;
+        const atkMul = 100 + (lv - 1) * 25;
+        const dmg = 80 + (lv - 1) * 40;
+        return `攻速 +${atkMul}%；结束全场 ${dmg} 崩解`;
       },
       run(p, lv) {
         const dur = 3 + (lv - 1) * 0.7;
-        const atkMul = 1 + (50 + (lv - 1) * 25) / 100;
-        const endDmg = 60 + (lv - 1) * 45;
+        const atkMul = 1 + (100 + (lv - 1) * 25) / 100;
+        const endDmg = 80 + (lv - 1) * 40;
         G.timeStop = Math.max(G.timeStop, dur);
         G.timeStopAtkMul = atkMul;
         G.timeStopEndDmg = endDmg;
         G.timeStopTotal = dur;
-        G.rings.push({ x: p.x, y: p.y, r: 20, maxR: Math.max(W, H) / zoomLevel, life: 0.7, max: 0.7, color: '#c4b5fd', w: 10 });
+        G.rings.push({ x: p.x, y: p.y, r: 20, maxR: Math.max(W, H) / zoomLevel,
+                       life: 0.7, max: 0.7, color: '#c4b5fd', w: 10 });
         burst(p.x, p.y, '#c4b5fd', 30, 320);
       }
     }]
@@ -328,22 +331,23 @@ const CHARS = {
   zhangsien: {
     id: 'zhangsien', name: '张思恩', title: '爆裂学者', color: '#fb923c',
     base: { maxHp: 130, speed: 200, dmg: 16, fireRate: 0.42, bulletSpeed: 610, bulletRange: 540, bulletR: 5 },
-    passive: { name: '求知', max: 5,
+    passive: { name: '求知', max: 99,
       desc: lv => `经验获取 +${10 + (lv - 1) * 5}%`,
       mul: lv => 1 + (10 + (lv - 1) * 5) / 100 },
     passiveApply(p, lv) { G.xpMul = this.passive.mul(lv); },
     actives: [{
-      id: 'barrage', name: '爆裂弹幕', short: '弹幕', cd: 30, max: 5, button: true,
+      id: 'barrage', name: '爆裂弹幕', short: '弹幕', cd: 30, max: 99, button: true,
+      charges: 2, chargeWindow: 2.5,
       desc: lv => {
         const n = 5 + (lv - 1) * 2;
-        const R = 95 + (lv - 1) * 18;
-        const dmg = 55 + (lv - 1) * 32;
-        return `扇形发射 ${n} 颗爆炸弹，每颗半径 ${R}，伤害 ${dmg}`;
+        const R = 95 + (lv - 1) * 14;
+        const dmg = 55 + (lv - 1) * 25;
+        return `扇形 ${n} 颗爆炸弹（半径 ${R}，伤害 ${dmg}）· 2 次充能`;
       },
       run(p, lv) {
         const n = 5 + (lv - 1) * 2;
-        const R = 95 + (lv - 1) * 18;
-        const dmg = 55 + (lv - 1) * 32;
+        const R = 95 + (lv - 1) * 14;
+        const dmg = 55 + (lv - 1) * 25;
         const baseAng = p.aim;
         const spread = Math.PI * 0.65;
         const step = n > 1 ? spread / (n - 1) : 0;
@@ -355,7 +359,8 @@ const CHARS = {
             y: p.y + Math.sin(a) * (p.r + 8),
             vx: Math.cos(a) * 380, vy: Math.sin(a) * 380,
             r: 9, dmg: 0, traveled: 0, maxDist: dist, life: 2,
-            explodeOnEnd: true, explodeR: R, explodeDmg: dmg, special: 'blast',
+            explodeOnEnd: true, explodeR: R, explodeDmg: dmg,
+            pierce: 0, hitSet: new Set(),
           });
         }
         G.rings.push({ x: p.x, y: p.y, r: 10, maxR: 70, life: 0.32, max: 0.32, color: '#fb923c', w: 5 });
@@ -368,7 +373,7 @@ const CHARS = {
   lujiancheng: {
     id: 'lujiancheng', name: '陆建成', title: '铁壁守卫', color: '#34d399',
     base: { maxHp: 125, speed: 185, dmg: 15, fireRate: 0.44, bulletSpeed: 590, bulletRange: 520, bulletR: 6 },
-    passive: { name: '坚韧', max: 5,
+    passive: { name: '坚韧', max: 99,
       desc: lv => `生命上限 +${35 + (lv - 1) * 12}%`,
       mul: lv => 1 + (35 + (lv - 1) * 12) / 100 },
     passiveApply(p, lv) {
@@ -379,14 +384,35 @@ const CHARS = {
       p.hp = Math.min(p.maxHp, p.hp + (p.maxHp - oldMax));
     },
     actives: [{
-      id: 'heal', name: '生命祝福', short: '回血', cd: 15, max: 5, button: true,
-      desc: lv => `立即回复 ${40 + (lv - 1) * 20} 生命`,
+      id: 'sanctuary', name: '守护圣域', short: '圣域', cd: 15, max: 99, button: true,
+      duration: lv => 4 + (lv - 1) * 0.5,   // 护盾持续时间随等级
+      desc: lv => {
+        const heal = 40 + (lv - 1) * 18;
+        const shield = 30 + (lv - 1) * 15;
+        const dmg = 40 + (lv - 1) * 20;
+        const R = 150 + (lv - 1) * 15;
+        return `回复 ${heal} 生命 + ${shield} 护盾；半径 ${R} 敌人受 ${dmg} 伤害`;
+      },
       run(p, lv) {
-        const heal = 40 + (lv - 1) * 20;
+        const heal = 40 + (lv - 1) * 18;
+        const shield = 30 + (lv - 1) * 15;
+        const dmg = 40 + (lv - 1) * 20;
+        const R = 150 + (lv - 1) * 15;
+        const shieldDur = 4 + (lv - 1) * 0.5;
         p.hp = Math.min(p.maxHp, p.hp + heal);
+        p.shieldAmt = Math.max(p.shieldAmt, shield);
+        p.shieldT = shieldDur;
         addText(p.x, p.y - 30, '+' + heal, '#4ade80');
-        burst(p.x, p.y, '#4ade80', 22, 200);
-        G.rings.push({ x: p.x, y: p.y, r: 14, maxR: 110, life: 0.5, max: 0.5, color: '#34d399', w: 5 });
+        for (const e of G.enemies) {
+          if (e.dead) continue;
+          if (Math.hypot(e.x - p.x, e.y - p.y) < R + e.r) {
+            e.hp -= dmg; e.hurtT = 0.15;
+            addText(e.x, e.y - e.r - 4, Math.round(dmg), '#34d399');
+            if (e.hp <= 0) killEnemy(e, true);
+          }
+        }
+        G.rings.push({ x: p.x, y: p.y, r: 14, maxR: R, life: 0.55, max: 0.55, color: '#34d399', w: 8 });
+        burst(p.x, p.y, '#34d399', 26, 260);
       }
     }]
   },
@@ -398,12 +424,32 @@ const CHARS = {
     passive: { name: '脆弱', max: 1, desc: () => '受到的伤害 +8%' },
     passiveApply() {},
     actives: [{
-      id: 'dual', name: '双持', short: '双持', cd: 14, max: 5, button: true,
-      desc: lv => `持续 ${(4 + (lv - 1) * 0.5).toFixed(1)}s：子弹数×2、体积×2、伤害×1.5`,
+      id: 'dual', name: '双持炮台', short: '炮台', cd: 16, max: 99, button: true,
+      persistent: true,
+      duration: lv => 4 + (lv - 1) * 0.5,
+      desc: lv => {
+        const turDur = 10 + 2 * lv;
+        return `双持期间子弹×2、伤害×1.5；原地放炮台 ${turDur}s（继承属性）`;
+      },
       run(p, lv) {
-        p.dualT = 4 + (lv - 1) * 0.5;
+        const dualDur = 4 + (lv - 1) * 0.5;
+        p.dualT = dualDur;
+        G.turrets.push({
+          x: p.x, y: p.y,
+          life: 10 + 2 * lv, maxLife: 10 + 2 * lv,
+          fireCd: 0, aim: -Math.PI / 2,
+          stats: {
+            dmg: p.dmg, fireRate: p.fireRate,
+            bulletSpeed: p.bulletSpeed, bulletRange: p.bulletRange,
+            bulletR: p.bulletR, bulletCount: p.bulletCount,
+            explodeR: p.explodeRadius, explodeMul: p.explodeDmgMul,
+            pierce: p.pierce, critChance: p.critChance, critMul: p.critMul,
+            chain: p.chain, chainDmg: p.chainDmg,
+            slowOnHit: p.slowOnHit,
+          },
+        });
         burst(p.x, p.y, '#ffd166', 18, 240);
-        G.rings.push({ x: p.x, y: p.y, r: 10, maxR: 80, life: 0.4, max: 0.4, color: '#ffd166', w: 5 });
+        G.rings.push({ x: p.x, y: p.y, r: 10, maxR: 90, life: 0.4, max: 0.4, color: '#ffd166', w: 5 });
       }
     }]
   },
@@ -415,16 +461,18 @@ const CHARS = {
     passive: { name: '坚韧意志', max: 1, desc: () => '受到的伤害 -16%' },
     passiveApply() {},
     actives: [{
-      id: 'dash', name: '疾影杀阵', short: '疾影', cd: 22, max: 5, button: true,
+      id: 'dash', name: '疾影杀阵', short: '疾影', cd: 24, max: 99, button: true,
+      persistent: true,
+      duration: lv => 2 + (lv - 1) * 0.5,
       desc: lv => {
-        const dur = (2.5 + (lv - 1) * 0.5).toFixed(1);
-        const dmg = 30 + (lv - 1) * 18;
-        return `无敌 ${dur}s，移速+70%；移动轨迹灼烧敌人（${dmg}/次，光环半伤）`;
+        const dmg = 18 + (lv - 1) * 8;
+        return `无敌期间移速 +50%；轨迹灼烧敌人（${dmg}/次/0.6s）`;
       },
       run(p, lv) {
-        p.dashT = 2.5 + (lv - 1) * 0.5;
-        p.dashDmg = 30 + (lv - 1) * 18;
-        p.dashSpeedMul = 1.7;
+        const dur = 2 + (lv - 1) * 0.5;
+        p.dashT = dur;
+        p.dashDmg = 18 + (lv - 1) * 8;
+        p.dashSpeedMul = 1.5;
         p.dashTrailCd = 0;
         p.dashAuraCd = 0;
         G.dashTrails = [];
@@ -435,42 +483,106 @@ const CHARS = {
   }
 };
 
-/* ---------- 属性升级池 ---------- */
+/* =========================================================
+   属性升级池
+========================================================= */
 const UPGRADES = [
-  { id:'dmg',    name:'强化弹头', desc:'子弹伤害 +20%',           max:99, apply(p){ p.dmg *= 1.20; } },
-  { id:'rate',   name:'高速扳机', desc:'射击间隔 -12%',           max:99, apply(p){ p.fireRate = Math.max(0.08, p.fireRate * 0.88); } },
-  { id:'speed',  name:'疾行战靴', desc:'移动速度 +10%',           max:99, apply(p){ p.speed *= 1.10; } },
-  { id:'hp',     name:'强化躯壳', desc:'生命上限 +35 并回复 35',  max:99, apply(p){ p.maxHp += 35; p.hp += 35; } },
-  { id:'bsize',  name:'巨型弹药', desc:'子弹体积 +18%',           max:6,  apply(p){ p.bulletR = Math.min(18, p.bulletR * 1.18); } },
-  { id:'bspd',   name:'加速弹道', desc:'子弹速度 +15%',           max:99, apply(p){ p.bulletSpeed *= 1.15; } },
-  { id:'brng',   name:'远程校准', desc:'子弹射程 +15%',           max:8,  apply(p){ p.bulletRange *= 1.15; } },
-  { id:'multi',  name:'多重射击', desc:'子弹数量 +1',             max:4,  apply(p){ p.bulletCount = Math.min(5, p.bulletCount + 1); } },
-  { id:'magnet', name:'磁力护符', desc:'拾取范围 +60',            max:99, apply(p){ p.pickupRange += 60; } },
-  { id:'regen',  name:'细胞再生', desc:'每秒回复 +1.2',           max:99, apply(p){ p.regen += 1.2; } },
-  { id:'explode', name:'爆裂子弹', max:5,
+  { id:'dmg', name:'重弹头', desc:'子弹伤害 +30%，体积 +20%',
+    max:99, apply(p){ p.dmg *= 1.30; p.bulletR = Math.min(28, p.bulletR * 1.20); } },
+  { id:'rate', name:'疾速扳机', desc:'攻速 +18%',
+    max:99, apply(p){ p.fireRate = Math.max(0.07, p.fireRate / 1.18); } },
+  { id:'speed', name:'疾行战靴', desc:'移动速度 +15%',
+    max:99, apply(p){ p.speed *= 1.15; } },
+  { id:'hp', name:'强化躯壳', desc:'生命上限 +50 并回复 50',
+    max:99, apply(p){ p.maxHp += 50; p.hp += 50; } },
+  { id:'traj', name:'弹道强化', desc:'子弹速度 +22%，射程 +22%',
+    max:99, apply(p){ p.bulletSpeed *= 1.22; p.bulletRange *= 1.22; } },
+  { id:'multi', name:'多重射击', desc:'子弹数量 +1',
+    max:4, apply(p){ p.bulletCount = Math.min(5, p.bulletCount + 1); } },
+  { id:'magnet', name:'磁力护符', desc:'拾取范围 +80',
+    max:99, apply(p){ p.pickupRange += 80; } },
+  { id:'regen', name:'细胞再生', desc:'每秒回复 +1.5 生命',
+    max:99, apply(p){ p.regen += 1.5; } },
+  { id:'pierce', name:'穿透弹头', max:1,
+    desc:'子弹穿透射程内的所有目标',
+    apply(p){ p.pierce = Infinity; } },
+  { id:'explode', name:'爆裂子弹', max:7,
     desc() {
-      const nl = (G.player ? G.player.explodeLv : 0) + 1;
-      return `子弹命中产生半径 ${40 + nl * 15} 爆炸，额外 ${Math.round((0.35 + nl * 0.10) * 100)}% 子弹伤害`;
+      const lv = G.player ? (G.upCounts.explode || 0) : 0;
+      const next = Math.min(75, Math.round((lv + 1) * 75 / 7));
+      const nextR = 45 + (lv + 1) * 12;
+      return `命中产生爆炸（半径 ${nextR}）· 累计 ${next}% 子弹伤害（上限 75%）`;
     },
     apply(p) {
       p.explodeLv++;
-      p.explodeRadius = 40 + p.explodeLv * 15;
-      p.explodeDmgMul = 0.35 + p.explodeLv * 0.10;
+      p.explodeRadius = 45 + p.explodeLv * 12;
+      p.explodeDmgMul = Math.min(0.75, p.explodeLv * 0.75 / 7);
     }
+  },
+  { id:'crit', name:'暴击核心', desc:'暴击率 +8%',
+    max:12, apply(p){ p.critChance = Math.min(0.96, p.critChance + 0.08); } },
+  { id:'critDmg', name:'致死打击', desc:'暴击伤害 +20%',
+    max:15, apply(p){ p.critMul += 0.20; } },
+  { id:'lifesteal', name:'嗜血', max:1,
+    desc:'击杀敌人恢复 0.8% 最大生命',
+    apply(p){ p.lifestealPct = 0.008; } },
+  { id:'chain', name:'雷罚', max:1,
+    desc:'命中必然弹射到 220 范围内最近的敌人（伤害 80%）',
+    apply(p){ p.chain = 1.0; p.chainDmg = 0.8; } },
+  { id:'slow', name:'寒霜附魔', max:6,
+    desc() {
+      const lv = G.player ? (G.upCounts.slow || 0) : 0;
+      const next = Math.min(60, (lv + 1) * 10);
+      return `命中减速 ${next}%，持续 2s`;
+    },
+    apply(p){ p.slowOnHit = Math.min(0.6, p.slowOnHit + 0.10); }
+  },
+  { id:'thorns', name:'荆棘之心', max:1,
+    desc:'受击对周围 140 半径敌人造成 100 伤害',
+    apply(p){ p.thorns = 100; } },
+  { id:'armorPierce', name:'破甲弹', max:5,
+    desc() {
+      const lv = G.player ? (G.upCounts.armorPierce || 0) : 0;
+      const next = Math.min(10, (lv + 1) * 2);
+      return `命中额外造成目标当前生命 ${next}% 伤害（单次上限 200）`;
+    },
+    apply(p){ p.armorPierce = Math.min(0.10, p.armorPierce + 0.02); }
+  },
+  { id:'hunter', name:'猎手印记', max:1,
+    desc:'对生命低于 30% 的敌人伤害 +50%',
+    apply(p){ p.hunterMark = true; }
+  },
+  { id:'deathBlast', name:'死亡爆裂', max:1,
+    desc:'击杀敌人时产生半径 80 爆炸，造成该敌人最大生命 25% 的伤害',
+    apply(p){ p.deathBlast = true; }
+  },
+  { id:'berserk', name:'狂暴', max:1,
+    desc:'生命低于 35% 时，伤害 +50%',
+    apply(p){ p.berserk = true; }
+  },
+  { id:'phase', name:'相位闪避', max:1,
+    desc:'受击后 1.2s 内移速 +60%，受伤无敌延长 0.25s',
+    apply(p){ p.phase = true; }
+  },
+  { id:'magnetBlast', name:'磁暴', max:3,
+    desc() {
+      const lv = G.player ? (G.upCounts.magnetBlast || 0) : 0;
+      const next = (lv + 1) * 30;
+      return `拾取经验球时对周围 130 半径造成 ${next} 伤害`;
+    },
+    apply(p){ p.magnetBlast += 30; }
   },
 ];
 
-/* ---------- 敌人 ---------- */
 const TYPES = {
   grunt:   { r:13, hp:20,  speed:78,  dmg:6,  xp:1,  color:'#ff6b81' },
   fast:    { r:10, hp:14,  speed:155, dmg:5,  xp:1,  color:'#5ee1ff' },
   tank:    { r:24, hp:98,  speed:50,  dmg:12, xp:4,  color:'#ffa94d' },
   shooter: { r:15, hp:44,  speed:65,  dmg:7,  xp:3,  color:'#a78bfa',
              ranged:true, keepDist:285, shootRange:400, shootInterval:2.8 },
-  boss:    { r:40, hp:380, speed:60,  dmg:20, xp:32, color:'#c084fc' },
+  boss:    { r:40, hp:400, speed:60,  dmg:20, xp:32, color:'#c084fc' },
 };
 
-/* ---------- 全局 ---------- */
 const G = { player: null, running: false, paused: false };
 let CH = null, uid = 1;
 let skillBtns = [];
@@ -481,14 +593,23 @@ function resetGame() {
   G.timeStopAtkMul = 1; G.timeStopEndDmg = 0; G.timeStopTotal = 0;
   G.enemies = []; G.bullets = []; G.ebullets = []; G.gems = [];
   G.particles = []; G.texts = []; G.rings = [];
-  G.sonicFields = []; G.dashTrails = [];
-  G.spawnTimer = 0; G.bossTimer = 75;
+  G.gravityFields = []; G.turrets = []; G.dashTrails = []; G.walls = [];
+  G.spawnTimer = 0; G.bossTimer = 55;
   G.level = 1; G.xp = 0; G.xpNeed = 9; G.kills = 0; G.pending = 0;
   G.upCounts = {}; G.passiveLv = 1; G.xpMul = 1; G.hurtFlash = 0;
 
   G.skillLv = {};
   G.skillCd = {};
-  for (const sk of CH.actives) { G.skillLv[sk.id] = 1; G.skillCd[sk.id] = 0; }
+  G.skillActive = {};
+  G.skillCharges = {};
+  G.skillWindow = {};
+  for (const sk of CH.actives) {
+    G.skillLv[sk.id] = 1;
+    G.skillCd[sk.id] = 0;
+    G.skillActive[sk.id] = 0;
+    G.skillCharges[sk.id] = sk.charges || 1;
+    G.skillWindow[sk.id] = 0;
+  }
 
   const b = CH.base;
   const p = G.player = {
@@ -500,18 +621,22 @@ function resetGame() {
     aim: -Math.PI / 2,
     fireCd: 0, hurtCd: 0, hurtFlash: 0,
     explodeLv: 0, explodeRadius: 0, explodeDmgMul: 0,
+    pierce: 0,
+    critChance: 0, critMul: 1.5,
+    lifestealPct: 0, chain: 0, chainDmg: 0.6,
+    slowOnHit: 0, thorns: 0,
+    armorPierce: 0, hunterMark: false, deathBlast: false,
+    berserk: false, phase: false, phaseT: 0,
+    magnetBlast: 0,
     dualT: 0,
+    shieldT: 0, shieldAmt: 0,
     moveMag: 0, moveDir: 0,
     trail: [], trailTimer: 0,
     dashT: 0, dashDmg: 0, dashSpeedMul: 1, dashTrailCd: 0, dashAuraCd: 0,
     invincible: false,
     vis: {
-      squash: 0, squashV: 0,
-      squashAngle: -Math.PI / 2,
-      angle: -Math.PI / 2,
-      recoil: 0,
-      bob: Math.random() * TAU,
-      wiggleV: 0,
+      squash: 0, squashV: 0, squashAngle: -Math.PI / 2,
+      angle: -Math.PI / 2, recoil: 0, bob: Math.random() * TAU,
     },
   };
 
@@ -519,7 +644,6 @@ function resetGame() {
   p.hp = p.maxHp;
 }
 
-/* ---------- 特效 ---------- */
 function addText(x, y, str, color) {
   G.texts.push({ x, y, str, color, life: 0.75, vy: -52 });
 }
@@ -532,39 +656,40 @@ function burst(x, y, color, n, spd = 170) {
     });
   }
 }
-function doBlast(x, y, R, dmg) {
+
+function doBlast(x, y, R, dmg, sourcePlayer) {
+  if (!isFinite(dmg) || dmg <= 0) return;
   for (const e of G.enemies) {
     if (e.dead) continue;
     const dx = e.x - x, dy = e.y - y;
     if (dx * dx + dy * dy < (R + e.r) * (R + e.r)) {
       e.hp -= dmg; e.hurtT = 0.15;
       addText(e.x, e.y - e.r - 4, Math.round(dmg), '#ffb26b');
-      if (e.hp <= 0) killEnemy(e);
+      if (e.hp <= 0) killEnemy(e, sourcePlayer);
     }
   }
   G.rings.push({ x, y, r: 8, maxR: R, life: 0.38, max: 0.38, color: '#fb923c', w: 8 });
   burst(x, y, '#ffb26b', 14, 280);
 }
 
-/* ---------- 生成 ---------- */
 function pickType() {
   const t = G.time, r = Math.random();
-  if (t < 15) return 'grunt';
-  if (t < 30) return r < 0.22 ? 'fast' : 'grunt';
-  if (t < 45) {
-    if (r < 0.22) return 'fast';
-    if (r < 0.42) return 'tank';
+  if (t < 12) return 'grunt';
+  if (t < 25) return r < 0.25 ? 'fast' : 'grunt';
+  if (t < 40) {
+    if (r < 0.25) return 'fast';
+    if (r < 0.48) return 'tank';
     return 'grunt';
   }
-  if (t < 70) {
+  if (t < 60) {
     if (r < 0.25) return 'fast';
-    if (r < 0.29) return 'shooter';
-    if (r < 0.52) return 'tank';
+    if (r < 0.32) return 'shooter';
+    if (r < 0.55) return 'tank';
     return 'grunt';
   }
   if (r < 0.28) return 'fast';
-  if (r < 0.35) return 'shooter';
-  if (r < 0.55) return 'tank';
+  if (r < 0.40) return 'shooter';
+  if (r < 0.60) return 'tank';
   return 'grunt';
 }
 
@@ -572,12 +697,15 @@ function spawnEnemy(type) {
   const t = TYPES[type], p = G.player;
   const ang = Math.random() * TAU;
   const rad = Math.hypot(W, H) / 2 / zoomLevel + 110;
-  const hpScale = 1 + G.time * 0.032;
-  const dmgScale = 1 + G.time * 0.012;
+  const hpScale = 1 + G.time * 0.038;
+  const dmgScale = 1 + G.time * 0.016;
+  let sx = p.x + Math.cos(ang) * rad;
+  let sy = p.y + Math.sin(ang) * rad;
+  sx = clamp(sx, -MAP_HALF + t.r, MAP_HALF - t.r);
+  sy = clamp(sy, -MAP_HALF + t.r, MAP_HALF - t.r);
   G.enemies.push({
     id: uid++, type,
-    x: p.x + Math.cos(ang) * rad,
-    y: p.y + Math.sin(ang) * rad,
+    x: sx, y: sy,
     r: t.r, hp: t.hp * hpScale, maxHp: t.hp * hpScale,
     speed: t.speed * (1 + G.time * 0.002),
     dmg: t.dmg * dmgScale, xp: t.xp, color: t.color,
@@ -587,6 +715,10 @@ function spawnEnemy(type) {
     shootInterval: t.shootInterval || 2,
     shootCd: rand(0.6, t.shootInterval || 2),
     bossChar: type === 'boss' ? (Math.random() < 0.5 ? '汐' : '顾') : null,
+    skillTimer: type === 'boss' ? 3.5 : 0,
+    chargeT: 0, chargeDir: null,
+    telegraphT: 0, telegraphType: null,
+    spiralT: 0, spiralAng: 0, spiralTick: 0,
   });
 }
 
@@ -594,52 +726,230 @@ function spawnLogic(dt) {
   if (G.timeStop > 0) return;
   G.spawnTimer -= dt;
   if (G.spawnTimer <= 0) {
-    G.spawnTimer = Math.max(0.65, 2.4 * Math.pow(0.991, G.time));
-    const n = 1 + Math.floor(G.time / 110);
-    for (let i = 0; i < n; i++) spawnEnemy(pickType());
+    const interval = Math.max(0.7, 1.3 - G.time * 0.003);
+    G.spawnTimer = interval;
+    const n = Math.min(3, 1 + Math.floor(G.time / 80));
+    const maxEnemies = 50 + Math.floor(G.time * 0.18);
+    if (G.enemies.length < maxEnemies) {
+      for (let i = 0; i < n; i++) {
+        if (G.enemies.length >= maxEnemies) break;
+        spawnEnemy(pickType());
+      }
+    }
   }
   G.bossTimer -= dt;
-  if (G.bossTimer <= 0) { G.bossTimer = 85; spawnEnemy('boss'); }
+  if (G.bossTimer <= 0) { G.bossTimer = 65; spawnEnemy('boss'); }
 }
 
-/* ---------- 战斗 ---------- */
+function castBossSkill(e) {
+  const p = G.player;
+  const r = Math.random();
+  if (r < 0.15) {
+    const n = 16;
+    const baseAng = Math.random() * TAU;
+    for (let i = 0; i < n; i++) {
+      const a = baseAng + (i / n) * TAU;
+      G.ebullets.push({
+        x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r,
+        vx: Math.cos(a) * 200, vy: Math.sin(a) * 200,
+        r: 7, dmg: e.dmg * 0.7, life: 5,
+      });
+    }
+    addText(e.x, e.y - e.r - 10, '环形弹幕', '#e9b8ff');
+    G.rings.push({ x: e.x, y: e.y, r: 30, maxR: 200, life: 0.5, max: 0.5, color: '#c084fc', w: 6 });
+  } else if (r < 0.30) {
+    const baseAng = Math.atan2(p.y - e.y, p.x - e.x);
+    const dirs = [baseAng, baseAng + Math.PI / 2, baseAng + Math.PI, baseAng + Math.PI * 1.5];
+    for (const dir of dirs) {
+      for (let k = -1; k <= 1; k++) {
+        const a = dir + k * 0.1;
+        G.ebullets.push({
+          x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r,
+          vx: Math.cos(a) * 240, vy: Math.sin(a) * 240,
+          r: 8, dmg: e.dmg * 0.6, life: 5,
+        });
+      }
+    }
+    addText(e.x, e.y - e.r - 10, '十字弹幕', '#e9b8ff');
+  } else if (r < 0.45) {
+    e.spiralT = 3;
+    e.spiralAng = 0;
+    e.spiralTick = 0;
+    addText(e.x, e.y - e.r - 10, '螺旋弹幕', '#e9b8ff');
+  } else if (r < 0.60) {
+    for (let i = 0; i < 3; i++) {
+      const a = Math.atan2(p.y - e.y, p.x - e.x) + (i - 1) * 0.4;
+      const speed = 200;
+      G.ebullets.push({
+        x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r,
+        vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+        r: 9, dmg: e.dmg * 1.0, life: 6,
+        homing: true, homingSpeed: speed,
+      });
+    }
+    addText(e.x, e.y - e.r - 10, '追踪弹', '#e9b8ff');
+  } else if (r < 0.75) {
+    const angle = Math.random() * TAU;
+    const dist = 200;
+    const wallX = clamp(p.x + Math.cos(angle) * dist, -MAP_HALF + 100, MAP_HALF - 100);
+    const wallY = clamp(p.y + Math.sin(angle) * dist, -MAP_HALF + 100, MAP_HALF - 100);
+    const horizontal = Math.random() < 0.5;
+    G.walls.push({
+      x: wallX, y: wallY,
+      w: horizontal ? 260 : 60,
+      h: horizontal ? 60 : 260,
+      life: 5, maxLife: 5,
+    });
+    addText(e.x, e.y - e.r - 10, '幻影墙', '#e9b8ff');
+  } else {
+    e.telegraphType = 'charge';
+    e.telegraphT = 0.8;
+    e.chargeDir = Math.atan2(p.y - e.y, p.x - e.x);
+  }
+}
+
+function updateBossSkills(dt) {
+  if (G.timeStop > 0) return;
+  const p = G.player;
+  for (const e of G.enemies) {
+    if (e.type !== 'boss' || e.dead) continue;
+    if (e.spiralT > 0) {
+      e.spiralT -= dt;
+      e.spiralTick -= dt;
+      if (e.spiralTick <= 0) {
+        e.spiralTick = 0.12;
+        const arms = 3;
+        for (let i = 0; i < arms; i++) {
+          const a = e.spiralAng + (i / arms) * TAU;
+          G.ebullets.push({
+            x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r,
+            vx: Math.cos(a) * 180, vy: Math.sin(a) * 180,
+            r: 6, dmg: e.dmg * 0.5, life: 4,
+          });
+        }
+        e.spiralAng += 0.45;
+      }
+    }
+    if (e.telegraphT > 0) {
+      e.telegraphT -= dt;
+      if (e.telegraphT <= 0) {
+        if (e.telegraphType === 'charge') e.chargeT = 0.5;
+        else if (e.telegraphType === 'shockwave') {
+          const R = 220;
+          const dx = p.x - e.x, dy = p.y - e.y;
+          if (Math.hypot(dx, dy) < R + p.r) hurtPlayer(e.dmg * 1.5);
+          G.rings.push({ x: e.x, y: e.y, r: 20, maxR: R, life: 0.6, max: 0.6, color: '#c084fc', w: 10 });
+        }
+        e.telegraphType = null;
+      }
+      continue;
+    }
+    if (e.chargeT > 0) {
+      e.chargeT -= dt;
+      const spd = 700;
+      e.x += Math.cos(e.chargeDir) * spd * dt;
+      e.y += Math.sin(e.chargeDir) * spd * dt;
+      e.x = clamp(e.x, -MAP_HALF + e.r, MAP_HALF - e.r);
+      e.y = clamp(e.y, -MAP_HALF + e.r, MAP_HALF - e.r);
+      const dx = p.x - e.x, dy = p.y - e.y;
+      if (dx * dx + dy * dy < (e.r + p.r) * (e.r + p.r)) {
+        hurtPlayer(e.dmg * 1.3);
+        e.chargeT = 0;
+      }
+      continue;
+    }
+    e.skillTimer -= dt;
+    if (e.skillTimer <= 0) {
+      e.skillTimer = 3.5 + Math.random() * 2;
+      castBossSkill(e);
+    }
+  }
+}
+
+function collidesWithWall(nx, ny, r) {
+  for (const w of G.walls) {
+    if (nx + r > w.x - w.w / 2 && nx - r < w.x + w.w / 2 &&
+        ny + r > w.y - w.h / 2 && ny - r < w.y + w.h / 2) return true;
+  }
+  return false;
+}
+function updateWalls(dt) {
+  for (let i = G.walls.length - 1; i >= 0; i--) {
+    G.walls[i].life -= dt;
+    if (G.walls[i].life <= 0) G.walls.splice(i, 1);
+  }
+}
+
 function updateWeapon(dt) {
   const p = G.player;
   p.fireCd -= dt;
-
   if (!stickR.active) {
     if (p.fireCd < 0) p.fireCd = 0;
     return;
   }
   p.aim = Math.atan2(stickR.y, stickR.x);
   if (p.fireCd > 0) return;
-
   const atkMul = (G.timeStop > 0 && G.timeStopAtkMul > 1) ? G.timeStopAtkMul : 1;
   p.fireCd = p.fireRate / atkMul;
-
-  // 后坐力
   p.vis.recoil = Math.min(1.3, p.vis.recoil + 0.95);
 
   const dual = p.dualT > 0;
   const count = dual ? p.bulletCount * 2 : p.bulletCount;
   const bR = dual ? p.bulletR * 2 : p.bulletR;
-  const bDmg = dual ? p.dmg * 1.5 : p.dmg;
+  let bDmg = dual ? p.dmg * 1.5 : p.dmg;
+  if (p.berserk && p.hp / p.maxHp < 0.35) bDmg *= 1.5;
   const spread = dual ? 0.10 : 0.14;
+  const explodeDmgValue = p.explodeRadius > 0 ? bDmg * p.explodeDmgMul : 0;
 
   for (let i = 0; i < count; i++) {
     const a = p.aim + (i - (count - 1) / 2) * spread;
+    const isCrit = Math.random() < p.critChance;
+    const finalDmg = bDmg * (isCrit ? p.critMul : 1);
     G.bullets.push({
       x: p.x + Math.cos(a) * (p.r + 6),
       y: p.y + Math.sin(a) * (p.r + 6),
       vx: Math.cos(a) * p.bulletSpeed,
       vy: Math.sin(a) * p.bulletSpeed,
-      r: bR, dmg: bDmg,
-      traveled: 0, maxDist: p.bulletRange, life: 3, dual,
+      r: bR, dmg: finalDmg,
+      isCrit,
+      pierce: p.pierce,
+      chain: p.chain, chainDmg: p.chainDmg,
+      slowOnHit: p.slowOnHit,
+      explodeR: p.explodeRadius,
+      explodeDmg: explodeDmgValue,
+      hitSet: new Set(),
+      traveled: 0, maxDist: p.bulletRange, life: 3,
     });
   }
 }
 
-function killEnemy(e) {
+function fireBullet(x, y, angle, stats, isTurret) {
+  const count = stats.bulletCount;
+  const spread = 0.14;
+  const explodeDmgValue = stats.explodeR > 0 ? stats.dmg * stats.explodeMul : 0;
+  for (let i = 0; i < count; i++) {
+    const a = angle + (i - (count - 1) / 2) * spread;
+    const isCrit = Math.random() < stats.critChance;
+    const finalDmg = stats.dmg * (isCrit ? stats.critMul : 1);
+    G.bullets.push({
+      x: x + Math.cos(a) * 22, y: y + Math.sin(a) * 22,
+      vx: Math.cos(a) * stats.bulletSpeed,
+      vy: Math.sin(a) * stats.bulletSpeed,
+      r: stats.bulletR, dmg: finalDmg,
+      isCrit,
+      pierce: stats.pierce,
+      chain: stats.chain || 0, chainDmg: stats.chainDmg || 0.6,
+      slowOnHit: stats.slowOnHit || 0,
+      explodeR: stats.explodeR || 0,
+      explodeDmg: explodeDmgValue,
+      hitSet: new Set(),
+      traveled: 0, maxDist: stats.bulletRange, life: 3,
+      isTurret: !!isTurret,
+    });
+  }
+}
+
+function killEnemy(e, sourcePlayer, isChain) {
   if (e.dead) return;
   e.dead = true;
   G.kills++;
@@ -650,6 +960,27 @@ function killEnemy(e) {
   for (let i = 0; i < gemCount; i++) {
     const a = Math.random() * TAU, d = gemCount > 1 ? Math.random() * 48 : rand(0, 6);
     G.gems.push({ x: e.x + Math.cos(a) * d, y: e.y + Math.sin(a) * d, value: per, pulse: Math.random() * 6 });
+  }
+
+  if (sourcePlayer && G.player.lifestealPct > 0) {
+    const heal = G.player.maxHp * G.player.lifestealPct;
+    G.player.hp = Math.min(G.player.maxHp, G.player.hp + heal);
+    addText(G.player.x, G.player.y - 42, '+' + Math.round(heal), '#4ade80');
+  }
+
+  if (!isChain && G.player.deathBlast) {
+    const R = 80;
+    const dmg = e.maxHp * 0.25;
+    for (const e2 of G.enemies) {
+      if (e2.dead) continue;
+      if (Math.hypot(e2.x - e.x, e2.y - e.y) < R + e2.r) {
+        e2.hp -= dmg;
+        e2.hurtT = 0.15;
+        if (e2.hp <= 0) killEnemy(e2, sourcePlayer, true);
+      }
+    }
+    G.rings.push({ x: e.x, y: e.y, r: 10, maxR: R, life: 0.4, max: 0.4, color: '#ff6b6b', w: 6 });
+    burst(e.x, e.y, '#ff6b6b', 12, 220);
   }
 }
 
@@ -662,37 +993,72 @@ function updateBullets(dt) {
     b.traveled += Math.hypot(sx, sy);
     b.life -= dt;
     if (b.life <= 0 || b.traveled >= b.maxDist) {
-      if (b.explodeOnEnd) doBlast(b.x, b.y, b.explodeR, b.explodeDmg);
+      if (b.explodeR > 0 && b.explodeDmg > 0) doBlast(b.x, b.y, b.explodeR, b.explodeDmg, true);
       G.bullets.splice(i, 1);
       continue;
     }
     let gone = false;
     for (const e of G.enemies) {
-      if (e.dead) continue;
+      if (e.dead || b.hitSet.has(e.id)) continue;
       const dx = e.x - b.x, dy = e.y - b.y;
       const rr = e.r + b.r;
       if (dx * dx + dy * dy < rr * rr) {
-        if (b.explodeOnEnd) { doBlast(b.x, b.y, b.explodeR, b.explodeDmg); gone = true; break; }
-        e.hp -= b.dmg; e.hurtT = 0.12;
-        addText(e.x + rand(-6, 6), e.y - e.r - 4, Math.round(b.dmg), '#fff');
-        burst(b.x, b.y, b.dual ? '#ffd166' : '#cfe4ff', 3, 120);
-        if (e.hp <= 0) killEnemy(e);
-        if (p.explodeRadius > 0) {
-          const exDmg = b.dmg * p.explodeDmgMul;
+        b.hitSet.add(e.id);
+
+        if (b.explodeOnEnd) {
+          if (b.explodeDmg > 0) doBlast(b.x, b.y, b.explodeR, b.explodeDmg, true);
+          gone = true;
+          break;
+        }
+
+        let dmgValue = b.dmg;
+        if (p.hunterMark && e.hp / e.maxHp < 0.3) dmgValue *= 1.5;
+        e.hp -= dmgValue;
+        e.hurtT = 0.12;
+        addText(e.x + rand(-6, 6), e.y - e.r - 4,
+                Math.round(dmgValue) + (b.isCrit ? '!' : ''),
+                b.isCrit ? '#ffe066' : (p.hunterMark && e.hp / e.maxHp < 0.3 ? '#ff8080' : '#fff'));
+        burst(b.x, b.y, b.isCrit ? '#ffe066' : '#cfe4ff', 3, 120);
+
+        if (p.armorPierce > 0) {
+          const extra = Math.min(e.hp * p.armorPierce, 200);
+          e.hp -= extra;
+        }
+
+        if (b.slowOnHit > 0) {
+          e.slowT = Math.max(e.slowT, 2);
+          e.slowMul = Math.min(e.slowMul, 1 - b.slowOnHit);
+        }
+        if (b.chain > 0 && Math.random() < b.chain) {
+          let nearest = null, nd = 220 * 220;
           for (const e2 of G.enemies) {
             if (e2.dead || e2 === e) continue;
-            const edx = e2.x - b.x, edy = e2.y - b.y;
-            const rr2 = p.explodeRadius + e2.r;
-            if (edx * edx + edy * edy < rr2 * rr2) {
-              e2.hp -= exDmg; e2.hurtT = 0.12;
-              addText(e2.x, e2.y - e2.r - 4, Math.round(exDmg), '#ffb26b');
-              if (e2.hp <= 0) killEnemy(e2);
-            }
+            const d2 = (e2.x - e.x) ** 2 + (e2.y - e.y) ** 2;
+            if (d2 < nd) { nd = d2; nearest = e2; }
           }
-          G.rings.push({ x: b.x, y: b.y, r: 6, maxR: p.explodeRadius, life: 0.22, max: 0.22, color: '#ffb26b', w: 5 });
-          burst(b.x, b.y, '#ffb26b', 8, 180);
+          if (nearest) {
+            const a2 = Math.atan2(nearest.y - e.y, nearest.x - e.x);
+            const speed = Math.hypot(b.vx, b.vy);
+            G.bullets.push({
+              x: e.x, y: e.y,
+              vx: Math.cos(a2) * speed, vy: Math.sin(a2) * speed,
+              r: b.r, dmg: b.dmg * (b.chainDmg || 0.6), isCrit: false,
+              pierce: 0, chain: 0, chainDmg: 0, slowOnHit: 0,
+              explodeR: 0, explodeDmg: 0, hitSet: new Set([e.id]),
+              traveled: 0, maxDist: 220, life: 1.5,
+            });
+            G.rings.push({ x: e.x, y: e.y, r: 6, maxR: 220, life: 0.15, max: 0.15, color: '#a0e0ff', w: 3 });
+          }
         }
-        gone = true; break;
+
+        if (b.explodeR > 0 && b.explodeDmg > 0) {
+          doBlast(e.x, e.y, b.explodeR, b.explodeDmg, true);
+        }
+
+        if (e.hp <= 0) killEnemy(e, true);
+
+        if (b.pierce > 0) b.pierce--;
+        else { gone = true; break; }
       }
     }
     if (gone) G.bullets.splice(i, 1);
@@ -705,51 +1071,90 @@ function hurtPlayer(dmg) {
   if (p.hurtCd > 0) return;
   if (p.invincible) return;
   dmg *= (CH.damageTakenMul || 1);
+
+  if (p.shieldT > 0 && p.shieldAmt > 0) {
+    const absorb = Math.min(p.shieldAmt, dmg);
+    p.shieldAmt -= absorb;
+    dmg -= absorb;
+    addText(p.x, p.y - 34, '-' + Math.round(absorb) + '盾', '#93c5fd');
+    if (dmg < 0.1) { p.hurtCd = 0.2; return; }
+  }
+
   p.hp -= dmg;
-  p.hurtCd = 0.55;
+  p.hurtCd = 0.55 + (p.phase ? 0.25 : 0);
+  if (p.phase) p.phaseT = 1.2;
   p.hurtFlash = 0.28;
   G.hurtFlash = 0.35;
   G.shake = 0.18;
   addText(p.x, p.y - 28, '-' + Math.round(dmg), '#ff5c7a');
   burst(p.x, p.y, '#ff5c7a', 6, 150);
+
+  if (p.thorns > 0) {
+    for (const e of G.enemies) {
+      if (e.dead) continue;
+      if (Math.hypot(e.x - p.x, e.y - p.y) < 140 + e.r) {
+        e.hp -= p.thorns; e.hurtT = 0.15;
+        addText(e.x, e.y - e.r - 4, Math.round(p.thorns), '#a78bfa');
+        if (e.hp <= 0) killEnemy(e, true);
+      }
+    }
+    G.rings.push({ x: p.x, y: p.y, r: 20, maxR: 140, life: 0.35, max: 0.35, color: '#a78bfa', w: 6 });
+  }
+
   if (p.hp <= 0) { p.hp = 0; gameOver(); }
 }
 
-function updateSonicFields(dt) {
-  const p = G.player;
-  const sf = CH.base ? p.speed / CH.base.speed : 1;
-  const rf = CH.base ? CH.base.fireRate / p.fireRate : 1;
-  const mul = Math.max(0.3, sf * rf);
-  const dynDmg = 25 * mul;
-  const dynInt = 1.0 / mul;
-
-  for (let i = G.sonicFields.length - 1; i >= 0; i--) {
-    const f = G.sonicFields[i];
+function updateGravityFields(dt) {
+  for (let i = G.gravityFields.length - 1; i >= 0; i--) {
+    const f = G.gravityFields[i];
     f.life -= dt;
-    if (f.life <= 0) { G.sonicFields.splice(i, 1); continue; }
+    if (f.life <= 0) { G.gravityFields.splice(i, 1); continue; }
     for (const e of G.enemies) {
       if (e.dead) continue;
-      const dx = e.x - f.x, dy = e.y - f.y;
-      if (dx * dx + dy * dy < (f.r + e.r) * (f.r + e.r)) {
-        e.slowT = Math.max(e.slowT, 0.18);
-        e.slowMul = Math.min(e.slowMul, f.slowMul);
+      const dx = f.x - e.x, dy = f.y - e.y;
+      const d = Math.hypot(dx, dy) || 1;
+      if (d < f.r + e.r) {
+        const force = f.pull * (1 - d / (f.r + e.r)) * dt;
+        e.x += (dx / d) * force;
+        e.y += (dy / d) * force;
       }
     }
-    f.pulseCd -= dt;
-    if (f.pulseCd <= 0) {
-      f.pulseCd = dynInt;
-      f.rippleT = 0.42;
+    f.tickCd -= dt;
+    if (f.tickCd <= 0) {
+      f.tickCd = 0.5;
       for (const e of G.enemies) {
         if (e.dead) continue;
-        const dx = e.x - f.x, dy = e.y - f.y;
-        if (dx * dx + dy * dy < (f.r + e.r) * (f.r + e.r)) {
-          e.hp -= dynDmg; e.hurtT = 0.1;
-          addText(e.x, e.y - e.r - 4, Math.round(dynDmg), '#8fc9ff');
-          if (e.hp <= 0) killEnemy(e);
+        if (Math.hypot(e.x - f.x, e.y - f.y) < f.r + e.r) {
+          e.hp -= f.dmg; e.hurtT = 0.1;
+          addText(e.x, e.y - e.r - 4, Math.round(f.dmg), '#8fc9ff');
+          if (e.hp <= 0) killEnemy(e, true);
         }
       }
     }
-    if (f.rippleT > 0) f.rippleT = Math.max(0, f.rippleT - dt);
+  }
+}
+
+function updateTurrets(dt) {
+  for (let i = G.turrets.length - 1; i >= 0; i--) {
+    const t = G.turrets[i];
+    t.life -= dt;
+    if (t.life <= 0) { G.turrets.splice(i, 1); continue; }
+    let target = null, best = Infinity;
+    for (const e of G.enemies) {
+      if (e.dead) continue;
+      const d = (e.x - t.x) ** 2 + (e.y - t.y) ** 2;
+      if (d < best && d < t.stats.bulletRange ** 2) {
+        best = d; target = e;
+      }
+    }
+    if (target) {
+      t.aim = Math.atan2(target.y - t.y, target.x - t.x);
+      t.fireCd -= dt;
+      if (t.fireCd <= 0) {
+        t.fireCd = t.stats.fireRate;
+        fireBullet(t.x, t.y, t.aim, t.stats, true);
+      }
+    }
   }
 }
 
@@ -760,18 +1165,18 @@ function updateDashTrails(dt) {
     p.invincible = true;
     p.dashTrailCd -= dt;
     if (p.dashTrailCd <= 0) {
-      p.dashTrailCd = 0.05;
-      G.dashTrails.push({ x: p.x, y: p.y, r: 36, life: 0.7, max: 0.7, dmg: p.dashDmg, hitCd: {} });
+      p.dashTrailCd = 0.14;
+      G.dashTrails.push({ x: p.x, y: p.y, r: 32, life: 0.6, max: 0.6, dmg: p.dashDmg, hitCd: {} });
     }
     p.dashAuraCd -= dt;
     if (p.dashAuraCd <= 0) {
-      p.dashAuraCd = 0.2;
+      p.dashAuraCd = 0.5;
       for (const e of G.enemies) {
         if (e.dead) continue;
         const dx = e.x - p.x, dy = e.y - p.y;
-        if (dx * dx + dy * dy < (65 + e.r) * (65 + e.r)) {
-          e.hp -= p.dashDmg * 0.6; e.hurtT = 0.1;
-          if (e.hp <= 0) killEnemy(e);
+        if (dx * dx + dy * dy < (55 + e.r) * (55 + e.r)) {
+          e.hp -= p.dashDmg * 0.5; e.hurtT = 0.1;
+          if (e.hp <= 0) killEnemy(e, true);
         }
       }
     }
@@ -789,10 +1194,10 @@ function updateDashTrails(dt) {
       if (e.dead || t.hitCd[e.id] > 0) continue;
       const dx = e.x - t.x, dy = e.y - t.y;
       if (dx * dx + dy * dy < (t.r + e.r) * (t.r + e.r)) {
-        t.hitCd[e.id] = 0.3;
+        t.hitCd[e.id] = 0.6;
         e.hp -= t.dmg; e.hurtT = 0.12;
         addText(e.x, e.y - e.r - 4, Math.round(t.dmg), '#ff8fa3');
-        if (e.hp <= 0) killEnemy(e);
+        if (e.hp <= 0) killEnemy(e, true);
       }
     }
   }
@@ -806,6 +1211,7 @@ function updateEnemies(dt) {
     if (e.dead) continue;
     if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
     if (frozen) continue;
+    if (e.telegraphT > 0 || e.chargeT > 0) continue;
     if (e.slowT > 0) { e.slowT -= dt; if (e.slowT <= 0) e.slowMul = 1; }
     const spd = e.speed * e.slowMul;
     const dx = p.x - e.x, dy = p.y - e.y;
@@ -828,9 +1234,18 @@ function updateEnemies(dt) {
         });
       }
     } else {
-      e.x += dx / d * spd * dt; e.y += dy / d * spd * dt;
-      if (d < e.r + p.r) hurtPlayer(e.dmg);
+      const minD = e.r + p.r - 3;
+      if (d > minD) {
+        const moveDist = Math.min(spd * dt, d - minD);
+        e.x += dx / d * moveDist;
+        e.y += dy / d * moveDist;
+      }
+      const ndx = p.x - e.x, ndy = p.y - e.y;
+      const nd = Math.hypot(ndx, ndy);
+      if (nd < e.r + p.r + 6) hurtPlayer(e.dmg);
     }
+    e.x = clamp(e.x, -MAP_HALF + e.r, MAP_HALF - e.r);
+    e.y = clamp(e.y, -MAP_HALF + e.r, MAP_HALF - e.r);
   }
 }
 
@@ -839,6 +1254,14 @@ function updateEBullets(dt) {
   const p = G.player;
   for (let i = G.ebullets.length - 1; i >= 0; i--) {
     const b = G.ebullets[i];
+    if (b.homing) {
+      const dx = p.x - b.x, dy = p.y - b.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const tvx = (dx / d) * b.homingSpeed;
+      const tvy = (dy / d) * b.homingSpeed;
+      b.vx += (tvx - b.vx) * 2.5 * dt;
+      b.vy += (tvy - b.vy) * 2.5 * dt;
+    }
     b.x += b.vx * dt; b.y += b.vy * dt;
     b.life -= dt;
     const dx = p.x - b.x, dy = p.y - b.y;
@@ -851,7 +1274,6 @@ function updateEBullets(dt) {
   }
 }
 
-/* ---------- 经验 ---------- */
 function gainXp(v) {
   G.xp += Math.max(1, Math.round(v * G.xpMul));
   const p = G.player;
@@ -871,6 +1293,7 @@ function gainXp(v) {
 
 let cardLock = 0;
 
+/* ★ 技能升级描述：显示持续时间 + CD 变化 */
 function buildPool() {
   const pool = [];
   for (const sk of CH.actives) {
@@ -878,10 +1301,17 @@ function buildPool() {
     if (lv < sk.max) {
       const oldCd = getSkillCd(sk, lv);
       const newCd = getSkillCd(sk, lv + 1);
+      let durLine = '';
+      if (sk.duration) {
+        const durNow = sk.duration(lv);
+        const durNext = sk.duration(lv + 1);
+        const diff = durNext - durNow;
+        durLine = ` · 持续 ${durNow.toFixed(1)}s → ${durNext.toFixed(1)}s (+${diff.toFixed(1)}s)`;
+      }
       pool.push({
         kind: 'skill', w: 2.4,
         name: `${sk.name} Lv.${lv + 1}`,
-        desc: `${sk.desc(lv + 1)} · CD ${oldCd}s → ${newCd}s`,
+        desc: `${sk.desc(lv + 1)}${durLine} · CD ${oldCd}s → ${newCd}s`,
         apply() { G.skillLv[sk.id] = lv + 1; },
       });
     }
@@ -962,7 +1392,6 @@ function closeLevelUp() {
   G.paused = false;
 }
 
-/* ---------- 辅助更新 ---------- */
 function updateGems(dt) {
   const p = G.player;
   for (let i = G.gems.length - 1; i >= 0; i--) {
@@ -975,6 +1404,16 @@ function updateGems(dt) {
       g.x += dx / d * sp * dt; g.y += dy / d * sp * dt;
     }
     if (d < p.r + 16) {
+      if (p.magnetBlast > 0) {
+        for (const e of G.enemies) {
+          if (e.dead) continue;
+          if (Math.hypot(e.x - g.x, e.y - g.y) < 130 + e.r) {
+            e.hp -= p.magnetBlast;
+            if (e.hp <= 0) killEnemy(e, true);
+          }
+        }
+        G.rings.push({ x: g.x, y: g.y, r: 8, maxR: 130, life: 0.3, max: 0.3, color: '#ffe066', w: 4 });
+      }
       G.gems.splice(i, 1);
       gainXp(g.value);
       if (G.paused) return;
@@ -1005,27 +1444,35 @@ function updateRings(dt) {
   }
 }
 
-/* ---------- 主更新 ---------- */
 function update(dt) {
   G.time += dt;
   const p = G.player;
   const v = p.vis;
 
-  // 移动
-  const spd = p.speed * (p.dashT > 0 ? p.dashSpeedMul : 1);
-  p.x += stickL.x * stickL.power * spd * dt;
-  p.y += stickL.y * stickL.power * spd * dt;
+  const phaseMul = p.phaseT > 0 ? 1.6 : 1;
+  const spd = p.speed * phaseMul * (p.dashT > 0 ? p.dashSpeedMul : 1);
+  const vx = stickL.x * stickL.power * spd * dt;
+  const vy = stickL.y * stickL.power * spd * dt;
+
+  let nx = p.x + vx;
+  if (!collidesWithWall(nx, p.y, p.r)) p.x = nx;
+  let ny = p.y + vy;
+  if (!collidesWithWall(p.x, ny, p.r)) p.y = ny;
+
+  p.x = clamp(p.x, -MAP_HALF + p.r, MAP_HALF - p.r);
+  p.y = clamp(p.y, -MAP_HALF + p.r, MAP_HALF - p.r);
+
+  if (p.phaseT > 0) p.phaseT = Math.max(0, p.phaseT - dt);
+
   p.moveMag = stickL.power;
   if (stickL.power > 0.01) p.moveDir = Math.atan2(stickL.y, stickL.x);
 
-  /* ★ 弹簧形变 */
   const targetSquash = Math.min(1, stickL.power * 1.15);
   v.squashV += (targetSquash - v.squash) * 300 * dt;
   v.squashV *= Math.exp(-16 * dt);
   v.squash += v.squashV * dt;
   v.squash = clamp(v.squash, -0.18, 1.15);
 
-  /* 形变方向平滑（最短路径角度插值） */
   if (stickL.power > 0.05) {
     const target = Math.atan2(stickL.y, stickL.x);
     let diff = target - v.squashAngle;
@@ -1033,22 +1480,15 @@ function update(dt) {
     while (diff < -Math.PI) diff += TAU;
     v.squashAngle += diff * Math.min(1, dt * 15);
   }
-
-  /* 枪管朝向平滑 */
   {
     let diff = p.aim - v.angle;
     while (diff > Math.PI) diff -= TAU;
     while (diff < -Math.PI) diff += TAU;
     v.angle += diff * Math.min(1, dt * 22);
   }
-
-  /* 后坐力衰减 */
   v.recoil = Math.max(0, v.recoil - dt * 9);
-
-  /* 呼吸 / 走动频率 */
   v.bob += dt * (2.2 + stickL.power * 4.5);
 
-  /* 残影 */
   p.trailTimer -= dt;
   if (stickL.power > 0.15 && p.trailTimer <= 0) {
     p.trailTimer = 0.045;
@@ -1060,7 +1500,6 @@ function update(dt) {
     if (p.trail[i].life <= 0) p.trail.splice(i, 1);
   }
 
-  // 时停结束
   if (G.timeStop > 0) {
     const prev = G.timeStop;
     G.timeStop = Math.max(0, G.timeStop - dt);
@@ -1073,10 +1512,11 @@ function update(dt) {
           e.hp -= dmg; e.hurtT = 0.2;
           addText(e.x, e.y - e.r - 6, dmg, '#c4b5fd');
           hit++;
-          if (e.hp <= 0) killEnemy(e);
+          if (e.hp <= 0) killEnemy(e, true);
         }
         if (hit > 0) {
-          G.rings.push({ x: p.x, y: p.y, r: 20, maxR: Math.max(W, H) / zoomLevel, life: 0.85, max: 0.85, color: '#c4b5fd', w: 12 });
+          G.rings.push({ x: p.x, y: p.y, r: 20, maxR: Math.max(W, H) / zoomLevel,
+                         life: 0.85, max: 0.85, color: '#c4b5fd', w: 12 });
           G.shake = 0.35;
         }
       }
@@ -1086,17 +1526,48 @@ function update(dt) {
 
   if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 1.6);
   if (p.dualT > 0) p.dualT = Math.max(0, p.dualT - dt);
-  for (const k in G.skillCd) {
-    if (G.skillCd[k] > 0) G.skillCd[k] = Math.max(0, G.skillCd[k] - dt);
+  if (p.shieldT > 0) {
+    p.shieldT = Math.max(0, p.shieldT - dt);
+    if (p.shieldT <= 0) p.shieldAmt = 0;
   }
+
+  for (const sk of CH.actives) {
+    const maxCh = sk.charges || 1;
+    const cd = G.skillCd[sk.id];
+    const active = G.skillActive[sk.id];
+    const wnd = G.skillWindow[sk.id];
+    if (sk.persistent && active > 0) {
+      G.skillActive[sk.id] = Math.max(0, active - dt);
+      if (G.skillActive[sk.id] === 0) {
+        G.skillCd[sk.id] = getSkillCd(sk);
+      }
+      continue;
+    }
+    if (cd > 0) {
+      G.skillCd[sk.id] = Math.max(0, cd - dt);
+      if (G.skillCd[sk.id] === 0) G.skillCharges[sk.id] = maxCh;
+      continue;
+    }
+    if (wnd > 0) {
+      G.skillWindow[sk.id] = Math.max(0, wnd - dt);
+      if (G.skillWindow[sk.id] === 0 && G.skillCharges[sk.id] > 0) {
+        G.skillCharges[sk.id] = 0;
+        G.skillCd[sk.id] = getSkillCd(sk);
+      }
+    }
+  }
+
   if (p.regen > 0) p.hp = Math.min(p.maxHp, p.hp + p.regen * dt);
   p.hurtCd = Math.max(0, p.hurtCd - dt);
   p.hurtFlash = Math.max(0, p.hurtFlash - dt);
   G.hurtFlash = Math.max(0, G.hurtFlash - dt);
 
   updateWeapon(dt);
-  updateSonicFields(dt);
+  updateWalls(dt);
+  updateGravityFields(dt);
+  updateTurrets(dt);
   updateDashTrails(dt);
+  updateBossSkills(dt);
   updateEnemies(dt);
   if (!G.running) return;
   updateBullets(dt);
@@ -1110,7 +1581,7 @@ function update(dt) {
   updateHud();
 }
 
-/* ---------- HUD ---------- */
+/* HUD */
 const hudCache = { hp: -1, xp: -1, lv: -1, t: '', k: -1 };
 const statCache = {};
 const hpBarEl = $('#hpBar>i');
@@ -1153,21 +1624,45 @@ function updateHud() {
   setStat('stHp',   Math.ceil(p.hp) + '/' + Math.round(p.maxHp));
   setStat('stCnt',  String(effCnt));
   setStat('stRng',  String(Math.round(p.bulletRange)));
-  setStat('stPick', String(Math.round(p.pickupRange)));
-  setStat('stExp',  p.explodeRadius > 0 ? String(Math.round(p.explodeRadius)) : '-');
+  setStat('stPie',  p.pierce === Infinity ? '∞' : String(p.pierce));
+  setStat('stCrit', Math.round(p.critChance * 100) + '%');
+  setStat('stCritDmg', Math.round(p.critMul * 100) + '%');
 
   for (const b of skillBtns) {
-    const cd = G.skillCd[b.skill.id] || 0;
-    if (cd > 0) {
-      const total = getSkillCd(b.skill);
+    const sk = b.skill;
+    const cd = G.skillCd[sk.id] || 0;
+    const active = G.skillActive[sk.id] || 0;
+    const charges = G.skillCharges[sk.id] || 0;
+    const maxCh = sk.charges || 1;
+    const wnd = G.skillWindow[sk.id] || 0;
+
+    if (active > 0) {
+      const total = sk.duration ? sk.duration(G.skillLv[sk.id] || 1) : 1;
+      const pct = clamp(active / total, 0, 1);
+      b.maskEl.style.background = `conic-gradient(rgba(80,180,80,.75) ${pct * 360}deg, rgba(0,0,0,0) 0deg)`;
+      b.nameEl.style.opacity = 0;
+      b.cdEl.style.opacity = 1;
+      b.cdEl.style.color = '#a0f0a0';
+      b.cdEl.textContent = active.toFixed(1);
+    } else if (cd > 0) {
+      const total = getSkillCd(sk);
       const pct = clamp(cd / total, 0, 1);
       b.maskEl.style.background = `conic-gradient(rgba(6,10,20,.82) ${pct * 360}deg, rgba(0,0,0,0) 0deg)`;
       b.nameEl.style.opacity = 0;
       b.cdEl.style.opacity = 1;
+      b.cdEl.style.color = '#dbe9ff';
       b.cdEl.textContent = cd.toFixed(1);
+    } else if (wnd > 0) {
+      const total = sk.chargeWindow || 2.5;
+      const pct = clamp(wnd / total, 0, 1);
+      b.maskEl.style.background = `conic-gradient(rgba(80,140,255,.5) ${pct * 360}deg, rgba(0,0,0,0) 0deg)`;
+      b.nameEl.style.opacity = 1;
+      b.nameEl.textContent = `${sk.short || sk.name} ${charges}`;
+      b.cdEl.style.opacity = 0;
     } else {
       b.maskEl.style.background = 'none';
       b.nameEl.style.opacity = 1;
+      b.nameEl.textContent = maxCh > 1 ? `${sk.short || sk.name} ${charges}` : (sk.short || sk.name);
       b.cdEl.style.opacity = 0;
     }
   }
@@ -1188,9 +1683,18 @@ function rebuildSkillButtons() {
       e.preventDefault();
       if (!G.running || G.paused) return;
       const cd = G.skillCd[sk.id] || 0;
-      if (cd > 0) return;
+      const active = G.skillActive[sk.id] || 0;
+      const charges = G.skillCharges[sk.id] || 0;
+      if (cd > 0 || active > 0 || charges <= 0) return;
       sk.run(G.player, G.skillLv[sk.id] || 1);
-      G.skillCd[sk.id] = getSkillCd(sk);
+      if (sk.persistent) {
+        G.skillActive[sk.id] = sk.duration(G.skillLv[sk.id] || 1);
+        G.skillCharges[sk.id] = 0;
+      } else {
+        G.skillCharges[sk.id]--;
+        if (G.skillCharges[sk.id] <= 0) G.skillCd[sk.id] = getSkillCd(sk);
+        else if ((sk.charges || 1) > 1) G.skillWindow[sk.id] = sk.chargeWindow || 2.5;
+      }
     });
     wrap.appendChild(el);
     skillBtns.push({
@@ -1202,9 +1706,7 @@ function rebuildSkillButtons() {
   });
 }
 
-/* =========================================================
-   外观锚点
-========================================================= */
+/* 外观锚点 */
 function drawAnchor(cx, cy, r) {
   ctx.save();
   ctx.translate(cx, cy);
@@ -1214,11 +1716,10 @@ function drawAnchor(cx, cy, r) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   const id = CH ? CH.id : '';
-
   if (id === 'zhiyuchen') {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       ctx.beginPath();
-      ctx.arc(-r * 0.3, 0, r * (0.30 + i * 0.22), -0.55, 0.55);
+      ctx.arc(0, 0, r * (0.35 + i * 0.30), i * Math.PI, i * Math.PI + Math.PI * 1.2);
       ctx.stroke();
     }
   } else if (id === 'zhiban') {
@@ -1273,24 +1774,17 @@ function drawAnchor(cx, cy, r) {
   ctx.restore();
 }
 
-/* =========================================================
-   枪管（渐变炮管 + 后坐力）
-========================================================= */
 function drawGun(p, invZ) {
   const v = p.vis;
   const len = p.r * 1.75 - v.recoil * p.r * 0.55;
   const w = p.r * 0.58;
-
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(v.angle);
-
-  // 枪管主体：从球心到枪口的渐变粗线
   const grd = ctx.createLinearGradient(0, 0, len, 0);
   grd.addColorStop(0, shade(CH.color, 0.05));
   grd.addColorStop(0.45, shade(CH.color, 0.5));
   grd.addColorStop(1, '#eaf4ff');
-
   ctx.lineCap = 'round';
   ctx.lineWidth = w;
   ctx.strokeStyle = grd;
@@ -1298,8 +1792,6 @@ function drawGun(p, invZ) {
   ctx.moveTo(0, 0);
   ctx.lineTo(len, 0);
   ctx.stroke();
-
-  // 枪口圆头
   ctx.beginPath();
   ctx.arc(len, 0, w * 0.44, 0, TAU);
   ctx.fillStyle = p.dualT > 0 ? '#ffe9a8' : '#f5faff';
@@ -1307,8 +1799,6 @@ function drawGun(p, invZ) {
   ctx.lineWidth = 1.5 * invZ;
   ctx.strokeStyle = 'rgba(255,255,255,.55)';
   ctx.stroke();
-
-  // 开火闪光
   if (v.recoil > 0.35) {
     const a = (v.recoil - 0.35) / 0.95;
     ctx.globalAlpha = clamp(a, 0, 1) * 0.9;
@@ -1323,13 +1813,9 @@ function drawGun(p, invZ) {
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-
   ctx.restore();
 }
 
-/* =========================================================
-   渲染
-========================================================= */
 function drawGrid(p) {
   const step = 90;
   const halfW = W / 2 / zoomLevel;
@@ -1346,6 +1832,30 @@ function drawGrid(p) {
   ctx.stroke();
 }
 
+function drawMapBoundary() {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,120,120,0.6)';
+  ctx.lineWidth = 6 / zoomLevel;
+  ctx.strokeRect(-MAP_HALF, -MAP_HALF, MAP_HALF * 2, MAP_HALF * 2);
+  ctx.strokeStyle = 'rgba(255,100,100,0.18)';
+  ctx.lineWidth = 24 / zoomLevel;
+  ctx.strokeRect(-MAP_HALF, -MAP_HALF, MAP_HALF * 2, MAP_HALF * 2);
+  ctx.restore();
+}
+
+function drawWalls() {
+  for (const w of G.walls) {
+    const a = w.life / w.maxLife;
+    ctx.save();
+    ctx.fillStyle = `rgba(200, 130, 255, ${0.35 * a})`;
+    ctx.strokeStyle = `rgba(220, 160, 255, ${0.85 * a})`;
+    ctx.lineWidth = 3 / zoomLevel;
+    ctx.fillRect(w.x - w.w / 2, w.y - w.h / 2, w.w, w.h);
+    ctx.strokeRect(w.x - w.w / 2, w.y - w.h / 2, w.w, w.h);
+    ctx.restore();
+  }
+}
+
 function drawGems() {
   for (const g of G.gems) {
     const s = 5 + Math.sin(g.pulse) * 1.4;
@@ -1359,6 +1869,71 @@ function drawGems() {
   }
 }
 
+function drawGravityFields() {
+  for (const f of G.gravityFields) {
+    const lifeRatio = clamp(f.life / f.max, 0, 1);
+    const fade = lifeRatio < 0.35 ? lifeRatio / 0.35 : 1;
+    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+    g.addColorStop(0, `rgba(30,20,80,${0.55 * fade})`);
+    g.addColorStop(0.5, `rgba(70,110,220,${0.28 * fade})`);
+    g.addColorStop(1, 'rgba(94,169,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r, 0, TAU);
+    ctx.fill();
+    ctx.save();
+    const N = 3, turns = 3;
+    for (let s = 0; s < N; s++) {
+      ctx.beginPath();
+      for (let t = 0; t < 1; t += 0.02) {
+        const a = t * Math.PI * 2 * turns + G.time * 3 + s * (Math.PI * 2 / N);
+        const rr = f.r * t;
+        const px = f.x + Math.cos(a) * rr;
+        const py = f.y + Math.sin(a) * rr;
+        if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.strokeStyle = `rgba(150,200,255,${0.55 * fade})`;
+      ctx.lineWidth = 1.6 / zoomLevel;
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r, 0, TAU);
+    ctx.strokeStyle = `rgba(150,210,255,${0.6 * fade})`;
+    ctx.lineWidth = 2 / zoomLevel;
+    ctx.stroke();
+  }
+}
+
+function drawTurrets() {
+  for (const t of G.turrets) {
+    const lifeRatio = clamp(t.life / t.maxLife, 0, 1);
+    const fade = lifeRatio < 0.25 ? lifeRatio / 0.25 : 1;
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 18, 0, TAU);
+    ctx.fillStyle = `rgba(30,40,60,${0.85 * fade})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255,209,102,${0.9 * fade})`;
+    ctx.lineWidth = 2 / zoomLevel;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.aim);
+    ctx.fillStyle = `rgba(255,209,102,${0.9 * fade})`;
+    ctx.fillRect(8, -3, 16, 6);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 6, 0, TAU);
+    ctx.fillStyle = `rgba(255,230,150,${0.9 * fade})`;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, 24, -Math.PI / 2, -Math.PI / 2 + TAU * lifeRatio);
+    ctx.strokeStyle = `rgba(255,209,102,${0.75 * fade})`;
+    ctx.lineWidth = 2.5 / zoomLevel;
+    ctx.stroke();
+  }
+}
+
 function drawDashTrails() {
   for (const t of G.dashTrails) {
     const a = t.life / t.max;
@@ -1369,60 +1944,6 @@ function drawDashTrails() {
     ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(t.x, t.y, t.r, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = `rgba(255,160,180,${0.55 * a})`;
-    ctx.lineWidth = 1.5 / zoomLevel;
-    ctx.beginPath();
-    ctx.arc(t.x, t.y, t.r * 0.9, 0, TAU);
-    ctx.stroke();
-  }
-}
-
-function drawSonicFields() {
-  for (const f of G.sonicFields) {
-    const lifeRatio = clamp(f.life / f.max, 0, 1);
-    const fade = lifeRatio < 0.35 ? lifeRatio / 0.35 : 1;
-    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-    g.addColorStop(0, `rgba(94,169,255,${0.16 * fade})`);
-    g.addColorStop(0.65, `rgba(94,169,255,${0.07 * fade})`);
-    g.addColorStop(1, 'rgba(94,169,255,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, TAU);
-    ctx.fill();
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, TAU);
-    ctx.strokeStyle = `rgba(150,220,255,${0.55 * fade})`;
-    ctx.lineWidth = 2 / zoomLevel;
-    ctx.setLineDash([12 / zoomLevel, 9 / zoomLevel]);
-    ctx.lineDashOffset = -G.time * 26 / zoomLevel;
-    ctx.stroke();
-    ctx.restore();
-
-    if (f.rippleT > 0) {
-      const t = 1 - f.rippleT / 0.42;
-      const rr = f.r * t;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, rr, 0, TAU);
-      ctx.strokeStyle = `rgba(200,235,255,${0.65 * (1 - t) * fade})`;
-      ctx.lineWidth = (4 * (1 - t) + 1) / zoomLevel;
-      ctx.stroke();
-    }
-
-    const pulse = 0.5 + 0.5 * Math.sin(G.time * 4 + f.phase);
-    for (let k = 1; k <= 2; k++) {
-      const rr = f.r * (0.35 + k * 0.22) * (0.92 + pulse * 0.08);
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, rr, 0, TAU);
-      ctx.strokeStyle = `rgba(150,220,255,${(0.20 - k * 0.06) * fade})`;
-      ctx.lineWidth = 1.5 / zoomLevel;
-      ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, 6, 0, TAU);
-    ctx.fillStyle = `rgba(180,230,255,${0.6 * fade})`;
     ctx.fill();
   }
 }
@@ -1445,6 +1966,24 @@ function drawEnemies() {
       ctx.lineWidth = 2.5 / zoomLevel;
       ctx.stroke();
     }
+    if (e.telegraphType === 'charge' && e.telegraphT > 0) {
+      ctx.beginPath();
+      ctx.moveTo(e.x, e.y);
+      ctx.lineTo(e.x + Math.cos(e.chargeDir) * 400, e.y + Math.sin(e.chargeDir) * 400);
+      ctx.strokeStyle = `rgba(255,60,60,${0.5 + 0.3 * Math.sin(G.time * 20)})`;
+      ctx.lineWidth = 6 / zoomLevel;
+      ctx.setLineDash([15 / zoomLevel, 10 / zoomLevel]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (e.telegraphType === 'shockwave' && e.telegraphT > 0) {
+      const prog = 1 - e.telegraphT / 0.6;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, 220 * prog, 0, TAU);
+      ctx.strokeStyle = `rgba(200,130,255,0.7)`;
+      ctx.lineWidth = 3 / zoomLevel;
+      ctx.stroke();
+    }
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.r + 5, 0, TAU);
     ctx.fillStyle = e.color + '22';
@@ -1456,7 +1995,6 @@ function drawEnemies() {
     ctx.lineWidth = 2 / zoomLevel;
     ctx.strokeStyle = e.hurtT > 0 ? '#fff' : 'rgba(255,255,255,.28)';
     ctx.stroke();
-
     if (e.ranged && e.shootCd < 0.6 && !frozen) {
       ctx.beginPath();
       ctx.arc(e.x, e.y, e.r + 10, 0, TAU);
@@ -1464,7 +2002,6 @@ function drawEnemies() {
       ctx.lineWidth = 2 / zoomLevel;
       ctx.stroke();
     }
-
     if (e.type === 'boss') {
       const ch = e.bossChar || '汐';
       const fs = Math.round(e.r * 1.1) * invZ;
@@ -1476,6 +2013,11 @@ function drawEnemies() {
       ctx.strokeText(ch, e.x, e.y + 2 * invZ);
       ctx.fillStyle = 'rgba(255,255,255,.96)';
       ctx.fillText(ch, e.x, e.y + 2 * invZ);
+      const w = e.r * 2.2, ratio = clamp(e.hp / e.maxHp, 0, 1);
+      ctx.fillStyle = 'rgba(0,0,0,.55)';
+      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w, 6);
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w * ratio, 6);
     } else {
       const pct = Math.max(0, Math.ceil(e.hp / e.maxHp * 100));
       const fs = Math.max(10, Math.round(e.r * 0.85)) * invZ;
@@ -1488,43 +2030,30 @@ function drawEnemies() {
       ctx.fillStyle = '#fff';
       ctx.fillText(pct + '%', e.x, e.y + 0.5 * invZ);
     }
-
-    if (e.type === 'boss') {
-      const w = e.r * 2.2, ratio = clamp(e.hp / e.maxHp, 0, 1);
-      ctx.fillStyle = 'rgba(0,0,0,.55)';
-      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w, 6);
-      ctx.fillStyle = '#c084fc';
-      ctx.fillRect(e.x - w / 2, e.y - e.r - 16, w * ratio, 6);
-    }
   }
 }
 
 function drawBullets() {
   for (const b of G.bullets) {
-    if (b.explodeOnEnd) {
-      const pulse = 0.85 + 0.15 * Math.sin(G.time * 20);
-      ctx.shadowColor = '#fb923c';
-      ctx.shadowBlur = 18;
+    const isBlast = b.explodeR > 0 && b.explodeDmg > 0;
+    const baseColor = b.isCrit ? '#ffe066' : (isBlast ? '#ffd9a8' : '#bfe3ff');
+    ctx.shadowColor = b.isCrit ? '#ffe066' : (isBlast ? '#fb923c' : '#5ea9ff');
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, TAU);
+    ctx.fillStyle = baseColor;
+    ctx.fill();
+    if (b.isCrit) {
       ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r * pulse, 0, TAU);
-      ctx.fillStyle = '#ffd9a8';
-      ctx.fill();
+      ctx.arc(b.x, b.y, b.r + 2, 0, TAU);
+      ctx.strokeStyle = 'rgba(255,240,120,.9)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    if (isBlast) {
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.r * 0.55, 0, TAU);
       ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.globalAlpha = 0.5;
-      ctx.beginPath();
-      ctx.arc(b.x - b.vx * 0.02, b.y - b.vy * 0.02, b.r * 0.5, 0, TAU);
-      ctx.fillStyle = '#fb923c';
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    } else {
-      ctx.shadowColor = b.dual ? '#ffd166' : '#5ea9ff';
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, TAU);
-      ctx.fillStyle = b.dual ? '#ffe9a8' : '#bfe3ff';
       ctx.fill();
     }
   }
@@ -1537,8 +2066,15 @@ function drawEBullets() {
   for (const b of G.ebullets) {
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, TAU);
-    ctx.fillStyle = '#e9b8ff';
+    ctx.fillStyle = b.homing ? '#f0c0ff' : '#e9b8ff';
     ctx.fill();
+    if (b.homing) {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r + 3, 0, TAU);
+      ctx.strokeStyle = 'rgba(240,192,255,.7)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
   }
   ctx.shadowBlur = 0;
 }
@@ -1574,7 +2110,6 @@ function drawPlayer() {
   const v = p.vis;
   const bobY = Math.sin(v.bob) * 0.9;
 
-  // 1. 光晕
   const haloR = 54 + Math.sin(v.bob) * 2;
   const haloG = ctx.createRadialGradient(p.x, p.y + bobY, 0, p.x, p.y + bobY, haloR);
   haloG.addColorStop(0, 'rgba(90,160,255,.28)');
@@ -1584,12 +2119,10 @@ function drawPlayer() {
   ctx.arc(p.x, p.y + bobY, haloR, 0, TAU);
   ctx.fill();
 
-  // 2. 残影
   for (let i = 0; i < p.trail.length; i++) {
     const t = p.trail[i];
     const a = t.life / t.max;
-    const ease = a * a;
-    ctx.globalAlpha = ease * 0.30;
+    ctx.globalAlpha = a * a * 0.30;
     ctx.fillStyle = CH.color;
     ctx.beginPath();
     ctx.arc(t.x, t.y, t.r * (0.55 + 0.45 * a), 0, TAU);
@@ -1597,10 +2130,8 @@ function drawPlayer() {
   }
   ctx.globalAlpha = 1;
 
-  // 3. 枪管（先画，被球体遮挡根部）
   drawGun(p, invZ);
 
-  // 4. 各种光环
   if (G.timeStop > 0) {
     const auraR = p.r + 26 + Math.sin(G.time * 8) * 4;
     ctx.beginPath();
@@ -1608,18 +2139,7 @@ function drawPlayer() {
     ctx.strokeStyle = 'rgba(196,181,253,.75)';
     ctx.lineWidth = 2.5 * invZ;
     ctx.stroke();
-    ctx.beginPath();
-    for (let i = 0; i < 12; i++) {
-      const a = G.time * 1.5 + (i / 12) * TAU;
-      const r1 = auraR + 4, r2 = auraR + 10;
-      ctx.moveTo(p.x + Math.cos(a) * r1, p.y + Math.sin(a) * r1);
-      ctx.lineTo(p.x + Math.cos(a) * r2, p.y + Math.sin(a) * r2);
-    }
-    ctx.strokeStyle = 'rgba(196,181,253,.55)';
-    ctx.lineWidth = 1.5 * invZ;
-    ctx.stroke();
   }
-
   if (p.dashT > 0) {
     const pulse = Math.sin(G.time * 22) * 3;
     ctx.beginPath();
@@ -1627,45 +2147,42 @@ function drawPlayer() {
     ctx.strokeStyle = 'rgba(255,255,255,.85)';
     ctx.lineWidth = 3 * invZ;
     ctx.stroke();
+  }
+  if (p.phaseT > 0) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r + 16 + pulse * 1.4, 0, TAU);
-    ctx.strokeStyle = 'rgba(255,255,255,.4)';
-    ctx.lineWidth = 2 * invZ;
+    ctx.arc(p.x, p.y, p.r + 20 + Math.sin(G.time * 18) * 3, 0, TAU);
+    ctx.strokeStyle = `rgba(255,180,220,${0.5 + 0.3 * Math.sin(G.time * 18)})`;
+    ctx.lineWidth = 2.5 * invZ;
     ctx.stroke();
-    const auraG = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 65);
-    auraG.addColorStop(0, 'rgba(244,63,94,.25)');
-    auraG.addColorStop(1, 'rgba(244,63,94,0)');
-    ctx.fillStyle = auraG;
+  }
+  if (p.shieldT > 0 && p.shieldAmt > 0) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 65, 0, TAU);
+    ctx.arc(p.x, p.y, p.r + 12, 0, TAU);
+    ctx.strokeStyle = `rgba(96,165,250,${0.6 + 0.3 * Math.sin(G.time * 8)})`;
+    ctx.lineWidth = 3 * invZ;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(96,165,250,.10)';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r + 12, 0, TAU);
     ctx.fill();
   }
-
   if (p.dualT > 0) {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r + 12, 0, TAU);
     ctx.strokeStyle = 'rgba(255,209,102,.8)';
     ctx.lineWidth = 3 * invZ;
     ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r + 18, 0, TAU);
-    ctx.strokeStyle = 'rgba(255,209,102,.35)';
-    ctx.lineWidth = 2 * invZ;
-    ctx.stroke();
   }
 
-  // 5. 球体（带弹簧形变 + 呼吸 + 微摆动）
   ctx.save();
   ctx.translate(p.x, p.y + bobY);
   ctx.rotate(v.squashAngle);
   const sq = v.squash;
   ctx.scale(1 + 0.24 * sq, 1 - 0.20 * sq);
   ctx.rotate(-v.squashAngle);
-  // 微摆动（速度越快越明显）
   const wiggle = Math.sin(G.time * 14) * 0.035 * Math.min(1, sq * 1.6);
   ctx.rotate(wiggle);
 
-  // 径向渐变让球有立体感
   const bodyGrad = ctx.createRadialGradient(-p.r * 0.35, -p.r * 0.35, p.r * 0.15, 0, 0, p.r);
   bodyGrad.addColorStop(0, shade(CH.color, 0.55));
   bodyGrad.addColorStop(0.55, CH.color);
@@ -1679,18 +2196,14 @@ function drawPlayer() {
   ctx.strokeStyle = 'rgba(214,232,255,.85)';
   ctx.stroke();
 
-  // 外观锚点
   drawAnchor(0, 0, p.r * 0.55);
 
-  // 高光点（让球更有质感）
   ctx.beginPath();
   ctx.arc(-p.r * 0.32, -p.r * 0.36, p.r * 0.18, 0, TAU);
   ctx.fillStyle = 'rgba(255,255,255,.55)';
   ctx.fill();
-
   ctx.restore();
 
-  // 6. 瞄准虚线（最上层，弱化）
   if (stickR.active) {
     ctx.save();
     ctx.setLineDash([4 / zoomLevel, 8 / zoomLevel]);
@@ -1734,8 +2247,11 @@ function render() {
   ctx.translate(-p.x, -p.y);
 
   drawGrid(p);
+  drawMapBoundary();
   drawGems();
-  drawSonicFields();
+  drawWalls();
+  drawGravityFields();
+  drawTurrets();
   drawDashTrails();
   drawEnemies();
   drawEBullets();
@@ -1764,7 +2280,6 @@ function render() {
     ctx.fillStyle = '#e0d9ff';
     ctx.fillText(`时停 ${G.timeStop.toFixed(2)}s`, W / 2, by - 14);
   }
-
   if (G.player && G.player.dashT > 0) {
     ctx.font = 'bold 12px system-ui, sans-serif';
     ctx.textAlign = 'center';
@@ -1772,14 +2287,15 @@ function render() {
     ctx.fillStyle = 'rgba(255,200,210,.9)';
     ctx.fillText(`无敌 ${G.player.dashT.toFixed(2)}s`, W / 2, 90);
   }
-
   if (G.hurtFlash > 0) {
     ctx.fillStyle = `rgba(255,40,70,${G.hurtFlash * 0.45})`;
     ctx.fillRect(0, 0, W, H);
   }
 }
 
-/* ---------- 流程 ---------- */
+/* =========================================================
+   流程控制
+========================================================= */
 function gameOver() {
   G.running = false;
   G.paused = true;
@@ -1800,6 +2316,7 @@ function startGame() {
   updateHud();
 }
 
+/* 角色选择 UI */
 (function buildCharList() {
   const list = $('#charList');
   list.innerHTML = Object.values(CHARS).map(c => {
@@ -1833,7 +2350,9 @@ $('#changeCharBtn').addEventListener('click', () => {
   G.player = null;
 });
 
-/* ---------- 主循环 ---------- */
+/* =========================================================
+   主循环
+========================================================= */
 let lastT = performance.now();
 function loop(now) {
   requestAnimationFrame(loop);
