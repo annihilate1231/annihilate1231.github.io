@@ -5,643 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>同学卡牌对战</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
-  [hidden] { display: none !important; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-    font-size: 14px; color: #e6ecf5; background: #0a0e17;
-    user-select: none; -webkit-user-select: none; touch-action: manipulation;
-  }
-  body::before {
-    content: ""; position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse at 15% 0%, rgba(120,100,255,0.10), transparent 50%),
-      radial-gradient(ellipse at 85% 0%, rgba(255,90,140,0.08), transparent 50%);
-    pointer-events: none; z-index: 0;
-  }
-  button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;font-size:14px;color:#e6ecf5;background:#0a0e17;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(120,100,255,.10),transparent 50%),radial-gradient(ellipse at 85% 0%,rgba(255,90,140,.08),transparent 50%);pointer-events:none;z-index:0}
+  button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 
-  #setup {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 20px; padding: 32px; overflow-y: auto; z-index: 10;
-  }
-  #setup h1 {
-    font-size: 34px; font-weight: 800; letter-spacing: 6px;
-    background: linear-gradient(135deg, #8b9fff 0%, #c084fc 50%, #f472b6 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; margin-bottom: 8px;
-  }
-  #setup .sub { color: #6b7a94; font-size: 13px; letter-spacing: 3px; margin-bottom: 24px; }
-  .opt { display: flex; flex-direction: column; gap: 10px; width: min(880px, 100%); }
-  .opt-label { font-size: 11px; color: #6b7a94; letter-spacing: 3px; font-weight: 600; }
-  .seg { display: flex; gap: 8px; }
-  .seg-btn {
-    flex: 1; padding: 12px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.02);
-    color: #8a95a8; font-weight: 500; transition: all 0.15s;
-  }
-  .seg-btn:hover { background: rgba(255,255,255,0.05); color: #e6ecf5; }
-  .seg-btn.active {
-    background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.15));
-    border-color: rgba(139,92,246,0.5); color: #fff; font-weight: 700;
-    box-shadow: 0 0 24px -6px rgba(139,92,246,0.6);
-  }
-  .roles { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
-  .roles::-webkit-scrollbar { height: 4px; }
-  .roles::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-  .role-card {
-    flex: 0 0 auto; width: 88px; padding: 12px 8px; border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.02);
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    transition: all 0.2s;
-  }
-  .role-card:hover { transform: translateY(-2px); border-color: var(--c); background: rgba(255,255,255,0.04); }
-  .role-card.sel {
-    border-color: var(--c);
-    background: color-mix(in srgb, var(--c) 15%, transparent);
-    box-shadow: 0 0 24px -6px var(--c);
-  }
-  .rc-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    display: grid; place-items: center;
-    font-size: 17px; font-weight: 800;
-    background: var(--c); color: #0a0e17;
-    box-shadow: 0 0 16px -4px var(--c);
-  }
-  .rc-name { font-size: 12px; font-weight: 700; }
-  .rc-title { font-size: 10px; color: #6b7a94; }
-  .rc-hp { font-size: 10px; color: #ef5350; font-weight: 600; }
-  .start {
-    margin-top: 12px; padding: 16px 72px; border-radius: 12px;
-    font-size: 15px; font-weight: 800; letter-spacing: 4px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: #fff; box-shadow: 0 8px 32px -8px rgba(99,102,241,0.7);
-    transition: all 0.2s;
-  }
-  .start:hover { transform: translateY(-2px); box-shadow: 0 12px 40px -8px rgba(99,102,241,0.9); }
+  #setup{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;overflow-y:auto;z-index:10}
+  #setup h1{font-size:34px;font-weight:800;letter-spacing:6px;background:linear-gradient(135deg,#8b9fff 0%,#c084fc 50%,#f472b6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+  #setup .sub{color:#6b7a94;font-size:13px;letter-spacing:3px;margin-bottom:24px}
+  .opt{display:flex;flex-direction:column;gap:10px;width:min(880px,100%)}
+  .opt-label{font-size:11px;color:#6b7a94;letter-spacing:3px;font-weight:600}
+  .seg{display:flex;gap:8px}
+  .seg-btn{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:#8a95a8;font-weight:500;transition:all .15s}
+  .seg-btn.active{background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.15));border-color:rgba(139,92,246,.5);color:#fff;font-weight:700;box-shadow:0 0 24px -6px rgba(139,92,246,.6)}
+  .roles{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+  .role-card{flex:0 0 auto;width:88px;padding:12px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s}
+  .role-card:hover{transform:translateY(-2px);border-color:var(--c)}
+  .role-card.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent);box-shadow:0 0 24px -6px var(--c)}
+  .rc-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-weight:800;background:var(--c);color:#0a0e17}
+  .rc-name{font-size:12px;font-weight:700}
+  .rc-title{font-size:10px;color:#6b7a94}
+  .rc-hp{font-size:10px;color:#ef5350;font-weight:600}
+  .start{margin-top:12px;padding:16px 72px;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;transition:all .2s}
+  .start:hover{transform:translateY(-2px)}
 
-  #game {
-    position: relative; z-index: 1;
-    height: 100%; display: flex; flex-direction: column;
-    padding: 10px 14px; gap: 10px;
-  }
-  .topbar {
-    flex: none; display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 18px; border-radius: 12px;
-    background: rgba(16,22,38,0.6); backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .turn-indicator { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; letter-spacing: 1px; }
-  .turn-pulse {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #8b5cf6; box-shadow: 0 0 12px #8b5cf6;
-    animation: turnPulse 1.6s ease-in-out infinite;
-  }
-  @keyframes turnPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
-  #turnLabel { color: #c5cfe3; }
-  .topbar-actions { display: flex; gap: 8px; }
-  .btn {
-    padding: 8px 18px; border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
-    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-    transition: all 0.15s;
-  }
-  .btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
-  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  #game{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding:10px 14px;gap:10px}
+  .topbar{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-radius:12px;background:rgba(16,22,38,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05)}
+  .turn-indicator{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;letter-spacing:1px}
+  .turn-pulse{width:8px;height:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 12px #8b5cf6;animation:turnPulse 1.6s ease-in-out infinite}
+  @keyframes turnPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+  #turnLabel{color:#c5cfe3}
+  .topbar-actions{display:flex;gap:8px}
+  .btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;font-weight:600;transition:all .15s}
+  .btn:disabled{opacity:.3;cursor:not-allowed}
 
-  .board { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .board{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .side{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:rgba(16,22,38,.45);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);min-height:0;overflow:hidden;transition:all .3s;--c:#7c9cff}
+  .side.active{border-color:color-mix(in srgb,var(--c) 40%,transparent);box-shadow:0 0 20px -8px color-mix(in srgb,var(--c) 40%,transparent)}
+  .side.hit{animation:sideHit .55s}
+  @keyframes sideHit{0%{box-shadow:0 0 0 0 rgba(239,68,68,0),inset 0 0 0 rgba(239,68,68,0)}25%{box-shadow:0 0 0 8px rgba(239,68,68,.55),inset 0 0 80px rgba(239,68,68,.4)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0),inset 0 0 0 rgba(239,68,68,0)}}
 
-  .side {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 12px; border-radius: 16px;
-    background: rgba(16,22,38,0.45); backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.05);
-    min-height: 0; overflow: hidden; position: relative;
-    transition: all 0.3s; --c: #7c9cff;
-  }
-  .side::before {
-    content: ""; position: absolute; inset: 0; border-radius: 16px;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 6%, transparent), transparent 40%);
-    opacity: 0; transition: opacity 0.3s; pointer-events: none;
-  }
-  .side.active::before { opacity: 1; }
-  .side.active {
-    border-color: color-mix(in srgb, var(--c) 40%, transparent);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 20%, transparent),
-                0 20px 60px -20px color-mix(in srgb, var(--c) 40%, transparent);
-  }
-  .side.shake { animation: sideShake 0.4s; }
-  @keyframes sideShake {
-    0%,100% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-  }
+  .hud{flex:none;display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .hud-top{display:flex;gap:10px;align-items:center}
+  .avatar{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900;background:linear-gradient(155deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#0a0e17;box-shadow:0 4px 16px -4px var(--c);transition:transform .25s}
+  .avatar.pulse{animation:avatarPulse .4s}
+  @keyframes avatarPulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+  .name-hp{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .name-line{display:flex;align-items:baseline;gap:8px}
+  .pname{font-size:15px;font-weight:800;color:#fff}
+  .prole{font-size:11px;color:#6b7a94}
+  .hp-bar{position:relative;height:18px;border-radius:9px;background:rgba(0,0,0,.4);overflow:hidden}
+  .hp-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .4s cubic-bezier(.2,.8,.3,1)}
+  .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .side.right .hp-bar{direction:rtl}
+  .side.right .hp-text{direction:ltr}
 
-  .hud { flex: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .hud-top { display: flex; gap: 10px; align-items: center; }
-  .avatar {
-    flex: none; width: 48px; height: 48px; border-radius: 12px;
-    display: grid; place-items: center;
-    font-size: 20px; font-weight: 900;
-    background: linear-gradient(155deg, var(--c), color-mix(in srgb, var(--c) 60%, #000));
-    color: #0a0e17;
-    box-shadow: 0 4px 16px -4px var(--c), inset 0 1px 0 rgba(255,255,255,0.3);
-    position: relative; transition: transform 0.25s;
-  }
-  .avatar.pulse { animation: avatarPulse 0.4s; }
-  @keyframes avatarPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.12); box-shadow: 0 4px 24px 0 var(--c), inset 0 1px 0 rgba(255,255,255,0.3); }
-    100% { transform: scale(1); }
-  }
-  .name-hp { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-  .name-line { display: flex; align-items: baseline; gap: 8px; }
-  .pname { font-size: 15px; font-weight: 800; color: #fff; }
-  .prole { font-size: 11px; color: #6b7a94; font-weight: 500; }
-  .hp-bar {
-    position: relative; height: 18px; border-radius: 9px;
-    background: rgba(0,0,0,0.4); overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-  }
-  .hp-fill {
-    height: 100%; background: linear-gradient(90deg, #ef4444, #f87171);
-    box-shadow: 0 0 12px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
-    transition: width 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
-  }
-  .hp-text {
-    position: absolute; inset: 0;
-    display: grid; place-items: center;
-    font-size: 10px; font-weight: 800; color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8); letter-spacing: 0.5px;
-  }
-  .side.right .hp-bar { direction: rtl; }
-  .side.right .hp-text { direction: ltr; }
+  .stats-line{display:flex;flex-direction:column;gap:5px;width:100%}
+  .stats-row{display:flex;align-items:center;gap:12px;width:100%}
+  .stat-group{display:flex;align-items:center;gap:6px}
+  .stat-group.energy{flex:1;justify-content:center}
+  .stat-num{font-size:12px;font-weight:800;color:#e6ecf5;font-variant-numeric:tabular-nums}
+  .stat-num.shield-val{color:#60a5fa}
+  .stat-num.energy-val{color:#fbbf24}
+  .energy-pips{display:flex;gap:4px;flex-wrap:wrap}
+  .pip{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.08);transition:all .2s}
+  .pip.on{background:radial-gradient(circle at 35% 35%,#fde68a,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,.7)}
+  .res-name{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--c)}
+  .res-pips{display:flex;gap:3px}
+  .rpip{width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.08);transition:all .2s}
+  .rpip.on{background:var(--c);box-shadow:0 0 8px var(--c)}
+  .info-btn{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;background:color-mix(in srgb,var(--c) 30%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);line-height:1}
 
-  .stats-line { display: flex; flex-direction: column; gap: 5px; width: 100%; }
-  .stats-row { display: flex; align-items: center; gap: 12px; width: 100%; }
-  .stat-group { display: flex; align-items: center; gap: 6px; }
-  .stat-group.energy { flex: 1; justify-content: center; }
-  .stat-num { font-size: 12px; font-weight: 800; color: #e6ecf5; font-variant-numeric: tabular-nums; }
-  .stat-num.shield-val { color: #60a5fa; }
-  .stat-num.energy-val { color: #fbbf24; }
+  .status-line{flex:none;display:flex;flex-wrap:wrap;gap:4px;min-height:22px;max-height:46px;overflow:hidden}
+  .st-tag{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid transparent}
+  .st-tag.combo{background:rgba(251,146,60,.15);color:#fb923c;border-color:rgba(251,146,60,.3)}
+  .st-tag.buff{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25)}
+  .st-tag.debuff{background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25)}
+  .st-tag.pending{background:rgba(168,85,247,.15);color:#c084fc;border-color:rgba(168,85,247,.3)}
 
-  .energy-pips { display: flex; gap: 4px; flex-wrap: wrap; }
-  .pip {
-    width: 11px; height: 11px; border-radius: 50%;
-    background: rgba(255,255,255,0.08); transition: all 0.2s;
-  }
-  .pip.on {
-    background: radial-gradient(circle at 35% 35%, #fde68a, #f59e0b);
-    box-shadow: 0 0 8px rgba(245,158,11,0.7);
-  }
-  .res-group { display: flex; align-items: center; gap: 6px; }
-  .res-name { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--c); }
-  .res-pips { display: flex; gap: 3px; }
-  .rpip {
-    width: 8px; height: 8px; border-radius: 2px;
-    background: rgba(255,255,255,0.08); transition: all 0.2s;
-  }
-  .rpip.on { background: var(--c); box-shadow: 0 0 8px var(--c); }
-  .info-btn {
-    flex: none;
-    width: 16px; height: 16px; border-radius: 50%;
-    display: grid; place-items: center;
-    font-size: 10px; font-weight: 900;
-    background: color-mix(in srgb, var(--c) 30%, transparent);
-    color: var(--c);
-    border: 1px solid color-mix(in srgb, var(--c) 50%, transparent);
-    transition: all 0.15s;
-    line-height: 1;
-  }
-  .info-btn:hover {
-    background: color-mix(in srgb, var(--c) 50%, transparent);
-    box-shadow: 0 0 10px -2px var(--c);
-  }
+  .actions-line{flex:none;display:flex;gap:8px}
+  .action-btn{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);text-align:left;transition:all .2s;position:relative;overflow:hidden}
+  .action-btn.disabled-style{opacity:.35;cursor:not-allowed}
+  .btn-icon{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:900;background:rgba(255,255,255,.06)}
+  .btn-content{flex:1;min-width:0}
+  .btn-title{font-size:12px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .btn-desc{font-size:10px;color:#6b7a94;line-height:1.35;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cost-badge{flex:none;display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:5px;background:rgba(245,158,11,.15);color:#fbbf24;font-size:10px;font-weight:900;border:1px solid rgba(245,158,11,.3)}
+  .skill-btn .btn-icon{background:color-mix(in srgb,var(--c) 25%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
+  .ult-btn .btn-icon{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
+  .ult-btn.ready{border-color:rgba(251,191,36,.5);animation:ultPulse 2s ease-in-out infinite}
+  @keyframes ultPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 24px -4px rgba(251,191,36,.6)}}
+  .ult-btn.ready .btn-title{color:#fbbf24}
 
-  .status-line { flex: none; display: flex; flex-wrap: wrap; gap: 4px; min-height: 22px; max-height: 46px; overflow: hidden; }
-  .st-tag {
-    padding: 2px 8px; border-radius: 6px;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
-    border: 1px solid transparent;
-  }
-  .st-tag.combo { background: rgba(251,146,60,0.15); color: #fb923c; border-color: rgba(251,146,60,0.3); }
-  .st-tag.buff { background: rgba(34,197,94,0.12); color: #4ade80; border-color: rgba(34,197,94,0.25); }
-  .st-tag.debuff { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(239,68,68,0.25); }
-  .st-tag.pending { background: rgba(168,85,247,0.15); color: #c084fc; border-color: rgba(168,85,247,0.3); }
-  .st-tag.extra { background: rgba(251,191,36,0.15); color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+  .end-turn-row{flex:none;display:flex}
+  .end-turn-btn{flex:1;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#fff;transition:all .15s}
+  .end-turn-btn:disabled{background:rgba(255,255,255,.03);color:#4a5468;cursor:not-allowed}
 
-  .actions-line { flex: none; display: flex; gap: 8px; }
-  .action-btn {
-    flex: 1; min-width: 0;
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.02);
-    text-align: left; transition: all 0.2s;
-    position: relative; overflow: hidden;
-  }
-  .action-btn:not(:disabled):hover {
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.15);
-    transform: translateY(-1px);
-  }
-  .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-icon {
-    flex: none; width: 30px; height: 30px; border-radius: 8px;
-    display: grid; place-items: center;
-    font-size: 14px; font-weight: 900;
-    background: rgba(255,255,255,0.06); transition: all 0.2s;
-  }
-  .btn-content { flex: 1; min-width: 0; }
-  .btn-title {
-    font-size: 12px; font-weight: 800; color: #fff;
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  }
-  .btn-desc {
-    font-size: 10px; color: #6b7a94; line-height: 1.35;
-    margin-top: 2px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .cost-badge {
-    flex: none; display: inline-flex; align-items: center; gap: 2px;
-    padding: 1px 6px; border-radius: 5px;
-    background: rgba(245,158,11,0.15); color: #fbbf24;
-    font-size: 10px; font-weight: 900;
-    border: 1px solid rgba(245,158,11,0.3);
-  }
-  .skill-btn .btn-icon {
-    background: color-mix(in srgb, var(--c) 25%, transparent);
-    color: var(--c);
-    border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
-  }
-  .skill-btn:not(:disabled):hover {
-    border-color: color-mix(in srgb, var(--c) 40%, transparent);
-    box-shadow: 0 0 24px -6px color-mix(in srgb, var(--c) 60%, transparent);
-  }
-  .ult-btn .btn-icon {
-    background: rgba(251,191,36,0.15); color: #fbbf24;
-    border: 1px solid rgba(251,191,36,0.35);
-  }
-  .ult-btn.ready {
-    border-color: rgba(251,191,36,0.5);
-    animation: ultPulse 2s ease-in-out infinite;
-  }
-  @keyframes ultPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
-    50% { box-shadow: 0 0 24px -4px rgba(251,191,36,0.6); }
-  }
-  .ult-btn.ready .btn-title { color: #fbbf24; }
-  .ult-btn.ready .btn-icon { background: rgba(251,191,36,0.25); box-shadow: 0 0 16px rgba(251,191,36,0.5); }
+  .hand-area{flex:1;min-height:0;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;align-items:center;padding:6px 4px}
+  .hand-empty{flex:1;display:grid;place-items:center;color:#3a4456;font-size:12px;letter-spacing:2px}
 
-  .end-turn-row { flex: none; display: flex; }
-  .end-turn-btn {
-    flex: 1;
-    padding: 9px 16px;
-    border-radius: 10px;
-    font-size: 13px; font-weight: 800; letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 60%, #000));
-    color: #fff;
-    box-shadow: 0 4px 16px -4px var(--c);
-    transition: all 0.15s;
-  }
-  .end-turn-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px -4px var(--c);
-  }
-  .end-turn-btn:disabled {
-    background: rgba(255,255,255,0.03);
-    color: #4a5468;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
+  .card{flex:none;width:92px;height:128px;border-radius:12px;padding:9px 8px;display:flex;flex-direction:column;gap:3px;text-align:left;position:relative;overflow:hidden;background:linear-gradient(180deg,#1e2637 0%,#141a29 100%);border:1px solid rgba(255,255,255,.08);box-shadow:0 2px 4px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.4);transition:all .15s}
+  .card:disabled{opacity:.35;cursor:not-allowed}
+  .card.new-card{animation:cardDeal .45s cubic-bezier(.3,.9,.4,1.1)}
+  @keyframes cardDeal{from{transform:translateY(-30px) scale(.7);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+  .card.extra-card{box-shadow:0 0 0 1.5px #fbbf24,0 4px 20px -4px rgba(251,191,36,.5)}
+  .card.extra-card::before{content:"额外";position:absolute;top:3px;right:5px;font-size:8px;font-weight:900;color:#fbbf24;z-index:2}
+  .card.sealed-card{opacity:.4;filter:grayscale(.8)}
+  .card.sealed-card::after{content:"封";position:absolute;top:3px;right:5px;font-size:12px;font-weight:900;color:#ef4444;background:rgba(0,0,0,.7);padding:1px 5px;border-radius:4px;z-index:2}
+  .card.stolen-card{box-shadow:0 0 0 1.5px #d946ef,0 4px 20px -4px rgba(217,70,239,.5)}
+  .card.stolen-card::before{content:"偷";position:absolute;top:3px;right:5px;font-size:8px;font-weight:900;color:#d946ef;z-index:2}
+  .card.attack{border-left:3px solid #ef4444}
+  .card.shield{border-left:3px solid #3b82f6}
+  .card.heal{border-left:3px solid #22c55e}
+  .card.draw{border-left:3px solid #a855f7}
+  .card.energy{border-left:3px solid #f59e0b}
+  .card.control{border-left:3px solid #8b5cf6}
+  .card.trap{border-left:3px solid #06b6d4}
+  .card.steal{border-left:3px solid #d946ef}
+  .card.cond{border-left:3px solid #14b8a6}
+  .card.cost{border-left:3px dashed #ef4444}
+  .card.delay{border-left:3px dotted #8b5cf6}
+  .card.retain{border-left:3px solid #eab308}
+  .card.cleanse{border-left:3px solid #f0abfc}
+  .side.right .card.attack{border-left:none;border-right:3px solid #ef4444}
+  .side.right .card.shield{border-left:none;border-right:3px solid #3b82f6}
+  .side.right .card.heal{border-left:none;border-right:3px solid #22c55e}
+  .side.right .card.draw{border-left:none;border-right:3px solid #a855f7}
+  .side.right .card.energy{border-left:none;border-right:3px solid #f59e0b}
+  .side.right .card.control{border-left:none;border-right:3px solid #8b5cf6}
+  .side.right .card.trap{border-left:none;border-right:3px solid #06b6d4}
+  .side.right .card.steal{border-left:none;border-right:3px solid #d946ef}
+  .side.right .card.cond{border-left:none;border-right:3px solid #14b8a6}
+  .side.right .card.cost{border-left:none;border-right:3px dashed #ef4444}
+  .side.right .card.delay{border-left:none;border-right:3px dotted #8b5cf6}
+  .side.right .card.retain{border-left:none;border-right:3px solid #eab308}
+  .side.right .card.cleanse{border-left:none;border-right:3px solid #f0abfc}
+  .card.back{background:linear-gradient(180deg,#1a2133 0%,#0f1420 100%);border:1px solid rgba(255,255,255,.06)}
+  .card.back::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;font-size:38px;font-weight:900;color:rgba(255,255,255,.08)}
+  .card-cost{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.5);font-size:11px;font-weight:900;color:#fbbf24;border:1.5px solid rgba(251,191,36,.4);flex-shrink:0}
+  .card-name{font-size:13px;font-weight:800;color:#fff;line-height:1.15}
+  .card-type{font-size:8px;font-weight:700;letter-spacing:1.5px;color:#6b7a94;text-transform:uppercase}
+  .card-desc{font-size:9.5px;line-height:1.35;color:#a0aabf;margin-top:auto}
+  .card-age{font-size:9px;color:#eab308;font-weight:700;margin-top:2px}
 
-  .hand-area {
-    flex: 1; min-height: 0;
-    display: flex; gap: 10px;
-    overflow-x: auto; overflow-y: hidden;
-    align-items: center; padding: 6px 4px;
-    scrollbar-width: thin;
-  }
-  .hand-area::-webkit-scrollbar { height: 4px; }
-  .hand-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-  .hand-empty {
-    flex: 1; display: grid; place-items: center;
-    color: #3a4456; font-size: 12px; letter-spacing: 2px;
-  }
+  .log{flex:none;height:56px;padding:10px 16px;border-radius:12px;background:rgba(16,22,38,.6);overflow-y:auto;font-size:12px;line-height:1.5;color:#6b7a94}
+  .log div:last-child{color:#e6ecf5;font-weight:600}
 
-  .card {
-    flex: none;
-    width: 92px; height: 128px;
-    border-radius: 12px; padding: 9px 8px;
-    display: flex; flex-direction: column; gap: 3px;
-    text-align: left; position: relative; overflow: hidden;
-    background: linear-gradient(180deg, #1e2637 0%, #141a29 100%);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    transition: all 0.15s;
-  }
-  .card:not(:disabled):hover {
-    transform: translateY(-4px);
-    border-color: rgba(255,255,255,0.2);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-    z-index: 5;
-  }
-  .card:disabled { opacity: 0.35; cursor: not-allowed; }
+  .side.right .hud-top{flex-direction:row-reverse}
+  .side.right .name-hp{text-align:right}
+  .side.right .name-line{flex-direction:row-reverse}
+  .side.right .stats-row{flex-direction:row-reverse}
+  .side.right .energy-pips{flex-direction:row-reverse}
+  .side.right .res-pips{flex-direction:row-reverse}
+  .side.right .status-line{justify-content:flex-end}
+  .side.right .actions-line{flex-direction:row-reverse}
+  .side.right .action-btn{flex-direction:row-reverse}
+  .side.right .action-btn .btn-content{text-align:right}
+  .side.right .action-btn .btn-title{justify-content:flex-end}
+  .side.right .action-btn .btn-desc{text-align:right}
+  .side.right .hand-area{flex-direction:row-reverse;justify-content:flex-start}
 
-  .card.new-card { animation: cardDeal 0.45s cubic-bezier(0.3, 0.9, 0.4, 1.1); }
-  @keyframes cardDeal {
-    from { transform: translateY(-30px) scale(0.7); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-  }
+  .tooltip{position:fixed;z-index:1000;background:rgba(20,26,40,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;max-width:300px;box-shadow:0 16px 48px rgba(0,0,0,.9);pointer-events:none}
+  .tooltip-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .tooltip-title .tt-icon{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:900;background:color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent);color:var(--c,#8b5cf6)}
+  .tt-cost{display:inline-block;padding:1px 7px;border-radius:5px;background:rgba(245,158,11,.2);color:#fbbf24;font-size:10px;font-weight:900}
+  .tooltip-desc{font-size:12px;line-height:1.55;color:#a0aabf}
 
-  .card.extra-card {
-    box-shadow: 0 0 0 1.5px #fbbf24, 0 4px 20px -4px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .card.extra-card::before {
-    content: "额外";
-    position: absolute;
-    top: 3px; right: 5px;
-    font-size: 8px; font-weight: 900;
-    color: #fbbf24;
-    letter-spacing: 0.5px;
-    z-index: 2;
-  }
+  .modal-mask{position:fixed;inset:0;z-index:900;background:rgba(5,8,16,.72);display:flex;align-items:center;padding:20px}
+  .modal-mask.side-left{justify-content:center;padding-left:5vw;padding-right:calc(50vw + 10px)}
+  .modal-mask.side-right{justify-content:center;padding-right:5vw;padding-left:calc(50vw + 10px)}
+  .modal-box{background:linear-gradient(160deg,#1c2336,#121826);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px 26px;width:100%;max-height:calc(100vh - 40px);overflow-y:auto}
+  .modal-title{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--c,#8b5cf6);display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .modal-title .mt-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:14px;background:color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent);color:var(--c,#8b5cf6)}
+  .modal-body{display:flex;flex-direction:column;gap:10px}
+  .modal-row{display:flex;gap:10px;font-size:13px;line-height:1.5}
+  .modal-row .mr-label{flex:none;width:56px;color:#6b7a94;font-weight:600}
+  .modal-row .mr-value{flex:1;color:#e6ecf5}
+  .modal-close{margin-top:18px;width:100%;padding:10px;border-radius:10px;background:color-mix(in srgb,var(--c,#8b5cf6) 25%,transparent);border:1px solid color-mix(in srgb,var(--c,#8b5cf6) 50%,transparent);color:var(--c,#8b5cf6);font-weight:700;font-size:13px}
+  .modal-close:disabled{opacity:.4;cursor:not-allowed}
 
-  .card.attack   { border-left: 3px solid #ef4444; }
-  .card.shield   { border-left: 3px solid #3b82f6; }
-  .card.heal     { border-left: 3px solid #22c55e; }
-  .card.draw     { border-left: 3px solid #a855f7; }
-  .card.energy   { border-left: 3px solid #f59e0b; }
-  .card.control  { border-left: 3px solid #8b5cf6; }
-  .card.trap     { border-left: 3px solid #06b6d4; }
-  .card.steal    { border-left: 3px solid #d946ef; }
-  .card.combo    { border-left: 3px solid #f97316; }
-  .card.cond     { border-left: 3px solid #14b8a6; }
-  .card.cost     { border-left: 3px solid #ef4444; border-left-style: dashed; }
-  .card.delay    { border-left: 3px solid #8b5cf6; border-left-style: dotted; }
-  .card.retain   { border-left: 3px solid #eab308; }
+  .hand-select-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-height:50vh;overflow-y:auto;padding:8px}
+  .hand-select-grid .card{cursor:pointer}
+  .hand-select-grid .card.selected{outline:2px solid #ef4444;opacity:.75}
+  .hand-select-empty{padding:40px 20px;text-align:center;color:#6b7a94;font-size:13px;width:100%}
+  .n-buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .n-buttons .btn{min-width:52px;padding:10px 14px;font-size:14px;font-weight:800;background:linear-gradient(135deg,color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent),transparent);border:1px solid color-mix(in srgb,var(--c,#8b5cf6) 50%,transparent)}
 
-  .side.right .card.attack   { border-left: none; border-right: 3px solid #ef4444; }
-  .side.right .card.shield   { border-left: none; border-right: 3px solid #3b82f6; }
-  .side.right .card.heal     { border-left: none; border-right: 3px solid #22c55e; }
-  .side.right .card.draw     { border-left: none; border-right: 3px solid #a855f7; }
-  .side.right .card.energy   { border-left: none; border-right: 3px solid #f59e0b; }
-  .side.right .card.control  { border-left: none; border-right: 3px solid #8b5cf6; }
-  .side.right .card.trap     { border-left: none; border-right: 3px solid #06b6d4; }
-  .side.right .card.steal    { border-left: none; border-right: 3px solid #d946ef; }
-  .side.right .card.combo    { border-left: none; border-right: 3px solid #f97316; }
-  .side.right .card.cond     { border-left: none; border-right: 3px solid #14b8a6; }
-  .side.right .card.cost     { border-left: none; border-right: 3px dashed #ef4444; }
-  .side.right .card.delay    { border-left: none; border-right: 3px dotted #8b5cf6; }
-  .side.right .card.retain   { border-left: none; border-right: 3px solid #eab308; }
+  .choice-btn{padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-size:13px;font-weight:700;text-align:left;transition:all .15s;margin-bottom:10px;width:100%}
+  .choice-btn .cb-title{font-size:14px;color:#fff;margin-bottom:4px}
+  .choice-btn .cb-desc{font-size:11px;color:#8a95a8;font-weight:500}
 
-  .card.back {
-    background: linear-gradient(180deg, #1a2133 0%, #0f1420 100%);
-    border: 1px solid rgba(255,255,255,0.06);
-  }
-  .card.back::after {
-    content: "?"; position: absolute; inset: 0;
-    display: grid; place-items: center;
-    font-size: 38px; font-weight: 900;
-    color: rgba(255,255,255,0.08);
-  }
-  .card-cost {
-    width: 22px; height: 22px; border-radius: 50%;
-    display: grid; place-items: center;
-    background: rgba(0,0,0,0.5);
-    font-size: 11px; font-weight: 900; color: #fbbf24;
-    border: 1.5px solid rgba(251,191,36,0.4);
-    flex-shrink: 0;
-  }
-  .card-name { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.15; }
-  .card-type { font-size: 8px; font-weight: 700; letter-spacing: 1.5px; color: #6b7a94; text-transform: uppercase; }
-  .card-desc { font-size: 9.5px; line-height: 1.35; color: #a0aabf; margin-top: auto; }
-  .card-age { font-size: 9px; color: #eab308; font-weight: 700; margin-top: 2px; }
-
-  .log {
-    flex: none; height: 56px; padding: 10px 16px; border-radius: 12px;
-    background: rgba(16,22,38,0.6); backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.05);
-    overflow-y: auto; font-size: 12px; line-height: 1.5; color: #6b7a94;
-    scrollbar-width: thin;
-  }
-  .log::-webkit-scrollbar { width: 3px; }
-  .log::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-  .log div { padding: 1px 0; }
-  .log div:last-child { color: #e6ecf5; font-weight: 600; }
-
-  .side.right .hud-top { flex-direction: row-reverse; }
-  .side.right .name-hp { text-align: right; }
-  .side.right .name-line { flex-direction: row-reverse; }
-  .side.right .stats-row { flex-direction: row-reverse; }
-  .side.right .energy-pips { flex-direction: row-reverse; }
-  .side.right .res-pips { flex-direction: row-reverse; }
-  .side.right .status-line { justify-content: flex-end; }
-  .side.right .actions-line { flex-direction: row-reverse; }
-  .side.right .action-btn { flex-direction: row-reverse; }
-  .side.right .action-btn .btn-content { text-align: right; }
-  .side.right .action-btn .btn-title { justify-content: flex-end; }
-  .side.right .action-btn .btn-desc { text-align: right; }
-  .side.right .hand-area { flex-direction: row-reverse; justify-content: flex-start; }
-  .side.right .hand-empty { direction: ltr; }
-
-  .tooltip {
-    position: fixed; z-index: 1000;
-    background: rgba(20,26,40,0.98);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px; padding: 12px 14px; max-width: 300px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.9), 0 0 32px -10px var(--c, #8b5cf6);
-    pointer-events: none; animation: tooltipIn 0.18s ease-out;
-  }
-  @keyframes tooltipIn { from { opacity: 0; transform: scale(0.94) translateY(4px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-  .tooltip-title {
-    font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 6px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .tooltip-title .tt-icon {
-    width: 20px; height: 20px; border-radius: 6px;
-    display: grid; place-items: center;
-    font-size: 10px; font-weight: 900;
-    background: color-mix(in srgb, var(--c, #8b5cf6) 30%, transparent);
-    color: var(--c, #8b5cf6);
-  }
-  .tt-cost {
-    display: inline-block; padding: 1px 7px; border-radius: 5px;
-    background: rgba(245,158,11,0.2); color: #fbbf24;
-    font-size: 10px; font-weight: 900;
-  }
-  .tooltip-desc { font-size: 12px; line-height: 1.55; color: #a0aabf; }
-
-  .modal-mask {
-    position: fixed; inset: 0; z-index: 900;
-    background: rgba(5,8,16,0.75);
-    backdrop-filter: blur(4px);
-    display: grid; place-items: center;
-    animation: fadeIn 0.2s ease-out;
-  }
-  .modal-box {
-    background: linear-gradient(160deg, #1c2336, #121826);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 22px 26px;
-    max-width: 360px; width: calc(100% - 48px);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.9), 0 0 48px -16px var(--c, #8b5cf6);
-    animation: modalIn 0.22s cubic-bezier(0.3, 0.9, 0.4, 1.1);
-  }
-  @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-  .modal-title {
-    font-size: 18px; font-weight: 900; letter-spacing: 2px;
-    color: var(--c, #8b5cf6);
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 14px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .modal-title .mt-icon {
-    width: 30px; height: 30px; border-radius: 9px;
-    display: grid; place-items: center;
-    font-size: 14px; font-weight: 900;
-    background: color-mix(in srgb, var(--c, #8b5cf6) 30%, transparent);
-    color: var(--c, #8b5cf6);
-    border: 1px solid color-mix(in srgb, var(--c, #8b5cf6) 50%, transparent);
-  }
-  .modal-body { display: flex; flex-direction: column; gap: 10px; }
-  .modal-row { display: flex; gap: 10px; font-size: 13px; line-height: 1.5; }
-  .modal-row .mr-label {
-    flex: none; width: 56px;
-    color: #6b7a94; font-weight: 600;
-  }
-  .modal-row .mr-value { flex: 1; color: #e6ecf5; }
-  .modal-close {
-    margin-top: 18px; width: 100%;
-    padding: 10px; border-radius: 10px;
-    background: color-mix(in srgb, var(--c, #8b5cf6) 25%, transparent);
-    border: 1px solid color-mix(in srgb, var(--c, #8b5cf6) 50%, transparent);
-    color: var(--c, #8b5cf6); font-weight: 700; font-size: 13px;
-    transition: all 0.15s;
-  }
-  .modal-close:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--c, #8b5cf6) 40%, transparent);
-  }
-  .modal-close:disabled {
-    opacity: 0.4; cursor: not-allowed;
-  }
-
-  .hand-select-grid {
-    display: flex; flex-wrap: wrap; gap: 10px;
-    justify-content: center;
-    max-height: 55vh; overflow-y: auto;
-    padding: 8px;
-  }
-  .hand-select-grid .card {
-    cursor: pointer;
-  }
-  .hand-select-grid .card:hover {
-    transform: translateY(-6px) scale(1.05);
-    border-color: #fff;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.8), 0 0 24px -4px currentColor;
-  }
-  .hand-select-grid .card.selected {
-    outline: 2px solid #ef4444;
-    opacity: 0.75;
-    transform: translateY(-4px);
-  }
-  .hand-select-empty {
-    padding: 40px 20px;
-    text-align: center;
-    color: #6b7a94;
-    font-size: 13px;
-    letter-spacing: 1px;
-    width: 100%;
-  }
-  .n-buttons {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    justify-content: center;
-  }
-  .n-buttons .btn {
-    min-width: 52px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 800;
-    background: linear-gradient(135deg, color-mix(in srgb, var(--c, #8b5cf6) 30%, transparent), transparent);
-    border: 1px solid color-mix(in srgb, var(--c, #8b5cf6) 50%, transparent);
-  }
-  .n-buttons .btn:hover {
-    background: color-mix(in srgb, var(--c, #8b5cf6) 45%, transparent);
-  }
-
-  #arena { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
-  .flying-card {
-    position: fixed; border-radius: 10px;
-    transition: all 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
-    z-index: 200; display: flex; align-items: center; justify-content: center;
-    font-weight: 900; color: #fff; font-size: 12px;
-    box-shadow: 0 0 40px rgba(255,255,255,0.6), 0 0 80px currentColor;
-  }
-  .fly-damage {
-    position: fixed; font-size: 42px; font-weight: 900;
-    color: #ef4444; text-shadow: 0 0 16px #ef4444, 0 3px 0 #7a0010, 0 0 2px #fff;
-    pointer-events: none; z-index: 300; animation: floatUp 1.1s ease-out forwards;
-  }
-  .fly-heal {
-    position: fixed; font-size: 32px; font-weight: 900;
-    color: #4ade80; text-shadow: 0 0 14px #4ade80, 0 3px 0 #14532d;
-    pointer-events: none; z-index: 300; animation: floatUp 1.1s ease-out forwards;
-  }
-  .fly-shield {
-    position: fixed; font-size: 28px; font-weight: 900;
-    color: #60a5fa; text-shadow: 0 0 14px #60a5fa;
-    pointer-events: none; z-index: 300; animation: floatUp 1.1s ease-out forwards;
-  }
-  .fly-energy {
-    position: fixed; font-size: 24px; font-weight: 900;
-    color: #fbbf24; text-shadow: 0 0 14px #fbbf24;
-    pointer-events: none; z-index: 300; animation: floatUp 1.1s ease-out forwards;
-  }
-  @keyframes floatUp {
-    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
-    25% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; }
-    60% { transform: translate(-50%, -60px) scale(1); opacity: 1; }
-    100% { transform: translate(-50%, -110px) scale(0.8); opacity: 0; }
-  }
-  .banner-tag {
-    position: fixed; left: 50%; top: 45%;
-    transform: translate(-50%, -50%);
-    font-size: 46px; font-weight: 900; letter-spacing: 10px; color: #fff;
-    text-shadow: 0 0 24px currentColor, 0 0 48px currentColor;
-    pointer-events: none; z-index: 300;
-    animation: bannerFade 1.3s ease-out forwards;
-  }
-  @keyframes bannerFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    30% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
-    70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
-  }
-  .win-banner {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column; gap: 24px;
-    align-items: center; justify-content: center;
-    background: rgba(10,14,23,0.85); backdrop-filter: blur(12px);
-    z-index: 500; animation: fadeIn 0.4s ease-out;
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .win-banner h2 {
-    font-size: 52px; font-weight: 900; letter-spacing: 6px;
-    background: linear-gradient(135deg, #fbbf24, #f472b6);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 24px rgba(251,191,36,0.6));
-  }
+  #arena{position:fixed;inset:0;pointer-events:none;z-index:100}
+  .screen-hit{position:fixed;inset:0;pointer-events:none;z-index:150;background:radial-gradient(ellipse at center,transparent 40%,rgba(239,68,68,.5) 100%);animation:screenHit .5s ease-out forwards}
+  @keyframes screenHit{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+  .flying-card{position:fixed;border-radius:10px;transition:all .55s cubic-bezier(.3,.7,.4,1);z-index:200;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:12px;box-shadow:0 0 40px rgba(255,255,255,.6)}
+  .fly-damage{position:fixed;font-size:68px;font-weight:900;color:#ef4444;text-shadow:0 0 20px #ef4444,0 4px 0 #7a0010,0 0 3px #fff;pointer-events:none;z-index:300;animation:floatUp 1.3s ease-out forwards}
+  .fly-heal{position:fixed;font-size:40px;font-weight:900;color:#4ade80;pointer-events:none;z-index:300;animation:floatUp 1.2s ease-out forwards}
+  .fly-shield{position:fixed;font-size:34px;font-weight:900;color:#60a5fa;pointer-events:none;z-index:300;animation:floatUp 1.2s ease-out forwards}
+  .fly-immunity{position:fixed;font-size:28px;font-weight:900;color:#9ca3af;pointer-events:none;z-index:300;animation:floatUp 1.1s ease-out forwards}
+  .fly-cleanse{position:fixed;font-size:30px;font-weight:900;color:#f0abfc;pointer-events:none;z-index:300;animation:floatUp 1.2s ease-out forwards}
+  .fly-energy{position:fixed;font-size:24px;font-weight:900;color:#fbbf24;pointer-events:none;z-index:300;animation:floatUp 1.1s ease-out forwards}
+  @keyframes floatUp{0%{transform:translate(-50%,0) scale(.5);opacity:0}25%{transform:translate(-50%,-30px) scale(1.3);opacity:1}60%{transform:translate(-50%,-60px) scale(1);opacity:1}100%{transform:translate(-50%,-110px) scale(.8);opacity:0}}
+  .banner-tag{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);font-size:46px;font-weight:900;letter-spacing:10px;color:#fff;pointer-events:none;z-index:300;animation:bannerFade 1.3s ease-out forwards}
+  @keyframes bannerFade{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(.9)}}
+  .win-banner{position:fixed;inset:0;display:flex;flex-direction:column;gap:24px;align-items:center;justify-content:center;background:rgba(10,14,23,.85);z-index:500}
+  .win-banner h2{font-size:52px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f472b6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 </style>
 </head>
 <body>
@@ -669,13 +239,8 @@
 
 <div id="game" hidden>
   <div class="topbar">
-    <div class="turn-indicator">
-      <div class="turn-pulse"></div>
-      <span id="turnLabel">准备中</span>
-    </div>
-    <div class="topbar-actions">
-      <button class="btn" id="restartBtn">重开</button>
-    </div>
+    <div class="turn-indicator"><div class="turn-pulse"></div><span id="turnLabel">准备中</span></div>
+    <div class="topbar-actions"><button class="btn" id="restartBtn">重开</button></div>
   </div>
   <div class="board">
     <div class="side left" id="side0"></div>
@@ -687,125 +252,83 @@
 <div id="arena"></div>
 
 <script>
-/* ================= 角色数据 ================= */
 const ROLES = {
-  zhangxiang: {
-    name: "张响", short: "响", title: "理论法师", hp: 32, color: "#7c9cff",
-    resource: { name: "洞察", icon: "👁", max: 3, init: 1, turnStart: 1,
-      detail: "回合开始时自动 +1，上限 3。用于发动推演和终极技。" },
-    skill: { name: "推演", cost: 2, resCost: 2, desc: "弃对手 1 张随机手牌，抽 2 张，下次攻击 +4" },
-    ultimate: { name: "万卷归宗", desc: "造成 10 伤害，抽 3 张牌" }
-  },
-  zhangsien: {
-    name: "张思恩", short: "恩", title: "指挥家", hp: 34, color: "#ffb347",
-    resource: { name: "士气", icon: "🚩", max: 5, init: 0,
-      detail: "每打出一张牌 +1，上限 5。士气≥3 时伤害 +1。" },
-    skill: { name: "号令", cost: 2, resCost: 3, desc: "本回合伤害翻倍，对手下回合能量 -1" },
-    ultimate: { name: "誓师", desc: "本回合伤害 ×3，抽 1 张" }
-  },
-  zhiyuchen: {
-    name: "智宇晨", short: "晨", title: "守护者", hp: 38, color: "#4fc3f7",
-    resource: { name: "守护", icon: "🛡", max: 8, init: 2, turnStart: 2,
-      detail: "回合开始 +2，上限 8。被动：护盾不会随时间消失（其他角色护盾 2 回合后消失）。" },
-    skill: { name: "挡刀", cost: 1, resCost: "all", desc: "消耗全部护盾：造成等量伤害，抽 2 张" },
-    ultimate: { name: "舍身", desc: "获得 20 护盾，反弹 8 伤害，回复 5" }
-  },
-  yangkaidong: {
-    name: "杨开冬", short: "冬", title: "战狂", hp: 32, color: "#ef5350",
-    resource: { name: "怒气", icon: "🔥", max: 10, init: 0,
-      detail: "每次受伤 +2，上限 10。怒气≥5 时受到伤害 -2。" },
-    skill: { name: "重拳", cost: 2, resCost: 5, desc: "造成 6 伤害，获得 2 护盾" },
-    ultimate: { name: "血战", desc: "造成 14 点伤害，无视护盾" }
-  },
-  lubiao: {
-    name: "陆标", short: "标", title: "减压师", hp: 34, color: "#81c784",
-    resource: { name: "幽默", icon: "😄", max: 4, init: 0,
-      detail: "每打出一张牌 +1，上限 4。回合结束幽默≥2 时回复 2 生命。" },
-    skill: { name: "段子", cost: 1, resCost: 2, desc: "回复 5 生命，抽 1 张，对手下回合首次攻击 -2" },
-    ultimate: { name: "满堂彩", desc: "回复 12 生命，抽 2 张牌" }
-  },
-  rou: {
-    name: "柔", short: "柔", title: "记仇者", hp: 32, color: "#f06292",
-    resource: { name: "仇恨", icon: "💢", max: 9, init: 0,
-      detail: "每次受伤 +1，上限 9。受伤时攻击者被挂记仇（持续到柔的下个回合结束）。" },
-    skill: { name: "揪住不放", cost: 2, resCost: "all", desc: "对记仇敌人造成 3+仇恨×2 伤害；无记仇则 3+仇恨" },
-    ultimate: { name: "一报还一报", desc: "造成 15 伤害，无视护盾" }
-  },
-  xi: {
-    name: "汐", short: "汐", title: "利己者", hp: 30, color: "#ba68c8",
-    resource: { name: "筹码", icon: "🪙", max: 5, init: 0,
-      detail: "每累计造成 3 点伤害 +1，上限 5。" },
-    skill: { name: "利用", cost: 2, resCost: 3, desc: "偷对手 2 能量，回 3 生命，随机偷 1 张手牌" },
-    ultimate: { name: "过河拆桥", desc: "偷取对手全部能量，造成 8 伤害" }
-  },
-  gu: {
-    name: "顾", short: "顾", title: "伪装者", hp: 32, color: "#4db6ac",
-    resource: { name: "伪装", icon: "🎭", max: 3, init: 1,
-      detail: "回合结束若未出攻击牌 +1（上限 3）；出攻击牌立即清零。每层减伤 1。" },
-    skill: { name: "装弱", cost: 1, resCost: "all", desc: "按伪装层结算：1层2伤1回，2层5伤3回，3层9伤5回" },
-    ultimate: { name: "苦肉计", desc: "造成 10 伤害，回复 8 生命" }
-  },
-  zhiban: {
-    name: "智板", short: "板", title: "辩论家", hp: 31, color: "#ffd54f",
-    resource: { name: "论据", icon: "💬", max: 5, init: 0,
-      detail: "对手打出牌或使用技能时 +1，上限 5。论据≥3 时受到伤害 -1。" },
-    skill: { name: "反驳", cost: 2, resCost: 2, desc: "造成 5 伤害，对手下回合能量 -1；论据≥4 时禁用技能" },
-    ultimate: { name: "诡辩", desc: "造成 8 伤害，对手下回合不能使用技能和出牌" }
-  },
-  lujiancheng: {
-    name: "陆建成", short: "陆", title: "风度", hp: 34, color: "#f59e0b",
-    resource: { name: "风度", icon: "🎩", max: 6, init: 0,
-      detail: "每失去 1 张手牌（非打出）+2 风度，上限 6。" },
+  zhangxiang: { name: "张响", short: "响", title: "封印者", hp: 29, color: "#7c9cff",
+    resource: { name: "洞察", icon: "👁", max: 3, init: 1, turnStart: 1, detail: "回合开始 +1，上限 3。用于封牌和终极技。" },
+    skill: { name: "推演", cost: 2, resCost: 2, desc: "查看对手手牌，封印 1 张（对手下回合不可用），抽 1 张" },
+    ultimate: { name: "万卷归宗", desc: "封印对手 2 张最高费牌，造成 5 伤，抽 2 张" } },
+  zhangsien: { name: "张思恩", short: "恩", title: "维持者", hp: 31, color: "#ffb347",
+    resource: { name: "士气", icon: "🚩", max: 5, init: 0, detail: "每出一张牌 +1，上限 5。士气≥3 伤害+1，≥5 伤害+2。" },
+    skill: { name: "号令", cost: 2, resCost: 3, desc: "仅下一张攻击牌伤害翻倍，回合结束时士气清零" },
+    ultimate: { name: "誓师", desc: "造成 5 + 士气×2 伤害" } },
+  zhiyuchen: { name: "智宇晨", short: "晨", title: "转化者", hp: 35, color: "#4fc3f7",
+    resource: { name: "护盾", icon: "🛡", max: 6, init: 2, detail: "每累计造成 2 伤 +1 护盾，上限 6。护盾 2 回合消失。" },
+    skill: { name: "转化", cost: 1, resCost: "all", desc: "消耗全部护盾：二选一 —— 造成等量伤害 或 每2护盾换1能量" },
+    ultimate: { name: "守护领域", desc: "接下来 3 回合每回合：+1 能量 +1 护盾 +2 生命 +1 抽牌" } },
+  yangkaidong: { name: "杨开冬", short: "冬", title: "赌血者", hp: 35, color: "#ef5350",
+    resource: { name: "怒气", icon: "🔥", max: 10, init: 0, detail: "受伤 +2 怒气，上限 10。血量≤50%攻击+2，≤25%攻击+4。" },
+    skill: { name: "狂血", cost: 2, resCost: 5, desc: "造成 已损失血量÷3 的伤害（无视护盾）" },
+    ultimate: { name: "血战", desc: "损失当前血量的一半，对对手造成等量伤害（无视护盾）" } },
+  lubiao: { name: "陆标", short: "标", title: "反制者", hp: 31, color: "#81c784",
+    resource: { name: "幽默", icon: "😄", max: 4, init: 0, detail: "每出一张牌 +1，上限 4。对手每出一张攻击牌你回 1 血（每回合最多 3 次）。" },
+    skill: { name: "精神防御", cost: 1, resCost: 2, desc: "本回合受伤减半，每次受伤回复 2 生命" },
+    ultimate: { name: "满堂彩", desc: "回复 8 生命，本回合受伤减半" } },
+  rou: { name: "柔", short: "柔", title: "记仇者", hp: 29, color: "#f06292",
+    resource: { name: "仇恨", icon: "💢", max: 9, init: 0, detail: "受伤 +1，上限 9。每次受伤攻击者叠 1 层记仇（2 回合）。" },
+    skill: { name: "揪住不放", cost: 2, resCost: "all", desc: "造成 3+仇恨×2 + 对手记仇层数×2 伤害" },
+    ultimate: { name: "一报还一报", desc: "记仇敌人受 12 伤（无视护盾）；无记仇 8 伤" } },
+  xi: { name: "汐", short: "汐", title: "偷取者", hp: 27, color: "#ba68c8",
+    resource: { name: "筹码", icon: "🪙", max: 5, init: 0, detail: "每累计造成 3 伤 +1，上限 5。" },
+    skill: { name: "利用", cost: 2, resCost: 3, desc: "偷对手 2 能量，抽对手 1 张（本回合耗能-1，攻击伤害减半）" },
+    ultimate: { name: "过河拆桥", desc: "偷取对手全部能量，造成 8 伤害" } },
+  gu: { name: "顾", short: "顾", title: "伪装者", hp: 29, color: "#4db6ac",
+    resource: { name: "伪装", icon: "🎭", max: 3, init: 1, detail: "回合结束未出攻击牌 +1（上限 3）；出攻击牌清零。每层减伤 1。" },
+    skill: { name: "装弱", cost: 1, resCost: "all", desc: "1层2伤1回，2层5伤3回，3层9伤5回" },
+    ultimate: { name: "苦肉计", desc: "造成 10 伤害，回复 8 生命" } },
+  zhiban: { name: "智板", short: "板", title: "抗压者", hp: 28, color: "#ffd54f",
+    resource: { name: "论据", icon: "💬", max: 5, init: 0, detail: "对手出牌/技能 +1，上限 5。论据≥3 时受到伤害 -1。" },
+    skill: { name: "反驳", cost: 2, resCost: 2, desc: "本回合受伤减半，每次受伤抽 1 张" },
+    ultimate: { name: "诡辩", desc: "造成 论据×2 伤害，对手下回合能量 -2" } },
+  lujiancheng: { name: "陆建成", short: "陆", title: "控场者", hp: 31, color: "#f59e0b",
+    resource: { name: "风度", icon: "🎩", max: 6, init: 2, detail: "每失去 1 张手牌（非打出）+2 风度，上限 6。" },
     skill: { name: "夺牌", cost: 0, resCost: 0, desc: "消耗 n 能量 + n 风度，对手弃 n 张牌" },
-    ultimate: { name: "全部拿来", desc: "抢走对手所有手牌（不计入手牌上限），对手接下来 2 回合交牌" }
-  }
+    ultimate: { name: "全部拿来", desc: "抢走对手所有手牌（不计手牌上限），对手接下来 2 回合交牌" } }
 };
 
 const CARDS = {
-  quick:        { name: "快攻",     cost: 1, type: "attack",  desc: "造成 3 点伤害",   damage: 3 },
-  strike:       { name: "突袭",     cost: 2, type: "attack",  desc: "造成 6 点伤害",   damage: 6 },
-  block:        { name: "格挡",     cost: 1, type: "shield",  desc: "获得 4 点护盾",   shield: 4 },
-  heal:         { name: "治疗",     cost: 1, type: "heal",    desc: "回复 3 点生命",   heal: 3 },
-  insight:      { name: "洞察",     cost: 1, type: "draw",    desc: "查看对手手牌，选 1 张弃掉，自己抽 1 张" },
-  charge:       { name: "蓄能",     cost: 0, type: "energy",  desc: "获得 1 点能量" },
-  lockdown:     { name: "封锁",     cost: 3, type: "control", desc: "对手下回合不能出牌" },
-  drain:        { name: "克扣",     cost: 1, type: "control", desc: "对手能量 -1" },
-  trap:         { name: "陷阱",     cost: 1, type: "trap",    desc: "下次被攻击时反伤 4" },
-  steal:        { name: "偷取",     cost: 2, type: "steal",   desc: "查看对手手牌，选 1 张偷走" },
-  pursuit:      { name: "追击",     cost: 1, type: "combo",   desc: "2 伤；本回合已出攻击牌则 4 伤" },
-  combo:        { name: "连斩",     cost: 2, type: "combo",   desc: "4 伤；本回合每出过 1 张牌额外 +2（上限 +4）" },
-  pierce:       { name: "破防",     cost: 2, type: "cond",    desc: "5 伤；对手有护盾则无视护盾 +3" },
-  counter:      { name: "反击",     cost: 1, type: "cond",    desc: "获得 4 护盾；对手能量≥5 时对其造成 4 伤" },
-  exploit:      { name: "趁虚",     cost: 1, type: "cond",    desc: "3 伤；对手手牌≤2 时改为 6 伤" },
-  bloodlust:    { name: "血拼",     cost: 1, type: "cost",    desc: "造成 8 伤；自己失去 5 生命" },
-  overdraft:    { name: "透支",     cost: 0, type: "cost",    desc: "抽 2 张；下回合能量 -2" },
-  discardStrike:{ name: "弃牌换伤", cost: 0, type: "cost",    desc: "随机弃 1 张手牌；造成 5 伤" },
-  ambush:       { name: "埋伏",     cost: 2, type: "delay",   desc: "2 回合后对对手造成 8 伤" },
-  curse:        { name: "诅咒",     cost: 1, type: "delay",   desc: "对手 2 回合后失去 4 生命并弃 1 张牌" },
-  buildup:      { name: "蓄势",     cost: 1, type: "retain",  desc: "2 伤；手中每保留 1 回合额外 +2（上限 +6）" }
+  quick:{name:"快攻",cost:1,type:"attack",desc:"造成 3 点伤害",damage:3},
+  strike:{name:"突袭",cost:2,type:"attack",desc:"造成 6 点伤害",damage:6},
+  block:{name:"格挡",cost:1,type:"shield",desc:"获得 3 点护盾",shield:3},
+  heal:{name:"治疗",cost:1,type:"heal",desc:"回复 3 点生命",heal:3},
+  insight:{name:"洞察",cost:1,type:"draw",desc:"查看对手手牌，选 1 张弃掉，自己抽 1 张"},
+  charge:{name:"蓄能",cost:0,type:"energy",desc:"获得 1 点能量"},
+  lockdown:{name:"封锁",cost:3,type:"control",desc:"对手下回合不能出牌，也不能使用技能"},
+  drain:{name:"克扣",cost:1,type:"control",desc:"对手能量 -1，且下回合不获得能量"},
+  trap:{name:"陷阱",cost:1,type:"trap",desc:"下次被攻击时反伤 4"},
+  steal:{name:"偷取",cost:1,type:"steal",desc:"查看对手手牌，选 1 张偷走"},
+  pierce:{name:"破防",cost:2,type:"cond",desc:"5 伤；对手有护盾则无视护盾 +3"},
+  exploit:{name:"趁虚",cost:1,type:"cond",desc:"3 伤；对手手牌≤2 时改为 6 伤"},
+  bloodlust:{name:"血拼",cost:1,type:"cost",desc:"造成 5 伤；自己失去 3 生命"},
+  overdraft:{name:"透支",cost:0,type:"cost",desc:"抽 2 张；下回合能量 -2"},
+  ambush:{name:"埋伏",cost:2,type:"delay",desc:"2 回合后对对手造成 8 伤"},
+  curse:{name:"诅咒",cost:1,type:"delay",desc:"对手 2 回合后失去 4 生命并弃 1 张牌"},
+  buildup:{name:"蓄势",cost:1,type:"retain",desc:"2 伤；手中每保留 1 回合额外 +2（上限 +6）"},
+  cleanse:{name:"净化",cost:1,type:"cleanse",desc:"清除自身所有负面效果（含诅咒）"}
 };
 
 const DECK_LIST = [
   "block","block","block","block","block",
   "heal","heal","heal","heal",
-  "counter","counter","counter",
   "charge","charge","charge",
-  "insight","insight",
-  "overdraft",
-  "quick","quick",
-  "strike",
-  "bloodlust",
-  "discardStrike",
-  "pursuit","pursuit",
-  "combo",
-  "pierce","pierce",
-  "exploit","exploit",
-  "lockdown",
-  "drain","drain",
-  "trap","trap",
-  "steal",
-  "ambush",
-  "curse",
+  "insight","insight","overdraft",
+  "cleanse","cleanse","cleanse",
+  "quick","quick","quick",
+  "strike","strike","strike",
+  "bloodlust","bloodlust",
+  "pierce","pierce","exploit","exploit",
+  "lockdown","drain","drain",
+  "trap","trap","steal","steal",
+  "ambush","curse",
   "buildup","buildup"
 ];
 
@@ -813,499 +336,265 @@ const MAX_ENERGY = 7;
 const ENERGY_PER_TURN = 2;
 const HAND_LIMIT = 6;
 const INITIAL_HAND = 1;
-const SHIELD_MAX = 8;
+const SHIELD_MAX = 6;
 const SHIELD_TURNS = 2;
 
 const clickAudio = new Audio("oneclick.mp3");
 clickAudio.volume = 0.4;
-function playClick(rate = 1) {
-  try { clickAudio.currentTime = 0; clickAudio.playbackRate = rate; clickAudio.play().catch(() => {}); } catch (e) {}
-}
+function playClick(rate = 1) { try { clickAudio.currentTime = 0; clickAudio.playbackRate = rate; clickAudio.play().catch(() => {}); } catch (e) {} }
 
 const state = { mode: "human", players: [], current: 0, over: false, logs: [], busy: false, _busyTimer: null, turnCount: 0 };
 const setup = { mode: "human", p0: "zhangxiang", p1: "yangkaidong" };
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function log(msg) { state.logs.push(msg); }
 function normalHand(p) { return p.hand.filter(c => !c.isExtra); }
-function addRes(p, n) {
-  const max = ROLES[p.role].resource.max;
-  const before = p.resource;
-  p.resource = Math.min(max, p.resource + n);
-  if (n > 0 && p.resource > before) floatRes(state.players.indexOf(p), "+" + (p.resource - before), p.role);
-}
+function addRes(p, n) { const max = ROLES[p.role].resource.max; const before = p.resource; p.resource = Math.min(max, p.resource + n); if (n > 0 && p.resource > before) floatRes(state.players.indexOf(p), "+" + (p.resource - before), p.role); }
 function subRes(p, n) { p.resource = Math.max(0, p.resource - n); }
+function onLoseCard(p, n = 1) { if (p.role === "lujiancheng") { addRes(p, n * 2); log(`${p.name} 失去 ${n} 张牌，风度 +${n * 2}`); } }
 
-function onLoseCard(p, n = 1) {
-  if (p.role === "lujiancheng") {
-    addRes(p, n * 2);
-    log(`${p.name} 失去 ${n} 张牌，风度 +${n * 2}`);
-  }
+/* ========= 关键：抬手结算 ========= */
+/* 统一所有可点元素：pointerdown 只"武装"，pointerup 才真正执行 */
+function onTap(el, handler) {
+  let armed = false;
+  el.addEventListener("pointerdown", (e) => {
+    armed = true;
+    if (e.pointerType === "touch") el.style.touchAction = "manipulation";
+  });
+  el.addEventListener("pointerup", (e) => {
+    if (armed) { armed = false; handler(e); }
+  });
+  el.addEventListener("pointerleave", () => { armed = false; });
+  el.addEventListener("pointercancel", () => { armed = false; });
 }
 
 function draw(p, n, allowOverflow = false) {
   for (let i = 0; i < n; i++) {
-    if (!p.deck.length) {
-      if (!p.discard.length) return;
-      p.deck = shuffle(p.discard); p.discard = [];
-    }
+    if (!p.deck.length) { if (!p.discard.length) return; p.deck = shuffle(p.discard); p.discard = []; }
     const c = p.deck.pop();
-    if (!allowOverflow && normalHand(p).length >= HAND_LIMIT) {
-      p.discard.push(c);
-      onLoseCard(p, 1);
-    } else {
-      p.hand.push({ key: c, born: state.turnCount, isNew: true });
-    }
+    if (!allowOverflow && normalHand(p).length >= HAND_LIMIT) { p.discard.push(c); onLoseCard(p, 1); }
+    else p.hand.push({ key: c, born: state.turnCount, isNew: true });
   }
 }
-
-function totalShield(p) { return p.shields.reduce((s, l) => s + l.amount, 0); }
-
+function totalShield(p) { if (p.role === "zhiyuchen") return p.resource; return p.shields.reduce((s, l) => s + l.amount, 0); }
 function gainShield(p, n) {
-  const cur = totalShield(p);
-  const add = Math.min(SHIELD_MAX - cur, n);
-  if (add <= 0) {
-    if (cur >= SHIELD_MAX) log(`${p.name} 护盾已达上限`);
-    return;
-  }
-  p.shields.push({ amount: add, turns: SHIELD_TURNS });
-  log(`${p.name} 获得 ${add} 点护盾（2 回合后消失）`);
+  const cur = totalShield(p); const add = Math.min(SHIELD_MAX - cur, n);
+  if (add <= 0) return;
+  if (p.role === "zhiyuchen") { p.resource += add; p.shieldTimer = SHIELD_TURNS; }
+  else p.shields.push({ amount: add, turns: SHIELD_TURNS });
+  log(`${p.name} 获得 ${add} 点护盾`);
   floatText(state.players.indexOf(p), "+" + add, "shield");
 }
-
 function damageShield(p, dmg) {
+  if (p.role === "zhiyuchen") { const use = Math.min(p.resource, dmg); p.resource -= use; return use; }
   let remaining = dmg;
-  for (const layer of p.shields) {
-    if (remaining <= 0) break;
-    const absorb = Math.min(layer.amount, remaining);
-    layer.amount -= absorb;
-    remaining -= absorb;
-  }
+  for (const layer of p.shields) { if (remaining <= 0) break; const absorb = Math.min(layer.amount, remaining); layer.amount -= absorb; remaining -= absorb; }
   p.shields = p.shields.filter(l => l.amount > 0);
   return dmg - remaining;
 }
-
 function tickShields(p) {
-  if (p.role === "zhiyuchen") return;
+  if (p.role === "zhiyuchen") {
+    if (p.shieldTimer > 0) {
+      p.shieldTimer--;
+      if (p.shieldTimer === 0 && p.resource > 0) { const half = Math.ceil(p.resource / 2); log(`${p.name} 护盾减半：${p.resource} → ${half}`); p.resource = half; }
+    }
+    return;
+  }
   p.shields.forEach(l => l.turns--);
   const before = totalShield(p);
   p.shields = p.shields.filter(l => l.turns > 0);
   const after = totalShield(p);
   if (before > after) log(`${p.name} 有 ${before - after} 点护盾过期消失`);
 }
-
-function heal(p, n) {
-  const before = p.hp;
-  p.hp = Math.min(p.maxHp, p.hp + n);
-  const gained = p.hp - before;
-  if (gained > 0) {
-    log(`${p.name} 回复 ${gained} 点生命`);
-    floatText(state.players.indexOf(p), "+" + gained, "heal");
-  }
+function heal(p, n) { const before = p.hp; p.hp = Math.min(p.maxHp, p.hp + n); const g = p.hp - before; if (g > 0) { log(`${p.name} 回复 ${g} 点生命`); floatText(state.players.indexOf(p), "+" + g, "heal"); } }
+function tryEmergencyHeal(p) {
+  const idx = p.hand.findIndex(c => c.key === "heal");
+  if (idx < 0) return false;
+  const card = p.hand.splice(idx, 1)[0]; p.discard.push(card.key); p.hp = 1;
+  log(`${p.name} 濒死时打出治疗，血量回到 1`);
+  return true;
 }
+function lockBusy(ms) { state.busy = true; clearTimeout(state._busyTimer); state._busyTimer = setTimeout(unlockBusy, ms); }
+function unlockBusy() { clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = false; try { render(); } catch (e) { console.error(e); } }
 
-function lockBusy(ms) {
-  state.busy = true;
-  clearTimeout(state._busyTimer);
-  state._busyTimer = setTimeout(unlockBusy, ms);
-}
-function unlockBusy() {
-  clearTimeout(state._busyTimer);
-  state._busyTimer = null;
-  state.busy = false;
-  try { render(); } catch (e) { console.error(e); }
-}
-
-function floatText(playerIdx, text, type) {
-  const side = document.getElementById("side" + playerIdx);
-  if (!side) return;
-  const av = side.querySelector(".avatar");
-  if (!av) return;
+function floatText(idx, text, type) {
+  const side = document.getElementById("side" + idx); if (!side) return;
+  const av = side.querySelector(".avatar"); if (!av) return;
   const r = av.getBoundingClientRect();
-  const el = document.createElement("div");
-  el.className = "fly-" + type;
-  el.textContent = text;
-  el.style.left = (r.left + r.width / 2) + "px";
-  el.style.top = (r.top + r.height / 2) + "px";
-  document.getElementById("arena").appendChild(el);
-  setTimeout(() => el.remove(), 1200);
+  const el = document.createElement("div"); el.className = "fly-" + type; el.textContent = text;
+  el.style.left = (r.left + r.width / 2) + "px"; el.style.top = (r.top + r.height / 2) + "px";
+  document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 1400);
 }
-function floatRes(playerIdx, text, role) {
-  const side = document.getElementById("side" + playerIdx);
-  if (!side) return;
-  const av = side.querySelector(".avatar");
-  if (!av) return;
+function floatRes(idx, text, role) {
+  const side = document.getElementById("side" + idx); if (!side) return;
+  const av = side.querySelector(".avatar"); if (!av) return;
   const r = av.getBoundingClientRect();
-  const el = document.createElement("div");
-  el.className = "fly-energy";
-  el.textContent = text + " " + ROLES[role].resource.name;
+  const el = document.createElement("div"); el.className = "fly-energy"; el.textContent = text + " " + ROLES[role].resource.name;
   el.style.color = ROLES[role].color;
-  el.style.textShadow = "0 0 12px " + ROLES[role].color;
-  el.style.left = (r.left + r.width / 2) + "px";
-  el.style.top = (r.top + r.height / 2) + "px";
-  document.getElementById("arena").appendChild(el);
-  setTimeout(() => el.remove(), 1200);
+  el.style.left = (r.left + r.width / 2) + "px"; el.style.top = (r.top + r.height / 2) + "px";
+  document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 1200);
 }
-function flashSide(playerIdx) {
-  const el = document.getElementById("side" + playerIdx);
-  if (!el) return;
-  el.classList.remove("shake");
-  void el.offsetWidth;
-  el.classList.add("shake");
-}
-function pulseAvatar(playerIdx) {
-  const side = document.getElementById("side" + playerIdx);
-  if (!side) return;
-  const av = side.querySelector(".avatar");
-  if (!av) return;
-  av.classList.remove("pulse");
-  void av.offsetWidth;
-  av.classList.add("pulse");
-}
-function banner(text, color = "#fbbf24") {
-  const el = document.createElement("div");
-  el.className = "banner-tag";
-  el.textContent = text;
-  el.style.color = color;
-  document.getElementById("arena").appendChild(el);
-  setTimeout(() => el.remove(), 1400);
-}
+function flashSide(idx, isHit = false) { const el = document.getElementById("side" + idx); if (!el) return; el.classList.remove("shake", "hit"); void el.offsetWidth; el.classList.add(isHit ? "hit" : "shake"); }
+function screenHit() { const el = document.createElement("div"); el.className = "screen-hit"; document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 550); }
+function pulseAvatar(idx) { const side = document.getElementById("side" + idx); if (!side) return; const av = side.querySelector(".avatar"); if (!av) return; av.classList.remove("pulse"); void av.offsetWidth; av.classList.add("pulse"); }
+function banner(text, color = "#fbbf24") { const el = document.createElement("div"); el.className = "banner-tag"; el.textContent = text; el.style.color = color; document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 1400); }
 function flyCard(fromEl, toEl, type, text) {
   if (!fromEl || !toEl) return;
-  const from = fromEl.getBoundingClientRect();
-  const to = toEl.getBoundingClientRect();
-  const el = document.createElement("div");
-  el.className = "flying-card";
-  const colors = {
-    attack: "linear-gradient(155deg, #ef4444, #7f1d1d)",
-    shield: "linear-gradient(155deg, #3b82f6, #1e3a8a)",
-    heal:   "linear-gradient(155deg, #22c55e, #14532d)",
-    draw:   "linear-gradient(155deg, #a855f7, #4c1d95)",
-    energy: "linear-gradient(155deg, #f59e0b, #78350f)",
-    control:"linear-gradient(155deg, #8b5cf6, #4c1d95)",
-    trap:   "linear-gradient(155deg, #06b6d4, #164e63)",
-    steal:  "linear-gradient(155deg, #d946ef, #701a75)",
-    combo:  "linear-gradient(155deg, #f97316, #7c2d12)",
-    cond:   "linear-gradient(155deg, #14b8a6, #134e4a)",
-    cost:   "linear-gradient(155deg, #ef4444, #450a0a)",
-    delay:  "linear-gradient(155deg, #8b5cf6, #2e1065)",
-    retain: "linear-gradient(155deg, #eab308, #422006)"
-  };
+  const from = fromEl.getBoundingClientRect(); const to = toEl.getBoundingClientRect();
+  const el = document.createElement("div"); el.className = "flying-card";
+  const colors = { attack: "#ef4444", shield: "#3b82f6", heal: "#22c55e", draw: "#a855f7", energy: "#f59e0b", control: "#8b5cf6", trap: "#06b6d4", steal: "#d946ef", cond: "#14b8a6", cost: "#ef4444", delay: "#8b5cf6", retain: "#eab308", cleanse: "#f0abfc" };
   el.style.background = colors[type] || colors.attack;
   el.textContent = text || "";
-  el.style.left = from.left + "px";
-  el.style.top = from.top + "px";
-  el.style.width = from.width + "px";
-  el.style.height = from.height + "px";
+  el.style.left = from.left + "px"; el.style.top = from.top + "px";
+  el.style.width = from.width + "px"; el.style.height = from.height + "px";
   document.getElementById("arena").appendChild(el);
-  requestAnimationFrame(() => {
-    el.style.left = (to.left + to.width / 2 - 40) + "px";
-    el.style.top = (to.top + to.height / 2 - 50) + "px";
-    el.style.width = "80px";
-    el.style.height = "100px";
-    el.style.opacity = "0.85";
-    el.style.transform = "rotate(180deg) scale(0.8)";
-  });
+  requestAnimationFrame(() => { el.style.left = (to.left + to.width / 2 - 40) + "px"; el.style.top = (to.top + to.height / 2 - 50) + "px"; el.style.width = "80px"; el.style.height = "100px"; el.style.opacity = "0.85"; el.style.transform = "rotate(180deg) scale(0.8)"; });
   setTimeout(() => el.remove(), 650);
 }
 
-function flyCardAway(fromEl) {
-  if (!fromEl) return;
-  const r = fromEl.getBoundingClientRect();
-  const el = document.createElement("div");
-  el.className = "flying-card";
-  el.style.left = r.left + "px";
-  el.style.top = r.top + "px";
-  el.style.width = r.width + "px";
-  el.style.height = r.height + "px";
-  el.style.background = "linear-gradient(155deg, #4b5563, #1f2937)";
-  el.style.opacity = "0.9";
-  document.getElementById("arena").appendChild(el);
-  requestAnimationFrame(() => {
-    el.style.left = (r.left + (window.innerWidth / 2 - r.left - r.width / 2) * 0.6) + "px";
-    el.style.top = (window.innerHeight - 80) + "px";
-    el.style.transform = "rotate(35deg) scale(0.4)";
-    el.style.opacity = "0";
-  });
-  setTimeout(() => el.remove(), 700);
-}
-
 let modalEl = null;
-function closeModal() {
-  if (modalEl) { modalEl.remove(); modalEl = null; }
-}
+function closeModal() { if (modalEl) { modalEl.remove(); modalEl = null; } }
+function sideClassFor(idx) { return idx === 0 ? "side-left" : "side-right"; }
 
-function showResourceModal(playerIdx) {
+function showResourceModal(idx) {
   closeModal();
-  const p = state.players[playerIdx];
-  const role = ROLES[p.role];
-  const r = role.resource;
+  const p = state.players[idx]; const role = ROLES[p.role]; const r = role.resource;
   const modal = document.createElement("div");
-  modal.className = "modal-mask";
-  modal.style.setProperty("--c", role.color);
-  modal.innerHTML = `
-    <div class="modal-box">
-      <div class="modal-title">
-        <span class="mt-icon">${r.icon}</span>
-        <span>${r.name}</span>
-      </div>
-      <div class="modal-body">
-        <div class="modal-row"><div class="mr-label">当前</div><div class="mr-value">${p.resource} / ${r.max}</div></div>
-        <div class="modal-row"><div class="mr-label">说明</div><div class="mr-value">${r.detail}</div></div>
-        <div class="modal-row"><div class="mr-label">角色</div><div class="mr-value">${role.name} · ${role.title}</div></div>
-      </div>
-      <button class="modal-close">关 闭</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modalEl = modal;
-  modal.querySelector(".modal-close").onclick = () => { playClick(); closeModal(); };
-  modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+  modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", role.color);
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">${r.icon}</span><span>${r.name}</span></div><div class="modal-body"><div class="modal-row"><div class="mr-label">当前</div><div class="mr-value">${p.resource} / ${r.max}</div></div><div class="modal-row"><div class="mr-label">说明</div><div class="mr-value">${r.detail}</div></div></div><button class="modal-close">关 闭</button></div>`;
+  document.body.appendChild(modal); modalEl = modal;
+  const cb = modal.querySelector(".modal-close");
+  onTap(cb, () => { playClick(); closeModal(); });
+  onTap(modal, (e) => { if (e.target === modal) closeModal(); });
 }
 
-function showHandSelectModal(ownerIdx, title, onSelect) {
+function showHandSelectModal(ownerIdx, title, onSelect, selectorIdx = null) {
   closeModal();
-  clearTimeout(state._busyTimer);
-  state._busyTimer = null;
-  state.busy = true;
-
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
   const owner = state.players[ownerIdx];
+  const displayIdx = selectorIdx !== null ? selectorIdx : ownerIdx;
   const modal = document.createElement("div");
-  modal.className = "modal-mask";
-  modal.style.setProperty("--c", "#a855f7");
-  modal.innerHTML = `
-    <div class="modal-box" style="max-width: 640px;">
-      <div class="modal-title">
-        <span class="mt-icon">👁</span>
-        <span>${title}</span>
-      </div>
-      <div class="hand-select-grid"></div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modalEl = modal;
+  modal.className = "modal-mask " + sideClassFor(displayIdx); modal.style.setProperty("--c", "#a855f7");
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">👁</span><span>${title}</span></div><div class="hand-select-grid"></div></div>`;
+  document.body.appendChild(modal); modalEl = modal;
   const grid = modal.querySelector(".hand-select-grid");
-
   if (owner.hand.length === 0) {
     grid.innerHTML = `<div class="hand-select-empty">对手没有手牌</div>`;
-    setTimeout(() => { closeModal(); onSelect(-1); }, 700);
+    setTimeout(() => { closeModal(); state.busy = false; onSelect(-1); }, 700);
     return;
   }
-
   owner.hand.forEach((cardObj, idx) => {
     const def = CARDS[cardObj.key];
     const btn = document.createElement("button");
     btn.className = "card " + def.type;
     if (cardObj.isExtra) btn.classList.add("extra-card");
-    btn.innerHTML = `
-      <div class="card-cost">${def.cost}</div>
-      <div class="card-name">${def.name}</div>
-      <div class="card-type">${def.type}</div>
-      <div class="card-desc">${def.desc}</div>
-    `;
-    btn.onclick = () => {
-      playClick();
-      closeModal();
-      onSelect(idx);
-    };
+    btn.innerHTML = `<div class="card-cost">${def.cost}</div><div class="card-name">${def.name}</div><div class="card-type">${def.type}</div><div class="card-desc">${def.desc}</div>`;
+    onTap(btn, () => { playClick(); closeModal(); state.busy = false; onSelect(idx); });
     grid.appendChild(btn);
   });
 }
 
 function showMultiDiscardModal(p, count, title, onDone) {
   closeModal();
-  clearTimeout(state._busyTimer);
-  state._busyTimer = null;
-  state.busy = true;
-
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
+  const ownerIdx = state.players.indexOf(p);
   const selected = new Set();
   const modal = document.createElement("div");
-  modal.className = "modal-mask";
-  modal.style.setProperty("--c", "#ef4444");
-  modal.innerHTML = `
-    <div class="modal-box" style="max-width: 680px;">
-      <div class="modal-title">
-        <span class="mt-icon">🗑</span>
-        <span>${title}</span>
-      </div>
-      <div style="font-size:12px;color:#6b7a94;margin-bottom:8px;text-align:center;">
-        选择 ${count} 张牌弃掉（已选 <span class="sel-count">0</span> / ${count}）
-      </div>
-      <div class="hand-select-grid"></div>
-      <button class="modal-close" disabled>确认弃牌（0 / ${count}）</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modalEl = modal;
+  modal.className = "modal-mask " + sideClassFor(ownerIdx); modal.style.setProperty("--c", "#ef4444");
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">🗑</span><span>${title}</span></div><div style="font-size:12px;color:#6b7a94;margin-bottom:8px;text-align:center;">选择 ${count} 张牌弃掉（已选 <span class="sel-count">0</span> / ${count}）</div><div class="hand-select-grid"></div><button class="modal-close" disabled>确认弃牌（0 / ${count}）</button></div>`;
+  document.body.appendChild(modal); modalEl = modal;
   const grid = modal.querySelector(".hand-select-grid");
   const confirmBtn = modal.querySelector(".modal-close");
   const selCount = modal.querySelector(".sel-count");
-
-  const normalCards = p.hand.map((c, i) => ({ c, i })).filter(x => !x.c.isExtra);
-
-  normalCards.forEach(({ c, i }) => {
+  p.hand.map((c, i) => ({ c, i })).filter(x => !x.c.isExtra).forEach(({ c, i }) => {
     const def = CARDS[c.key];
     const btn = document.createElement("button");
     btn.className = "card " + def.type;
-    btn.innerHTML = `
-      <div class="card-cost">${def.cost}</div>
-      <div class="card-name">${def.name}</div>
-      <div class="card-type">${def.type}</div>
-      <div class="card-desc">${def.desc}</div>
-    `;
-    btn.onclick = () => {
+    btn.innerHTML = `<div class="card-cost">${def.cost}</div><div class="card-name">${def.name}</div><div class="card-type">${def.type}</div><div class="card-desc">${def.desc}</div>`;
+    onTap(btn, () => {
       playClick();
-      if (selected.has(i)) {
-        selected.delete(i);
-        btn.classList.remove("selected");
-      } else {
-        if (selected.size >= count) return;
-        selected.add(i);
-        btn.classList.add("selected");
-      }
+      if (selected.has(i)) { selected.delete(i); btn.classList.remove("selected"); }
+      else { if (selected.size >= count) return; selected.add(i); btn.classList.add("selected"); }
       selCount.textContent = selected.size;
       confirmBtn.textContent = `确认弃牌（${selected.size} / ${count}）`;
       confirmBtn.disabled = selected.size !== count;
-    };
+    });
     grid.appendChild(btn);
   });
-
-  confirmBtn.onclick = () => {
+  onTap(confirmBtn, () => {
     if (selected.size !== count) return;
     playClick();
     const indices = [...selected].sort((a, b) => b - a);
-    const sideEl = document.getElementById("side" + state.players.indexOf(p));
-    const handEl = sideEl.querySelector(".hand-area");
-    const cardEls = handEl ? handEl.querySelectorAll(".card") : [];
-    indices.forEach(i => {
-      if (cardEls[i]) flyCardAway(cardEls[i]);
-      const card = p.hand.splice(i, 1)[0];
-      p.discard.push(card.key);
-      onLoseCard(p, 1);
-    });
-    closeModal();
-    render();
-    unlockBusy();
-    onDone();
-  };
-
-  modal.onclick = (e) => { if (e.target === modal) {} };
+    indices.forEach(i => { const card = p.hand.splice(i, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); });
+    closeModal(); state.busy = false; render(); onDone();
+  });
 }
 
 function showNSelectModal(p, title, maxN, onSelect) {
   closeModal();
-  clearTimeout(state._busyTimer);
-  state._busyTimer = null;
-  state.busy = true;
-
-  const role = ROLES[p.role];
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
+  const idx = state.players.indexOf(p); const role = ROLES[p.role];
   const modal = document.createElement("div");
-  modal.className = "modal-mask";
-  modal.style.setProperty("--c", role.color);
-  modal.innerHTML = `
-    <div class="modal-box" style="--c: ${role.color};">
-      <div class="modal-title">
-        <span class="mt-icon">🎩</span>
-        <span>${title}</span>
-      </div>
-      <div class="modal-body">
-        <div style="font-size:12px;color:#6b7a94;margin-bottom:12px;text-align:center;">
-          选择消耗数 n（1 ~ ${maxN}）：消耗 n 能量 + n ${role.resource.name}，对手弃 n 张牌
-        </div>
-        <div class="n-buttons"></div>
-      </div>
-      <button class="modal-close">取 消</button>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modalEl = modal;
+  modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", role.color);
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">🎩</span><span>${title}</span></div><div class="modal-body"><div style="font-size:12px;color:#6b7a94;margin-bottom:12px;text-align:center;">选择消耗数 n（1 ~ ${maxN}）：消耗 n 能量 + n ${role.resource.name}，对手弃 n 张牌</div><div class="n-buttons"></div></div><button class="modal-close">取 消</button></div>`;
+  document.body.appendChild(modal); modalEl = modal;
   const btns = modal.querySelector(".n-buttons");
   for (let n = 1; n <= maxN; n++) {
-    const b = document.createElement("button");
-    b.className = "btn";
-    b.textContent = "n = " + n;
-    b.onclick = () => {
-      playClick();
-      closeModal();
-      state.busy = false;
-      onSelect(n);
-    };
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "n = " + n;
+    onTap(b, () => { playClick(); closeModal(); state.busy = false; onSelect(n); });
     btns.appendChild(b);
   }
-  modal.querySelector(".modal-close").onclick = () => {
-    playClick();
-    closeModal();
-    state.busy = false;
-    render();
-  };
-  modal.onclick = (e) => {
-    if (e.target === modal) {
-      closeModal();
-      state.busy = false;
-      render();
-    }
-  };
+  onTap(modal.querySelector(".modal-close"), () => { playClick(); closeModal(); state.busy = false; render(); });
+  onTap(modal, (e) => { if (e.target === modal) { closeModal(); state.busy = false; render(); } });
 }
 
-let tooltipEl = null;
-let tooltipTimer = null;
+function showChoiceModal(p, title, choices, onSelect) {
+  closeModal();
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
+  const idx = state.players.indexOf(p); const role = ROLES[p.role];
+  const modal = document.createElement("div");
+  modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", role.color);
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">✦</span><span>${title}</span></div><div class="modal-body"><div class="choice-list"></div></div><button class="modal-close">取 消</button></div>`;
+  document.body.appendChild(modal); modalEl = modal;
+  const list = modal.querySelector(".choice-list");
+  choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice-btn";
+    b.innerHTML = `<div class="cb-title">${c.title}</div><div class="cb-desc">${c.desc}</div>`;
+    if (c.disabled) { b.disabled = true; b.style.opacity = ".4"; b.style.cursor = "not-allowed"; }
+    else onTap(b, () => { playClick(); closeModal(); state.busy = false; onSelect(i); });
+    list.appendChild(b);
+  });
+  onTap(modal.querySelector(".modal-close"), () => { playClick(); closeModal(); state.busy = false; render(); });
+  onTap(modal, (e) => { if (e.target === modal) { closeModal(); state.busy = false; render(); } });
+}
+
+let tooltipEl = null; let tooltipTimer = null;
 function showTooltip(anchor, color, icon, title, costLabel, desc) {
   hideTooltip();
-  const tt = document.createElement("div");
-  tt.className = "tooltip";
-  tt.style.setProperty("--c", color);
-  tt.innerHTML = `
-    <div class="tooltip-title">
-      <span class="tt-icon">${icon}</span>
-      <span>${title}</span>
-      ${costLabel ? `<span class="tt-cost">${costLabel}</span>` : ""}
-    </div>
-    <div class="tooltip-desc">${desc}</div>
-  `;
-  document.body.appendChild(tt);
-  tooltipEl = tt;
-  const r = anchor.getBoundingClientRect();
-  const tr = tt.getBoundingClientRect();
-  const pad = 8;
-  let top = r.top - tr.height - pad;
-  let left = r.left + r.width / 2 - tr.width / 2;
+  const tt = document.createElement("div"); tt.className = "tooltip"; tt.style.setProperty("--c", color);
+  tt.innerHTML = `<div class="tooltip-title"><span class="tt-icon">${icon}</span><span>${title}</span>${costLabel ? `<span class="tt-cost">${costLabel}</span>` : ""}</div><div class="tooltip-desc">${desc}</div>`;
+  document.body.appendChild(tt); tooltipEl = tt;
+  const r = anchor.getBoundingClientRect(); const tr = tt.getBoundingClientRect(); const pad = 8;
+  let top = r.top - tr.height - pad; let left = r.left + r.width / 2 - tr.width / 2;
   if (top < pad) top = r.bottom + pad;
   if (left < pad) left = pad;
   if (left + tr.width > window.innerWidth - pad) left = window.innerWidth - tr.width - pad;
-  if (top + tr.height > window.innerHeight - pad) top = window.innerHeight - tr.height - pad;
-  tt.style.top = top + "px";
-  tt.style.left = left + "px";
-  clearTimeout(tooltipTimer);
-  tooltipTimer = setTimeout(hideTooltip, 4000);
+  tt.style.top = top + "px"; tt.style.left = left + "px";
+  clearTimeout(tooltipTimer); tooltipTimer = setTimeout(hideTooltip, 4000);
 }
-function hideTooltip() {
-  clearTimeout(tooltipTimer);
-  tooltipTimer = null;
-  if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; }
-}
-function bindAction(btn, color, icon, title, costLabel, desc, onTap) {
-  let pressTimer = null, longPressed = false;
-  const start = () => {
-    longPressed = false;
-    clearTimeout(pressTimer);
-    pressTimer = setTimeout(() => {
-      longPressed = true;
-      showTooltip(btn, color, icon, title, costLabel, desc);
-    }, 450);
-  };
+function hideTooltip() { clearTimeout(tooltipTimer); tooltipTimer = null; if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; } }
+
+/* 技能/大招按钮：长按看描述，抬手短按使用（保留原 bindAction，它已经是 pointerup 结算） */
+function bindAction(btn, color, icon, title, costLabel, desc, onTapCb) {
+  let pressTimer = null, longPressed = false, armed = false;
+  const start = () => { armed = true; longPressed = false; clearTimeout(pressTimer); pressTimer = setTimeout(() => { longPressed = true; showTooltip(btn, color, icon, title, costLabel, desc); }, 450); };
   const end = () => {
     clearTimeout(pressTimer); pressTimer = null;
-    if (!longPressed) { hideTooltip(); onTap(); }
-    longPressed = false;
+    if (armed && !longPressed) { hideTooltip(); onTapCb(); }
+    armed = false; longPressed = false;
   };
-  const cancel = () => { clearTimeout(pressTimer); pressTimer = null; longPressed = false; };
+  const cancel = () => { clearTimeout(pressTimer); pressTimer = null; armed = false; longPressed = false; };
   btn.addEventListener("pointerdown", start);
   btn.addEventListener("pointerup", end);
   btn.addEventListener("pointerleave", cancel);
@@ -1314,258 +603,115 @@ function bindAction(btn, color, icon, title, costLabel, desc, onTap) {
 
 function dealDamage(aIdx, dIdx, base, opts = {}) {
   if (state.over) return;
-  const atk = state.players[aIdx];
-  const def = state.players[dIdx];
+  const atk = state.players[aIdx]; const def = state.players[dIdx];
   let dmg = base;
-
   if (atk.damageBuff) dmg += atk.damageBuff;
-  if (atk.pendingAtkBuff && opts.isAttack) {
-    dmg += atk.pendingAtkBuff;
-    atk.pendingAtkBuff = 0;
-  }
-  if (atk.role === "zhangsien" && atk.resource >= 3) dmg += 1;
-  if (atk.role === "yangkaidong" && opts.isAttackCard && atk.resource >= 5) dmg += 2;
+  if (atk.pendingAtkBuff && opts.isAttack) { dmg += atk.pendingAtkBuff; atk.pendingAtkBuff = 0; }
+  if (atk.role === "zhangsien") { if (atk.resource >= 5) dmg += 2; else if (atk.resource >= 3) dmg += 1; }
+  if (atk.role === "yangkaidong" && opts.isAttackCard) { const ratio = atk.hp / atk.maxHp; if (ratio <= 0.25) dmg += 4; else if (ratio <= 0.5) dmg += 2; }
+  if (atk.nextAtkDouble && opts.isAttack) { dmg *= 2; atk.nextAtkDouble = false; log(`${atk.name} 号令触发：伤害翻倍`); }
   if (atk.doubleDamage) dmg *= 2;
-
-  if (opts.isAttack && atk.firstAtkDebuff > 0) {
-    dmg = Math.max(0, dmg - atk.firstAtkDebuff);
-    log(`${atk.name} 被干扰，伤害 -${atk.firstAtkDebuff}`);
-    atk.firstAtkDebuff = 0;
-  }
-
-  if (def.role === "yangkaidong" && def.resource >= 5) {
-    dmg -= 2;
-    log(`${def.name} 怒气护体，伤害 -2`);
-  }
+  if (opts.isAttack && atk.firstAtkDebuff > 0) { dmg = Math.max(0, dmg - atk.firstAtkDebuff); atk.firstAtkDebuff = 0; }
+  if (def.role === "yangkaidong" && def.resource >= 5) dmg -= 2;
   if (def.role === "gu") dmg -= def.resource;
   if (def.role === "zhiban" && def.resource >= 3) dmg -= 1;
-
+  if (def.damageHalfThisTurn) dmg = Math.floor(dmg / 2);
   dmg = Math.max(0, dmg);
-
-  if (!opts.ignoreShield) {
-    const absorbed = damageShield(def, dmg);
-    if (absorbed > 0) {
-      dmg -= absorbed;
-      log(`${def.name} 护盾抵挡 ${absorbed} 点`);
-    }
-  }
-
-  if (def.role === "zhiyuchen" && def.resource > 0 && dmg > 0) {
-    const use = Math.min(def.resource, dmg);
-    subRes(def, use); dmg -= use;
-    log(`守护抵消 ${use} 点`);
-  }
-
+  if (!opts.ignoreShield) { const absorbed = damageShield(def, dmg); if (absorbed > 0) { dmg -= absorbed; log(`${def.name} 护盾抵挡 ${absorbed} 点`); } }
   if (dmg > 0) {
     def.hp = Math.max(0, def.hp - dmg);
-    def.tookDamageThisTurn = true;
     log(`${def.name} 受到 ${dmg} 点伤害`);
-    floatText(dIdx, "-" + dmg, "damage");
-    flashSide(dIdx);
-  }
-
+    floatText(dIdx, "-" + dmg, "damage"); flashSide(dIdx, true); screenHit();
+  } else { floatText(dIdx, "免疫", "immunity"); flashSide(dIdx, false); }
   if (dmg > 0) {
     if (def.role === "yangkaidong") addRes(def, 2);
-    if (def.role === "rou") {
-      addRes(def, 1);
-      atk.markedByRou = state.turnCount + 2;
-      log(`${atk.name} 被${def.name}记仇`);
-    }
+    if (def.role === "rou") { addRes(def, 1); atk.rouMarks = (atk.rouMarks || 0) + 1; atk.rouMarkExpire = state.turnCount + 2; log(`${atk.name} 被${def.name}记仇（${atk.rouMarks} 层）`); }
+    if (def.role === "lubiao" && opts.isAttackCard && def.counterHealsUsed < 3) { def.counterHealsUsed = (def.counterHealsUsed || 0) + 1; heal(def, 1); log(`${def.name} 反制：对手攻击，回复 1 生命`); }
+    if (def.drawOnHurtThisTurn) { draw(def, 1); log(`${def.name} 抗压：受伤抽 1 张`); }
+    if (def.hurtHealThisTurn) heal(def, 2);
   }
-
-  if (opts.isAttack && def.reflect > 0) {
-    const rd = def.reflect;
-    def.reflect = 0;
-    atk.hp = Math.max(0, atk.hp - rd);
-    log(`${def.name} 反弹 ${rd} 点`);
-    floatText(aIdx, "-" + rd, "damage");
-    flashSide(aIdx);
-  }
-
-  if (opts.isAttack && def.trap > 0) {
-    const trapDmg = def.trap;
-    def.trap = 0;
-    atk.hp = Math.max(0, atk.hp - trapDmg);
-    log(`${def.name} 的陷阱触发，${atk.name} 受到 ${trapDmg} 点`);
-    floatText(aIdx, "-" + trapDmg, "damage");
-    flashSide(aIdx);
-  }
-
-  if (atk.role === "xi" && dmg > 0) {
-    atk.damageDealt = (atk.damageDealt || 0) + dmg;
-    while (atk.damageDealt >= 3) {
-      atk.damageDealt -= 3;
-      addRes(atk, 1);
-    }
-  }
-
-  if (def.hp <= 0) { endGame(aIdx); return; }
-  if (atk.hp <= 0) { endGame(dIdx); return; }
+  if (atk.role === "zhiyuchen" && dmg > 0) { atk.damageDealt = (atk.damageDealt || 0) + dmg; const gained = Math.floor(atk.damageDealt / 2); if (gained > 0) { atk.damageDealt -= gained * 2; gainShield(atk, gained); } }
+  if (atk.role === "xi" && dmg > 0) { atk.damageDealt = (atk.damageDealt || 0) + dmg; while (atk.damageDealt >= 3) { atk.damageDealt -= 3; addRes(atk, 1); } }
+  if (opts.isAttack && def.reflect > 0) { const rd = def.reflect; def.reflect = 0; atk.hp = Math.max(0, atk.hp - rd); log(`${def.name} 反弹 ${rd} 点`); floatText(aIdx, "-" + rd, "damage"); flashSide(aIdx, true); screenHit(); }
+  if (opts.isAttack && def.trap > 0) { const td = def.trap; def.trap = 0; atk.hp = Math.max(0, atk.hp - td); log(`${def.name} 陷阱触发，${atk.name} 受 ${td} 点`); floatText(aIdx, "-" + td, "damage"); flashSide(aIdx, true); screenHit(); }
+  if (def.hp <= 0 && !tryEmergencyHeal(def)) { endGame(aIdx); return; }
+  if (atk.hp <= 0 && !tryEmergencyHeal(atk)) { endGame(dIdx); return; }
 }
 
 function tickPending(p) {
   const triggered = [];
-  p.pending = p.pending.filter(e => {
-    e.turns--;
-    if (e.turns <= 0) { triggered.push(e); return false; }
-    return true;
-  });
+  p.pending = p.pending.filter(e => { e.turns--; if (e.turns <= 0) { triggered.push(e); return false; } return true; });
   triggered.forEach(e => {
-    const oppIdx = 1 - state.players.indexOf(p);
-    if (e.type === "ambush") {
-      log(`${p.name} 的埋伏触发！`);
-      dealDamage(oppIdx, state.players.indexOf(p), 8, { isAttack: true, ignoreShield: true });
-    } else if (e.type === "curse") {
+    const pIdx = state.players.indexOf(p); const oppIdx = 1 - pIdx;
+    if (e.type === "ambush") { log(`${p.name} 的埋伏触发！`); dealDamage(pIdx, oppIdx, 8, { isAttack: true, ignoreShield: true }); }
+    else if (e.type === "curse") {
       log(`${p.name} 的诅咒爆发！`);
-      p.hp = Math.max(0, p.hp - 4);
-      floatText(state.players.indexOf(p), "-4", "damage");
-      flashSide(state.players.indexOf(p));
-      if (normalHand(p).length > 0) {
-        const i = p.hand.findIndex(c => !c.isExtra);
-        if (i >= 0) {
-          const card = p.hand.splice(i, 1)[0];
-          p.discard.push(card.key);
-          onLoseCard(p, 1);
-          log(`${p.name} 弃掉 1 张手牌`);
-        }
-      }
-      if (p.hp <= 0) endGame(oppIdx);
+      p.hp = Math.max(0, p.hp - 4); floatText(pIdx, "-4", "damage"); flashSide(pIdx, true); screenHit();
+      if (normalHand(p).length > 0) { const i = p.hand.findIndex(c => !c.isExtra); if (i >= 0) { const card = p.hand.splice(i, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
+      if (p.hp <= 0 && !tryEmergencyHeal(p)) endGame(oppIdx);
     }
   });
 }
 
 function startTurn(i) {
-  state.current = i;
-  state.turnCount++;
-  const p = state.players[i];
-  const role = ROLES[p.role];
-
-  tickShields(p);
-  tickPending(p);
+  state.current = i; state.turnCount++;
+  const p = state.players[i]; const role = ROLES[p.role];
+  if (p.rouMarkExpire && state.turnCount >= p.rouMarkExpire) { p.rouMarks = 0; p.rouMarkExpire = 0; }
+  tickShields(p); tickPending(p);
   if (state.over) return;
-
-  if (!p.started) {
-    p.started = true;
-    p.energy = 3;
-  } else {
-    p.energy = Math.min(MAX_ENERGY, Math.max(0, p.energy + ENERGY_PER_TURN + (p.energyBonus || 0)));
-  }
+  if (!p.started) { p.started = true; p.energy = 3; }
+  else if (p.noEnergyGain) { p.noEnergyGain = false; log(`${p.name} 被封锁，本回合不获得能量`); }
+  else p.energy = Math.min(MAX_ENERGY, Math.max(0, p.energy + ENERGY_PER_TURN + (p.energyBonus || 0)));
   p.energyBonus = 0;
-
-  p.damageBuff = 0;
-  p.pendingAtkBuff = 0;
-  p.doubleDamage = false;
-  p.usedSkill = false;
-  p.reflect = 0;
-  p.combo = 0;
-  p.frozen = false;
-  p.trap = 0;
-  p.tookDamageThisTurn = false;
-  p.cardsPlayedThisTurn = 0;
-  p.attackPlayedThisTurn = false;
-
-  if (p.markedByRou && state.turnCount >= p.markedByRou) {
-    p.markedByRou = 0;
-  }
-
-  if (p.handOver > 0) {
-    promptHandOver(p, () => continueTurn(i));
-  } else {
-    continueTurn(i);
-  }
+  p.damageBuff = 0; p.doubleDamage = false; p.usedSkill = false; p.reflect = 0; p.combo = 0;
+  p.frozen = false; p.trap = 0; p.tookDamageThisTurn = false;
+  p.cardsPlayedThisTurn = 0; p.attackPlayedThisTurn = false;
+  p.counterHealsUsed = 0;
+  p.damageHalfThisTurn = false; p.drawOnHurtThisTurn = false; p.hurtHealThisTurn = false;
+  p.zeroResAtEndTurn = false;
+  if (p.handOver > 0) promptHandOver(p, () => continueTurn(i));
+  else continueTurn(i);
 }
 
 function promptHandOver(p, onDone) {
-  const idx = state.players.indexOf(p);
-  const receiver = state.players[1 - idx];
-
-  if (p.hand.length === 0) {
-    log(`${p.name} 没有手牌可交`);
-    p.handOver -= 1;
-    onDone();
-    return;
-  }
-
+  const idx = state.players.indexOf(p); const receiver = state.players[1 - idx];
+  if (p.hand.length === 0) { log(`${p.name} 没有手牌可交`); onDone(); return; }
   if (state.mode === "ai" && idx === 1) {
     const sel = aiPickWorstCard(p.hand);
-    if (sel >= 0) {
-      const card = p.hand.splice(sel, 1)[0];
-      receiver.hand.push(card);
-      log(`电脑 交给 ${receiver.name}「${CARDS[card.key].name}」`);
-    }
-    p.handOver -= 1;
-    render();
-    setTimeout(onDone, 400);
-    return;
+    if (sel >= 0) { const card = p.hand.splice(sel, 1)[0]; receiver.hand.push(card); log(`电脑 交给 ${receiver.name}「${CARDS[card.key].name}」`); }
+    p.handOver -= 1; render(); setTimeout(onDone, 400); return;
   }
-
-  if (state.mode === "human" && idx === 1) {
-    showHandSelectModal(idx, `交给对手 1 张牌（剩余 ${p.handOver} 次）`, (selIdx) => {
-      if (selIdx >= 0) {
-        const card = p.hand.splice(selIdx, 1)[0];
-        receiver.hand.push(card);
-        log(`${p.name} 交给 ${receiver.name}「${CARDS[card.key].name}」`);
-      }
-      p.handOver -= 1;
-      render();
-      unlockBusy();
-      onDone();
-    });
-    return;
-  }
-
   showHandSelectModal(idx, `交给对手 1 张牌（剩余 ${p.handOver} 次）`, (selIdx) => {
-    if (selIdx >= 0) {
-      const card = p.hand.splice(selIdx, 1)[0];
-      receiver.hand.push(card);
-      log(`${p.name} 交给 ${receiver.name}「${CARDS[card.key].name}」`);
-    }
-    p.handOver -= 1;
-    render();
-    unlockBusy();
-    onDone();
-  });
+    if (selIdx >= 0) { const card = p.hand.splice(selIdx, 1)[0]; receiver.hand.push(card); log(`${p.name} 交给 ${receiver.name}「${CARDS[card.key].name}」`); }
+    p.handOver -= 1; render(); onDone();
+  }, idx);
 }
 
 function continueTurn(i) {
   const p = state.players[i];
   draw(p, 2, true);
-
   const overflow = normalHand(p).length - HAND_LIMIT;
-  if (overflow > 0) {
-    promptDiscard(p, overflow, () => afterDraw(i));
-  } else {
-    afterDraw(i);
-  }
+  if (overflow > 0) promptDiscard(p, overflow, () => afterDraw(i));
+  else afterDraw(i);
 }
 
 function promptDiscard(p, count, onDone) {
   const idx = state.players.indexOf(p);
-
   if (state.mode === "ai" && idx === 1) {
-    for (let k = 0; k < count; k++) {
-      const sel = aiPickWorstCard(p.hand);
-      if (sel >= 0) {
-        const card = p.hand.splice(sel, 1)[0];
-        p.discard.push(card.key);
-        onLoseCard(p, 1);
-      }
-    }
-    log(`电脑 弃掉 ${count} 张牌`);
-    render();
-    setTimeout(onDone, 400);
-    return;
+    for (let k = 0; k < count; k++) { const sel = aiPickWorstCard(p.hand); if (sel >= 0) { const card = p.hand.splice(sel, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
+    log(`电脑 弃掉 ${count} 张牌`); render(); setTimeout(onDone, 400); return;
   }
-
-  showMultiDiscardModal(p, count, `手牌已满（${HAND_LIMIT}），弃 ${count} 张`, () => {
-    log(`${p.name} 弃掉 ${count} 张牌`);
-    onDone();
-  });
+  showMultiDiscardModal(p, count, `手牌已满（${HAND_LIMIT}），弃 ${count} 张`, () => { log(`${p.name} 弃掉 ${count} 张牌`); onDone(); });
 }
 
 function afterDraw(i) {
-  const p = state.players[i];
-  const role = ROLES[p.role];
+  const p = state.players[i]; const role = ROLES[p.role];
+  if (p.zhiyuchenBuff > 0) {
+    p.energy = Math.min(MAX_ENERGY, p.energy + 1);
+    gainShield(p, 1); heal(p, 2); draw(p, 1);
+    p.zhiyuchenBuff--;
+    log(`${p.name} 守护领域：+1 能量 +1 护盾 +2 生命 +1 抽（剩余 ${p.zhiyuchenBuff} 回合）`);
+  }
   if (role.resource.turnStart) addRes(p, role.resource.turnStart);
   log(`—— ${p.name} 的回合 · 能量 ${p.energy}/${MAX_ENERGY} ——`);
   render();
@@ -1575,242 +721,122 @@ function afterDraw(i) {
 function endTurn() {
   if (state.over || state.busy) return;
   if (state.mode === "ai" && state.current === 1) return;
-
   const p = state.players[state.current];
-
-  if (p.role === "gu" && !p.attackPlayedThisTurn) {
-    addRes(p, 1);
-    log(`${p.name} 未出攻击牌，伪装 +1`);
-  }
-
+  if (p.role === "gu" && !p.attackPlayedThisTurn) { addRes(p, 1); log(`${p.name} 未出攻击牌，伪装 +1`); }
   if (p.role === "lubiao" && p.resource >= 2) heal(p, 2);
-
-  p.locked = false;
-  p.noSkill = false;
-  p.firstAtkDebuff = 0;
-  p.combo = 0;
-
+  if (p.zeroResAtEndTurn) { p.resource = 0; log(`${p.name} 士气清零`); }
+  const sealedCount = p.hand.filter(c => c.sealed).length;
+  p.hand.forEach(c => c.sealed = false);
+  if (sealedCount > 0) log(`${p.name} 的 ${sealedCount} 张封印牌解封`);
+  p.locked = false; p.noSkill = false; p.firstAtkDebuff = 0; p.combo = 0;
   startTurn(1 - state.current);
 }
 
 function playCard(index) {
   if (state.over || state.busy) return;
   if (state.mode === "ai" && state.current === 1) return;
-
   const p = state.players[state.current];
   if (p.locked) { log(`${p.name} 被封锁，无法出牌`); return; }
-
   const cardObj = p.hand[index];
   if (!cardObj) return;
+  if (cardObj.sealed) { log(`「${CARDS[cardObj.key].name}」被封印，无法使用`); return; }
   const def = CARDS[cardObj.key];
-  if (p.energy < def.cost) return;
-
+  const realCost = Math.max(0, def.cost - (cardObj.stolenCostReduce ? 1 : 0));
+  if (p.energy < realCost) return;
   let comboBonus = 0;
   if (def.type === "attack" && p.combo > 0) comboBonus = Math.min(p.combo, 3);
-
   const sideEl = document.getElementById("side" + state.current);
   const handEl = sideEl.querySelector(".hand-area");
   const cardEl = handEl.children[index];
   const targetEl = document.getElementById("side" + (1 - state.current)).querySelector(".avatar");
-
-  p.energy -= def.cost;
+  p.energy -= realCost;
   p.hand.splice(index, 1);
   p.discard.push(cardObj.key);
-
   if (p.role === "zhangsien") addRes(p, 1);
   if (p.role === "lubiao") addRes(p, 1);
-
   p.cardsPlayedThisTurn++;
-  if (def.type === "attack") {
-    p.combo++;
-    p.attackPlayedThisTurn = true;
-    if (p.role === "gu" && p.resource > 0) {
-      log(`${p.name} 出攻击牌，伪装清零`);
-      p.resource = 0;
-    }
-  }
-
+  if (def.type === "attack") { p.combo++; p.attackPlayedThisTurn = true; if (p.role === "gu" && p.resource > 0) { log(`${p.name} 出攻击牌，伪装清零`); p.resource = 0; } }
   const oppP = state.players[1 - state.current];
-  if (oppP.role === "zhiban") {
-    addRes(oppP, 1);
-    log(`${oppP.name} 抓到破绽，论据 +1`);
-  }
-
-  lockBusy(700);
-  playClick(0.85);
-  pulseAvatar(state.current);
-
+  if (oppP.role === "zhiban") { addRes(oppP, 1); log(`${oppP.name} 抓到破绽，论据 +1`); }
+  lockBusy(700); playClick(0.85); pulseAvatar(state.current);
   flyCard(cardEl, targetEl, def.type, def.name);
   log(`${p.name} 使用「${def.name}」${comboBonus > 0 ? ` (连击 +${comboBonus})` : ""}`);
   render();
-
   setTimeout(() => {
-    const p2 = state.players[state.current];
-    const opp2 = state.players[1 - state.current];
-
+    const p2 = state.players[state.current]; const opp2 = state.players[1 - state.current];
     if (cardObj.key === "insight" && opp2.hand.length > 0) {
       showHandSelectModal(1 - state.current, "洞察 · 选择要弃掉的牌", (selIdx) => {
-        if (selIdx >= 0) {
-          const dropped = opp2.hand.splice(selIdx, 1)[0];
-          opp2.discard.push(dropped.key);
-          onLoseCard(opp2, 1);
-          log(`${p2.name} 洞察，弃掉对手的「${CARDS[dropped.key].name}」`);
-        }
-        draw(p2, 1);
-        render();
-        unlockBusy();
-      });
-      return;
+        if (selIdx >= 0) { const dropped = opp2.hand.splice(selIdx, 1)[0]; opp2.discard.push(dropped.key); onLoseCard(opp2, 1); log(`${p2.name} 洞察，弃掉「${CARDS[dropped.key].name}」`); }
+        draw(p2, 1); render();
+      }, state.current); return;
     }
-
     if (cardObj.key === "steal" && opp2.hand.length > 0) {
       showHandSelectModal(1 - state.current, "偷取 · 选择要偷走的牌", (selIdx) => {
         if (selIdx >= 0) {
           const stolen = opp2.hand.splice(selIdx, 1)[0];
-          if (normalHand(p2).length < HAND_LIMIT) {
-            stolen.isExtra = false;
-            stolen.isNew = true;
-            p2.hand.push(stolen);
-            log(`${p2.name} 偷走对手的「${CARDS[stolen.key].name}」`);
-            onLoseCard(opp2, 1);
-          } else {
-            opp2.discard.push(stolen.key);
-            onLoseCard(opp2, 1);
-            log(`${p2.name} 手牌已满，对手的「${CARDS[stolen.key].name}」被弃掉`);
-          }
+          if (normalHand(p2).length < HAND_LIMIT) { stolen.isNew = true; p2.hand.push(stolen); log(`${p2.name} 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1); }
+          else { opp2.discard.push(stolen.key); onLoseCard(opp2, 1); }
         }
         render();
-        unlockBusy();
-      });
-      return;
+      }, state.current); return;
     }
-
-    execCardEffect(state.current, cardObj.key, comboBonus, cardObj.born);
+    execCardEffect(state.current, cardObj.key, comboBonus, cardObj);
     render();
   }, 280);
 }
 
-function execCardEffect(playerIdx, cardKey, comboBonus = 0, born = 0) {
-  const p = state.players[playerIdx];
-  const oppIdx = 1 - playerIdx;
-  const opp = state.players[oppIdx];
+function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
+  const p = state.players[playerIdx]; const oppIdx = 1 - playerIdx; const opp = state.players[oppIdx];
   const def = CARDS[cardKey];
-  const oppEnergy = opp.energy;
-  const oppHandLen = normalHand(opp).length;
-  const oppShield = totalShield(opp);
-
+  const oppHandLen = normalHand(opp).length; const oppShield = totalShield(opp);
+  const isStolenDamage = cardObj && cardObj.stolenDamage;
   switch (cardKey) {
-    case "quick":
-    case "strike":
-      dealDamage(playerIdx, oppIdx, def.damage + comboBonus, { isAttack: true, isAttackCard: true });
-      break;
+    case "quick": case "strike": { let base = def.damage + comboBonus; if (isStolenDamage) base = Math.floor(def.damage / 2) + comboBonus; dealDamage(playerIdx, oppIdx, base, { isAttack: true, isAttackCard: true }); break; }
     case "block": gainShield(p, def.shield); break;
     case "heal": heal(p, def.heal); break;
     case "insight": draw(p, 1); break;
-    case "charge":
-      p.energy = Math.min(MAX_ENERGY, p.energy + 1);
-      log(`${p.name} 能量 +1 (${p.energy}/${MAX_ENERGY})`);
-      break;
-    case "lockdown":
-      opp.locked = true;
-      log(`${opp.name} 下回合无法出牌`);
-      break;
-    case "drain":
-      opp.energy = Math.max(0, opp.energy - 1);
-      log(`${opp.name} 能量 -1`);
-      break;
-    case "trap":
-      p.trap = 4;
-      log(`${p.name} 布置了陷阱`);
-      break;
+    case "charge": p.energy = Math.min(MAX_ENERGY, p.energy + 1); log(`${p.name} 能量 +1`); break;
+    case "lockdown": opp.locked = true; opp.noSkill = true; log(`${opp.name} 下回合不能出牌也不能用技能`); break;
+    case "drain": opp.energy = Math.max(0, opp.energy - 1); opp.noEnergyGain = true; log(`${opp.name} 能量 -1，下回合不获得能量`); break;
+    case "trap": p.trap = 4; log(`${p.name} 布置了陷阱`); break;
     case "steal":
       if (normalHand(opp).length > 0 && normalHand(p).length < HAND_LIMIT) {
         const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0) {
-          const i = idxs[Math.floor(Math.random() * idxs.length)];
-          const stolen = opp.hand.splice(i, 1)[0];
-          stolen.isNew = true;
-          p.hand.push(stolen);
-          onLoseCard(opp, 1);
-          log(`${p.name} 偷走对手 1 张手牌`);
-        }
-      } else {
-        log(`偷取失败`);
-      }
-      break;
-    case "pursuit": {
-      const dmg = p.attackPlayedThisTurn ? 4 : 2;
-      dealDamage(playerIdx, oppIdx, dmg, { isAttack: true, isAttackCard: true });
-      break;
-    }
-    case "combo": {
-      const extra = Math.min(p.cardsPlayedThisTurn * 2, 4);
-      dealDamage(playerIdx, oppIdx, 4 + extra, { isAttack: true, isAttackCard: true });
-      if (extra > 0) log(`连斩额外 +${extra}`);
-      break;
-    }
+        if (idxs.length > 0) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; p.hand.push(stolen); onLoseCard(opp, 1); log(`${p.name} 偷走 1 张手牌`); }
+      } break;
     case "pierce":
-      if (oppShield > 0) {
-        dealDamage(playerIdx, oppIdx, 8, { isAttack: true, isAttackCard: true, ignoreShield: true });
-        log(`破防：无视护盾`);
-      } else {
-        dealDamage(playerIdx, oppIdx, 5, { isAttack: true, isAttackCard: true });
-      }
-      break;
-    case "counter":
-      gainShield(p, 4);
-      if (oppEnergy >= 5) {
-        dealDamage(playerIdx, oppIdx, 4, { isAttack: true, ignoreShield: true });
-        log(`反击：对手能量过高，额外造成 4 伤害`);
-      }
-      break;
+      if (oppShield > 0) { dealDamage(playerIdx, oppIdx, 8, { isAttack: true, isAttackCard: true, ignoreShield: true }); log(`破防：无视护盾`); }
+      else dealDamage(playerIdx, oppIdx, 5, { isAttack: true, isAttackCard: true }); break;
     case "exploit":
-      if (oppHandLen <= 2) {
-        dealDamage(playerIdx, oppIdx, 6, { isAttack: true, isAttackCard: true });
-        log(`趁虚：对手手牌少，伤害提升`);
-      } else {
-        dealDamage(playerIdx, oppIdx, 3, { isAttack: true, isAttackCard: true });
-      }
-      break;
+      if (oppHandLen <= 2) { dealDamage(playerIdx, oppIdx, 6, { isAttack: true, isAttackCard: true }); log(`趁虚：对手手牌少`); }
+      else dealDamage(playerIdx, oppIdx, 3, { isAttack: true, isAttackCard: true }); break;
     case "bloodlust":
-      dealDamage(playerIdx, oppIdx, 8, { isAttack: true, isAttackCard: true });
-      p.hp = Math.max(0, p.hp - 5);
-      log(`${p.name} 自损 5 生命`);
-      floatText(playerIdx, "-5", "damage");
-      if (p.hp <= 0) { endGame(oppIdx); return; }
-      break;
-    case "overdraft":
-      draw(p, 2);
-      p.energyBonus = (p.energyBonus || 0) - 2;
-      log(`${p.name} 下回合能量 -2`);
-      break;
-    case "discardStrike": {
-      const idxs = p.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-      if (idxs.length > 0) {
-        const i = idxs[Math.floor(Math.random() * idxs.length)];
-        const dropped = p.hand.splice(i, 1)[0];
-        p.discard.push(dropped.key);
-        onLoseCard(p, 1);
-        log(`${p.name} 弃掉「${CARDS[dropped.key].name}」`);
-      }
       dealDamage(playerIdx, oppIdx, 5, { isAttack: true, isAttackCard: true });
-      break;
+      if (state.over) return;
+      p.hp = Math.max(0, p.hp - 3); log(`${p.name} 自损 3`); floatText(playerIdx, "-3", "damage");
+      if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
+    case "overdraft": draw(p, 2); p.energyBonus = (p.energyBonus || 0) - 2; log(`${p.name} 下回合能量 -2`); break;
+    case "cleanse": {
+      const removed = [];
+      if (p.locked) { p.locked = false; removed.push("出牌封锁"); }
+      if (p.noSkill) { p.noSkill = false; removed.push("技能封锁"); }
+      if (p.frozen) { p.frozen = false; removed.push("罚站"); }
+      if (p.firstAtkDebuff > 0) { p.firstAtkDebuff = 0; removed.push("首攻削减"); }
+      if (p.energyBonus < 0) { p.energyBonus = 0; removed.push("能量惩罚"); }
+      if (p.rouMarks > 0) { p.rouMarks = 0; removed.push("记仇"); }
+      if (p.noEnergyGain) { p.noEnergyGain = false; removed.push("能量封锁"); }
+      const curses = p.pending.filter(e => e.type === "curse");
+      if (curses.length > 0) { p.pending = p.pending.filter(e => e.type !== "curse"); removed.push("诅咒"); }
+      const sealedBefore = p.hand.filter(c => c.sealed).length;
+      p.hand.forEach(c => c.sealed = false);
+      if (sealedBefore > 0) removed.push(`封印×${sealedBefore}`);
+      if (removed.length > 0) log(`${p.name} 净化：清除 ${removed.join("、")}`);
+      else log(`${p.name} 净化：无负面效果可清除`);
+      floatText(playerIdx, "净化", "cleanse"); break;
     }
-    case "ambush":
-      p.pending.push({ type: "ambush", turns: 2 });
-      log(`${p.name} 布下埋伏，2 回合后爆发`);
-      break;
-    case "curse":
-      opp.pending.push({ type: "curse", turns: 2, from: playerIdx });
-      log(`${opp.name} 被诅咒，2 回合后爆发`);
-      break;
-    case "buildup": {
-      const age = state.turnCount - born;
-      const extra = Math.min(age * 2, 6);
-      dealDamage(playerIdx, oppIdx, 2 + extra, { isAttack: true, isAttackCard: true });
-      if (extra > 0) log(`蓄势：保留 ${age} 回合，额外 +${extra}`);
-      break;
-    }
+    case "ambush": p.pending.push({ type: "ambush", turns: 2 }); log(`${p.name} 布下埋伏，2 回合后爆发`); break;
+    case "curse": opp.pending.push({ type: "curse", turns: 2, from: playerIdx }); log(`${opp.name} 被诅咒，2 回合后爆发`); break;
+    case "buildup": { const age = state.turnCount - (cardObj?.born || 0); const extra = Math.min(age * 2, 6); dealDamage(playerIdx, oppIdx, 2 + extra, { isAttack: true, isAttackCard: true }); if (extra > 0) log(`蓄势：保留 ${age} 回合，额外 +${extra}`); break; }
   }
 }
 
@@ -1818,308 +844,190 @@ function checkSkillReady(p) {
   const role = ROLES[p.role];
   if (p.role === "lujiancheng") {
     const opp = state.players[1 - state.players.indexOf(p)];
-    const oppCount = normalHand(opp).length;
-    const maxN = Math.min(oppCount, p.energy, p.resource);
+    const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
     return !p.usedSkill && !p.frozen && !p.noSkill && maxN >= 1;
   }
   const sk = role.skill;
-  return !p.usedSkill && !p.frozen && !p.noSkill &&
-    p.energy >= sk.cost &&
-    (sk.resCost === "all" ? p.resource >= 1 : p.resource >= sk.resCost);
+  if (!p.usedSkill && !p.frozen && !p.noSkill && p.energy >= sk.cost) {
+    if (sk.resCost === "all") return p.resource >= 1;
+    return p.resource >= sk.resCost;
+  }
+  return false;
 }
 
 function useSkill() {
   if (state.over || state.busy) return;
   if (state.mode === "ai" && state.current === 1) return;
-
-  const p = state.players[state.current];
-  const role = ROLES[p.role];
-  const sk = role.skill;
-
+  const p = state.players[state.current]; const role = ROLES[p.role]; const sk = role.skill;
+  if (!checkSkillReady(p)) return;
   if (p.role === "lujiancheng") {
     const opp = state.players[1 - state.current];
     const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
-    if (!checkSkillReady(p) || maxN < 1) return;
-    promptSkillNForPlayer(p, maxN);
+    showNSelectModal(p, "夺牌", maxN, (n) => { if (n >= 1) doLujianchengSkill(p, n); });
     return;
   }
-
-  if (!checkSkillReady(p)) return;
-
+  if (p.role === "zhangxiang") { doZhangxiangSkill(p); return; }
+  if (p.role === "zhiyuchen") { doZhiyuchenSkill(p); return; }
   let resCost = sk.resCost === "all" ? p.resource : sk.resCost;
-
-  p.energy -= sk.cost;
-  subRes(p, resCost);
-  p.usedSkill = true;
-  p.combo = 0;
-
-  const oppIdx = 1 - state.current;
-  const opp = state.players[oppIdx];
+  p.energy -= sk.cost; subRes(p, resCost); p.usedSkill = true; p.combo = 0;
+  const oppIdx = 1 - state.current; const opp = state.players[oppIdx];
   if (opp.role === "zhiban") addRes(opp, 1);
-
-  lockBusy(1000);
-  playClick(1.3);
-  pulseAvatar(state.current);
+  lockBusy(1000); playClick(1.3); pulseAvatar(state.current);
   banner(sk.name, role.color);
   log(`${p.name} 使用技能「${sk.name}」`);
   render();
-
   setTimeout(() => {
     switch (p.role) {
-      case "zhangxiang": {
-        const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0) {
-          const i = idxs[Math.floor(Math.random() * idxs.length)];
-          const dropped = opp.hand.splice(i, 1)[0];
-          opp.discard.push(dropped.key);
-          onLoseCard(opp, 1);
-          log(`${p.name} 弃掉对手 1 张手牌`);
-        }
-        draw(p, 2);
-        p.pendingAtkBuff = 4;
-        log(`${p.name} 下次攻击 +4`);
-        break;
-      }
-      case "zhangsien":
-        p.doubleDamage = true;
-        opp.energyBonus = (opp.energyBonus || 0) - 1;
-        log(`${p.name} 伤害翻倍，${opp.name} 下回合能量 -1`);
-        break;
-      case "zhiyuchen": {
-        const shieldAmt = totalShield(p);
-        if (shieldAmt > 0) {
-          damageShield(p, shieldAmt);
-          dealDamage(state.current, oppIdx, shieldAmt, { isAttack: true });
-        }
-        draw(p, 2);
-        log(`${p.name} 消耗 ${shieldAmt} 护盾，造成等量伤害并抽 2`);
-        break;
-      }
-      case "yangkaidong":
-        dealDamage(state.current, oppIdx, 6, { isAttack: true });
-        gainShield(p, 2);
-        break;
-      case "lubiao":
-        heal(p, 5);
-        draw(p, 1);
-        opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2;
-        log(`${opp.name} 下回合首次攻击 -2`);
-        break;
-      case "rou": {
-        const isMarked = opp.markedByRou && state.turnCount <= opp.markedByRou;
-        const dmg = isMarked ? 3 + resCost * 2 : 3 + resCost;
-        if (isMarked) log(`${opp.name} 被记仇，伤害强化`);
-        dealDamage(state.current, oppIdx, dmg, { isAttack: true });
-        break;
-      }
+      case "zhangsien": p.nextAtkDouble = true; p.zeroResAtEndTurn = true; log(`${p.name} 号令：下一张攻击牌伤害翻倍`); break;
+      case "yangkaidong": { const lostHp = p.maxHp - p.hp; const dmg = Math.floor(lostHp / 3); if (dmg > 0) dealDamage(state.current, oppIdx, dmg, { isAttack: true, ignoreShield: true }); log(`${p.name} 狂血：造成 ${dmg} 伤害`); break; }
+      case "lubiao": p.damageHalfThisTurn = true; p.hurtHealThisTurn = true; break;
+      case "rou": { const marks = (opp.rouMarks || 0); const dmg = 3 + resCost * 2 + marks * 2; dealDamage(state.current, oppIdx, dmg, { isAttack: true }); break; }
       case "xi": {
-        const se = Math.min(2, opp.energy);
-        opp.energy -= se;
-        p.energy = Math.min(MAX_ENERGY, p.energy + se);
-        heal(p, 3);
+        const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se);
         const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) {
-          const i = idxs[Math.floor(Math.random() * idxs.length)];
-          const stolen = opp.hand.splice(i, 1)[0];
-          stolen.isNew = true;
-          p.hand.push(stolen);
-          onLoseCard(opp, 1);
-          log(`${p.name} 还偷走 1 张手牌`);
-        }
-        log(`偷取 ${se} 能量 + 3 生命`);
+        if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); }
         break;
       }
-      case "gu": {
-        let dmg = 0, healAmt = 0;
-        if (resCost >= 3) { dmg = 9; healAmt = 5; }
-        else if (resCost === 2) { dmg = 5; healAmt = 3; }
-        else if (resCost === 1) { dmg = 2; healAmt = 1; }
-        if (dmg > 0) {
-          dealDamage(state.current, oppIdx, dmg, { isAttack: true });
-          heal(p, healAmt);
-          log(`伪装 ${resCost} 层：${dmg} 伤害 + ${healAmt} 回复`);
-        }
-        opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2;
-        log(`${opp.name} 下回合首次攻击 -2`);
-        break;
-      }
-      case "zhiban":
-        dealDamage(state.current, oppIdx, 5, { isAttack: true });
-        opp.energyBonus = (opp.energyBonus || 0) - 1;
-        if (resCost >= 4) {
-          opp.noSkill = true;
-          log(`${opp.name} 下回合禁用技能`);
-        }
-        log(`${opp.name} 下回合能量 -1`);
-        break;
+      case "gu": { let dmg = 0, healAmt = 0; if (resCost >= 3) { dmg = 9; healAmt = 5; } else if (resCost === 2) { dmg = 5; healAmt = 3; } else if (resCost === 1) { dmg = 2; healAmt = 1; } if (dmg > 0) { dealDamage(state.current, oppIdx, dmg, { isAttack: true }); heal(p, healAmt); } opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2; break; }
+      case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; break;
     }
     render();
   }, 350);
 }
 
-function promptSkillNForPlayer(p, maxN) {
-  showNSelectModal(p, "夺牌", maxN, (n) => {
-    if (n < 1) return;
-    doLujianchengSkill(p, n);
+function doZhangxiangSkill(p) {
+  const idx = state.players.indexOf(p);
+  const opp = state.players[1 - idx];
+  if (normalHand(opp).length === 0) { log(`对手没有手牌可封`); return; }
+  showHandSelectModal(1 - idx, "推演 · 选择要封印的牌", (selIdx) => {
+    const sk = ROLES[p.role].skill;
+    if (p.energy < sk.cost || p.resource < sk.resCost) { log(`能量或资源不足`); render(); return; }
+    p.energy -= sk.cost; subRes(p, sk.resCost); p.usedSkill = true;
+    const oppP = state.players[1 - idx];
+    if (oppP.role === "zhiban") addRes(oppP, 1);
+    if (selIdx >= 0) { oppP.hand[selIdx].sealed = true; log(`${p.name} 推演，封印了「${CARDS[oppP.hand[selIdx].key].name}」（对手下回合不可用）`); }
+    draw(p, 1);
+    lockBusy(600); playClick(1.3); pulseAvatar(idx);
+    banner(sk.name, ROLES[p.role].color);
+    render();
+  }, idx);
+}
+
+function doZhiyuchenSkill(p) {
+  const idx = state.players.indexOf(p);
+  const shieldAmt = p.resource;
+  if (shieldAmt < 1) return;
+  const choices = [
+    { title: "转化伤害", desc: `造成 ${shieldAmt} 点伤害` },
+    { title: "转化能量", desc: shieldAmt >= 2 ? `每 2 护盾换 1 能量，获得 ${Math.min(3, Math.floor(shieldAmt / 2))} 能量` : `护盾不足 2，无法转化能量`, disabled: shieldAmt < 2 }
+  ];
+  showChoiceModal(p, "转化 · 选择方向", choices, (i) => {
+    const sk = ROLES[p.role].skill;
+    if (p.energy < sk.cost) { log(`能量不足`); render(); return; }
+    p.energy -= sk.cost; p.usedSkill = true;
+    lockBusy(900); playClick(1.3); pulseAvatar(idx);
+    if (i === 0) { p.resource = 0; dealDamage(idx, 1 - idx, shieldAmt, { isAttack: true }); log(`${p.name} 转化 ${shieldAmt} 护盾 → ${shieldAmt} 伤害`); }
+    else { const gain = Math.min(3, Math.floor(shieldAmt / 2)); p.resource = 0; p.energy = Math.min(MAX_ENERGY, p.energy + gain); log(`${p.name} 转化 ${shieldAmt} 护盾 → ${gain} 能量`); }
+    render();
   });
 }
 
 function doLujianchengSkill(p, n) {
-  const idx = state.players.indexOf(p);
-  const opp = state.players[1 - idx];
-
-  p.energy -= n;
-  subRes(p, n);
-  p.usedSkill = true;
-  p.combo = 0;
-
-  const role = ROLES[p.role];
-  lockBusy(1500);
-  playClick(1.3);
-  pulseAvatar(idx);
-  banner(role.skill.name, role.color);
+  const idx = state.players.indexOf(p); const opp = state.players[1 - idx];
+  p.energy -= n; subRes(p, n); p.usedSkill = true;
+  lockBusy(1500); playClick(1.3); pulseAvatar(idx);
+  banner(ROLES[p.role].skill.name, ROLES[p.role].color);
   log(`${p.name} 使用夺牌：消耗 ${n} 能量 + ${n} 风度`);
   render();
-
-  setTimeout(() => {
-    promptOpponentDiscard(opp, n, () => {
-      render();
-      unlockBusy();
-    });
-  }, 400);
+  setTimeout(() => { promptOpponentDiscard(opp, n, () => { render(); unlockBusy(); }); }, 400);
 }
 
 function promptOpponentDiscard(opp, count, onDone) {
   const oppIdx = state.players.indexOf(opp);
   const isAI = state.mode === "ai" && oppIdx === 1;
   const avail = Math.min(count, normalHand(opp).length);
-
-  if (avail <= 0) {
-    log(`${opp.name} 没有手牌可弃`);
-    onDone();
-    return;
-  }
-
+  if (avail <= 0) { log(`${opp.name} 没有手牌可弃`); onDone(); return; }
   if (isAI) {
-    for (let k = 0; k < avail; k++) {
-      const sel = aiPickWorstCard(opp.hand);
-      if (sel >= 0) {
-        const card = opp.hand.splice(sel, 1)[0];
-        opp.discard.push(card.key);
-        onLoseCard(opp, 1);
-      }
-    }
-    log(`电脑 弃掉 ${avail} 张牌`);
-    render();
-    setTimeout(onDone, 400);
-    return;
+    for (let k = 0; k < avail; k++) { const sel = aiPickWorstCard(opp.hand); if (sel >= 0) { const card = opp.hand.splice(sel, 1)[0]; opp.discard.push(card.key); onLoseCard(opp, 1); } }
+    log(`电脑 弃掉 ${avail} 张牌`); render(); setTimeout(onDone, 400); return;
   }
-
-  showMultiDiscardModal(opp, avail, `${opp.name} 弃掉 ${avail} 张牌`, () => {
-    log(`${opp.name} 弃掉 ${avail} 张牌`);
-    onDone();
-  });
+  showMultiDiscardModal(opp, avail, `${opp.name} 弃掉 ${avail} 张牌`, () => { log(`${opp.name} 弃掉 ${avail} 张牌`); onDone(); });
 }
 
 function checkUltReady(p) {
   const role = ROLES[p.role];
-  if (p.role === "lujiancheng") {
-    return !p.usedUltimate && p.energy >= 4 && p.resource >= 6;
-  }
-  return !p.usedUltimate
-    && p.energy >= 3
-    && p.resource >= Math.ceil(role.resource.max / 2);
+  if (p.role === "lujiancheng") return p.energy >= 4 && p.resource >= 6;
+  if (p.role === "zhiyuchen") return p.energy >= 3 && p.resource >= 3;
+  if (p.role === "zhangxiang") return p.energy >= 3 && p.resource >= 3;
+  if (p.role === "yangkaidong") return p.energy >= 3 && p.resource >= 5 && p.hp >= 2;
+  if (p.role === "zhangsien") return p.energy >= 3 && p.resource >= 1;
+  if (p.role === "gu") return p.energy >= 3 && p.resource >= 3;
+  if (p.role === "zhiban") return p.energy >= 3 && p.resource >= 2;
+  return p.energy >= 3 && p.resource >= Math.ceil(role.resource.max / 2);
 }
 
 function useUltimate() {
   if (state.over || state.busy) return;
   if (state.mode === "ai" && state.current === 1) return;
-
-  const p = state.players[state.current];
-  const role = ROLES[p.role];
+  const p = state.players[state.current]; const role = ROLES[p.role];
   if (!checkUltReady(p)) return;
-
   const savedRes = p.resource;
-  if (p.role === "lujiancheng") {
-    p.energy -= 4;
-    p.resource = 0;
-  } else {
-    p.energy -= 3;
-    p.resource = 0;
-  }
-  p.usedUltimate = true;
+  if (p.role === "lujiancheng") { p.energy -= 4; p.resource = 0; }
+  else if (p.role === "zhiyuchen") { p.energy -= 3; }
+  else { p.energy -= 3; p.resource = 0; }
   p.combo = 0;
+  if (p.role === "zhiban") doZhibanUlt(p, savedRes);
+  else if (p.role === "yangkaidong") doYangkaidongUlt(p);
+  else {
+    lockBusy(1200); playClick(1.6); pulseAvatar(state.current);
+    banner("终极 · " + role.ultimate.name, "#fbbf24");
+    log(`${p.name} 发动终极技「${role.ultimate.name}」`);
+    render();
+    setTimeout(() => { execUltimate(state.current, savedRes); render(); }, 500);
+  }
+}
 
-  lockBusy(1200);
-  playClick(1.6);
-  pulseAvatar(state.current);
-  banner("终极 · " + role.ultimate.name, "#fbbf24");
-  log(`${p.name} 发动终极技「${role.ultimate.name}」`);
-  render();
-
+function doZhibanUlt(p, resCost) {
+  const idx = state.players.indexOf(p); const opp = state.players[1 - idx];
+  lockBusy(1200); playClick(1.6); pulseAvatar(idx);
+  banner("终极 · 诡辩", "#fbbf24");
+  const dmg = resCost * 2;
   setTimeout(() => {
-    execUltimate(state.current, savedRes);
+    dealDamage(idx, 1 - idx, dmg, { isAttack: true });
+    if (!state.over) { opp.energy = Math.max(0, opp.energy - 2); log(`${opp.name} 下回合能量 -2`); }
+    render();
+  }, 500);
+}
+
+function doYangkaidongUlt(p) {
+  const idx = state.players.indexOf(p);
+  const half = Math.floor(p.hp / 2);
+  lockBusy(1200); playClick(1.6); pulseAvatar(idx);
+  banner("终极 · 血战", "#fbbf24");
+  p.hp -= half; floatText(idx, "-" + half, "damage");
+  setTimeout(() => {
+    dealDamage(idx, 1 - idx, half, { isAttack: true, ignoreShield: true });
+    if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(1 - idx); return; }
     render();
   }, 500);
 }
 
 function execUltimate(idx, savedRes) {
-  const p = state.players[idx];
-  const oppIdx = 1 - idx;
-  const opp = state.players[oppIdx];
+  const p = state.players[idx]; const oppIdx = 1 - idx; const opp = state.players[oppIdx];
   switch (p.role) {
-    case "zhangxiang":
-      dealDamage(idx, oppIdx, 10, { isAttack: true });
-      draw(p, 3);
-      break;
-    case "zhangsien":
-      p.doubleDamage = true;
-      p.damageBuff += 5;
-      draw(p, 1);
-      break;
-    case "zhiyuchen":
-      gainShield(p, 20);
-      p.reflect = 8;
-      heal(p, 5);
-      break;
-    case "yangkaidong":
-      dealDamage(idx, oppIdx, 14, { isAttack: true, ignoreShield: true });
-      break;
-    case "lubiao":
-      heal(p, 12);
-      draw(p, 2);
-      break;
-    case "rou":
-      dealDamage(idx, oppIdx, 15, { isAttack: true, ignoreShield: true });
-      break;
-    case "xi":
-      opp.energy = 0;
-      dealDamage(idx, oppIdx, 8, { isAttack: true });
-      heal(p, 3);
-      break;
-    case "gu":
-      dealDamage(idx, oppIdx, 10, { isAttack: true });
-      heal(p, 8);
-      break;
-    case "zhiban":
-      dealDamage(idx, oppIdx, 8, { isAttack: true });
-      opp.frozen = true;
-      opp.locked = true;
-      opp.noSkill = true;
-      break;
-    case "lujiancheng": {
-      const stolenCards = opp.hand.slice();
-      opp.hand = [];
-      stolenCards.forEach(c => {
-        c.isExtra = true;
-        c.isNew = true;
-        p.hand.push(c);
-      });
-      opp.handOver = (opp.handOver || 0) + 2;
-      onLoseCard(opp, stolenCards.length);
-      log(`${p.name} 抢走对手 ${stolenCards.length} 张手牌，对手接下来 2 回合交牌`);
-      break;
+    case "zhangxiang": {
+      const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
+      const sorted = idxs.sort((a, b) => CARDS[opp.hand[b].key].cost - CARDS[opp.hand[a].key].cost);
+      sorted.slice(0, 2).forEach(i => { opp.hand[i].sealed = true; });
+      dealDamage(idx, oppIdx, 5, { isAttack: true }); draw(p, 2); break;
     }
+    case "zhangsien": dealDamage(idx, oppIdx, 5 + savedRes * 2, { isAttack: true }); break;
+    case "zhiyuchen": p.zhiyuchenBuff = 3; gainShield(p, 1); heal(p, 2); p.energy = Math.min(MAX_ENERGY, p.energy + 1); draw(p, 1); break;
+    case "lubiao": heal(p, 8); p.damageHalfThisTurn = true; break;
+    case "rou": { const marks = opp.rouMarks || 0; const dmg = marks > 0 ? 12 : 8; dealDamage(idx, oppIdx, dmg, { isAttack: true, ignoreShield: true }); opp.rouMarks = 0; break; }
+    case "xi": opp.energy = 0; dealDamage(idx, oppIdx, 8, { isAttack: true }); heal(p, 3); break;
+    case "gu": dealDamage(idx, oppIdx, 10, { isAttack: true }); heal(p, 8); break;
+    case "lujiancheng": { const stolenCards = opp.hand.slice(); opp.hand = []; stolenCards.forEach(c => { c.isExtra = true; c.isNew = true; p.hand.push(c); }); opp.handOver = (opp.handOver || 0) + 2; onLoseCard(opp, stolenCards.length); break; }
   }
 }
 
@@ -2127,236 +1035,149 @@ function endGame(winnerIdx) {
   state.over = true;
   const w = state.players[winnerIdx];
   log(`🏆 ${w.name} 获胜！`);
-  clearTimeout(state._busyTimer);
-  state._busyTimer = null;
-  state.busy = false;
-  hideTooltip();
-  closeModal();
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = false;
+  hideTooltip(); closeModal();
   try { render(); } catch (e) { console.error(e); }
-
   setTimeout(() => {
-    const b = document.createElement("div");
-    b.className = "win-banner";
+    const b = document.createElement("div"); b.className = "win-banner";
     b.innerHTML = `<h2>${w.name} 获胜</h2><button class="btn" style="padding:14px 40px;font-size:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none">再来一局</button>`;
-    b.querySelector("button").onclick = () => { playClick(); location.reload(); };
+    onTap(b.querySelector("button"), () => { playClick(); location.reload(); });
     document.body.appendChild(b);
   }, 500);
 }
 
 function renderSide(i) {
-  const p = state.players[i];
-  const el = document.getElementById("side" + i);
-  const role = ROLES[p.role];
-  const r = role.resource;
+  const p = state.players[i]; const el = document.getElementById("side" + i);
+  const role = ROLES[p.role]; const r = role.resource;
   el.style.setProperty("--c", role.color);
   el.classList.toggle("active", state.current === i && !state.over);
-
   const isCurrent = state.current === i && !state.over;
   const ultReady = checkUltReady(p) && isCurrent;
   const shieldAmt = totalShield(p);
-
   const skReady = checkSkillReady(p);
   const skDis = !isCurrent || !skReady;
-
   let resCostLabel;
-  if (p.role === "lujiancheng") {
-    resCostLabel = "n能量+n" + r.name;
-  } else {
-    resCostLabel = role.skill.resCost === "all"
-      ? "全" + r.name
-      : role.skill.resCost + r.name;
-  }
-  const ultResCost = p.role === "lujiancheng" ? 6 : Math.ceil(r.max / 2);
+  if (p.role === "lujiancheng") resCostLabel = "n能量+n" + r.name;
+  else resCostLabel = role.skill.resCost === "all" ? "全" + r.name : role.skill.resCost + r.name;
+  const ultResCost = p.role === "lujiancheng" ? 6 : (p.role === "zhiyuchen" ? 3 : (p.role === "zhangxiang" ? 3 : (p.role === "zhangsien" ? "任意士气" : (p.role === "zhiban" ? 2 : Math.ceil(r.max / 2)))));
   const ultEnergyCost = p.role === "lujiancheng" ? 4 : 3;
-
+  const ultResLabel = p.role === "zhiyuchen" ? "护盾" : (p.role === "zhangsien" ? "" : (p.role === "zhiban" ? "论据" : r.name));
+  const resRow = p.role === "zhiyuchen" ? "" : `<div class="stats-row"><div class="stat-group"><span class="res-name">${r.icon} ${r.name}</span><div class="res-pips">${Array.from({ length: r.max }, (_, k) => `<span class="rpip ${k < p.resource ? "on" : ""}"></span>`).join("")}</div><span class="stat-num" style="color:${role.color}">${p.resource}</span><button class="info-btn" data-info="${i}">?</button></div></div>`;
   el.innerHTML = `
     <div class="hud">
       <div class="hud-top">
         <div class="avatar">${role.short}</div>
         <div class="name-hp">
-          <div class="name-line">
-            <span class="pname">${p.name}</span>
-            <span class="prole">${role.title}</span>
-          </div>
-          <div class="hp-bar">
-            <div class="hp-fill" style="width:${p.hp / p.maxHp * 100}%"></div>
-            <div class="hp-text">${p.hp} / ${p.maxHp}</div>
-          </div>
+          <div class="name-line"><span class="pname">${p.name}</span><span class="prole">${role.title}</span></div>
+          <div class="hp-bar"><div class="hp-fill" style="width:${p.hp / p.maxHp * 100}%"></div><div class="hp-text">${p.hp} / ${p.maxHp}</div></div>
         </div>
       </div>
       <div class="stats-line">
         <div class="stats-row">
-          <div class="stat-group">
-            <span class="stat-num shield-val">🛡 ${shieldAmt}</span>
-          </div>
-          <div class="stat-group energy">
-            <div class="energy-pips">
-              ${Array.from({ length: MAX_ENERGY }, (_, k) =>
-                `<span class="pip ${k < p.energy ? "on" : ""}"></span>`).join("")}
-            </div>
-            <span class="stat-num energy-val">${p.energy}/${MAX_ENERGY}</span>
-          </div>
+          <div class="stat-group"><span class="stat-num shield-val">🛡 ${shieldAmt}</span></div>
+          <div class="stat-group energy"><div class="energy-pips">${Array.from({ length: MAX_ENERGY }, (_, k) => `<span class="pip ${k < p.energy ? "on" : ""}"></span>`).join("")}</div><span class="stat-num energy-val">${p.energy}/${MAX_ENERGY}</span></div>
         </div>
-        <div class="stats-row">
-          <div class="stat-group">
-            <span class="res-name">${r.icon} ${r.name}</span>
-            <div class="res-pips">
-              ${Array.from({ length: r.max }, (_, k) =>
-                `<span class="rpip ${k < p.resource ? "on" : ""}"></span>`).join("")}
-            </div>
-            <span class="stat-num" style="color:${role.color}">${p.resource}</span>
-            <button class="info-btn" data-info="${i}">?</button>
-          </div>
-        </div>
+        ${resRow}
       </div>
     </div>
-
     <div class="status-line"></div>
-
     <div class="actions-line">
-      <button class="action-btn skill-btn" ${skDis ? "disabled" : ""}>
+      <button class="action-btn skill-btn ${skDis ? "disabled-style" : ""}">
         <div class="btn-icon">⚡</div>
         <div class="btn-content">
-          <div class="btn-title">
-            <span>${role.skill.name}</span>
-            <span class="cost-badge">${p.role === "lujiancheng" ? resCostLabel : `${role.skill.cost} · ${resCostLabel}`}</span>
-          </div>
+          <div class="btn-title"><span>${role.skill.name}</span><span class="cost-badge">${p.role === "lujiancheng" ? resCostLabel : `${role.skill.cost} · ${resCostLabel}`}</span></div>
           <div class="btn-desc">${role.skill.desc}</div>
         </div>
       </button>
-      <button class="action-btn ult-btn ${ultReady ? "ready" : ""}" ${!ultReady ? "disabled" : ""}>
+      <button class="action-btn ult-btn ${ultReady ? "ready" : ""} ${!ultReady ? "disabled-style" : ""}">
         <div class="btn-icon">★</div>
         <div class="btn-content">
-          <div class="btn-title">
-            <span>${role.ultimate.name}</span>
-            <span class="cost-badge" style="background:rgba(251,191,36,0.2);color:#fbbf24">${ultEnergyCost} · ${ultResCost}${r.name}</span>
-          </div>
-          <div class="btn-desc">${p.usedUltimate ? "本场已使用" : role.ultimate.desc}</div>
+          <div class="btn-title"><span>${role.ultimate.name}</span><span class="cost-badge" style="background:rgba(251,191,36,0.2);color:#fbbf24">${ultEnergyCost} · ${ultResCost}${ultResLabel}</span></div>
+          <div class="btn-desc">${role.ultimate.desc}</div>
         </div>
       </button>
     </div>
-
-    <div class="end-turn-row">
-      <button class="end-turn-btn" id="endBtn${i}">结 束 回 合</button>
-    </div>
-
+    <div class="end-turn-row"><button class="end-turn-btn" id="endBtn${i}">结 束 回 合</button></div>
     <div class="hand-area"></div>
   `;
-
   const sts = [];
   if (p.combo > 0) sts.push({ text: `连击 ${p.combo}`, type: "combo" });
-  if (p.damageBuff) sts.push({ text: `伤害+${p.damageBuff}`, type: "buff" });
   if (p.pendingAtkBuff) sts.push({ text: `下次攻击+${p.pendingAtkBuff}`, type: "buff" });
+  if (p.nextAtkDouble) sts.push({ text: "下张攻击翻倍", type: "buff" });
   if (p.doubleDamage) sts.push({ text: "伤害翻倍", type: "buff" });
   if (p.energyBonus) sts.push({ text: `下回合能量${p.energyBonus}`, type: "debuff" });
   if (p.usedSkill) sts.push({ text: "技能已用", type: "debuff" });
-  if (p.role === "zhangsien" && p.resource >= 3) sts.push({ text: "士气旺盛", type: "buff" });
+  if (p.role === "zhangsien" && p.resource >= 5) sts.push({ text: "士气巅峰", type: "buff" });
+  else if (p.role === "zhangsien" && p.resource >= 3) sts.push({ text: "士气旺盛", type: "buff" });
   if (p.role === "yangkaidong" && p.resource >= 5) sts.push({ text: "怒气护体", type: "buff" });
+  if (p.role === "yangkaidong" && p.hp / p.maxHp <= 0.25) sts.push({ text: "血怒", type: "buff" });
   if (p.role === "zhiban" && p.resource >= 3) sts.push({ text: "论据充分", type: "buff" });
-  if (p.reflect) sts.push({ text: `反弹${p.reflect}`, type: "buff" });
   if (p.trap > 0) sts.push({ text: `陷阱${p.trap}`, type: "buff" });
+  if (p.damageHalfThisTurn) sts.push({ text: "减伤中", type: "buff" });
+  if (p.drawOnHurtThisTurn) sts.push({ text: "受伤抽牌", type: "buff" });
+  if (p.hurtHealThisTurn) sts.push({ text: "受伤回复", type: "buff" });
   if (p.firstAtkDebuff > 0) sts.push({ text: `首攻-${p.firstAtkDebuff}`, type: "debuff" });
   if (p.locked) sts.push({ text: "出牌封锁", type: "debuff" });
   if (p.noSkill) sts.push({ text: "技能封锁", type: "debuff" });
   if (p.frozen) sts.push({ text: "罚站中", type: "debuff" });
-  if (p.markedByRou && state.turnCount <= p.markedByRou) sts.push({ text: "被记仇", type: "debuff" });
+  if (p.noEnergyGain) sts.push({ text: "下回合无能量", type: "debuff" });
+  if (p.rouMarks > 0) sts.push({ text: `被记仇 ${p.rouMarks} 层`, type: "debuff" });
   if (p.handOver > 0) sts.push({ text: `需交牌 ${p.handOver} 次`, type: "debuff" });
-  if (p.pending && p.pending.length) {
-    p.pending.forEach(e => {
-      if (e.type === "ambush") sts.push({ text: `埋伏 ${e.turns}回合`, type: "pending" });
-      if (e.type === "curse") sts.push({ text: `诅咒 ${e.turns}回合`, type: "pending" });
-    });
-  }
-  el.querySelector(".status-line").innerHTML = sts.map(s =>
-    `<span class="st-tag ${s.type}">${s.text}</span>`).join("");
+  if (p.zhiyuchenBuff > 0) sts.push({ text: `守护领域 ${p.zhiyuchenBuff} 回合`, type: "buff" });
+  const sealedOnMe = p.hand.filter(c => c.sealed).length;
+  if (sealedOnMe > 0) sts.push({ text: `被封印 ${sealedOnMe} 张`, type: "debuff" });
+  p.pending.forEach(e => { if (e.type === "ambush") sts.push({ text: `埋伏 ${e.turns} 回合`, type: "pending" }); if (e.type === "curse") sts.push({ text: `诅咒 ${e.turns} 回合`, type: "debuff" }); });
+  const opp = state.players[1 - i];
+  opp.pending.forEach(e => { if (e.type === "ambush") sts.push({ text: `⚠ 对手埋伏 ${e.turns} 回合`, type: "debuff" }); if (e.type === "curse") sts.push({ text: `对手被诅咒 ${e.turns} 回合`, type: "buff" }); });
+  el.querySelector(".status-line").innerHTML = sts.map(s => `<span class="st-tag ${s.type}">${s.text}</span>`).join("");
 
-  el.querySelector(".info-btn").onclick = (e) => {
-    e.stopPropagation();
-    playClick();
-    showResourceModal(i);
-  };
-
+  const infoBtn = el.querySelector(".info-btn");
+  if (infoBtn) onTap(infoBtn, (e) => { e.stopPropagation(); playClick(); showResourceModal(i); });
   const skBtn = el.querySelector(".skill-btn");
   if (i === state.current) {
-    if (!skDis) {
-      bindAction(skBtn, role.color, "⚡", role.skill.name,
-        `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc,
-        () => { playClick(); useSkill(); });
-    } else {
-      bindAction(skBtn, role.color, "⚡", role.skill.name,
-        `${role.skill.cost} 能量 · ${resCostLabel}`,
-        role.skill.desc + "<br><br><span style='color:#6b7a94'>当前不可使用：" +
-          (p.usedSkill ? "技能已用" : p.frozen ? "罚站中" : p.noSkill ? "被封锁" : "能量或资源不足") + "</span>",
-        () => {});
-    }
+    if (!skDis) bindAction(skBtn, role.color, "⚡", role.skill.name, `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc, () => { playClick(); useSkill(); });
+    else bindAction(skBtn, role.color, "⚡", role.skill.name, `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc + "<br><br><span style='color:#6b7a94'>不可用：" + (p.usedSkill ? "技能已用" : p.frozen ? "罚站" : p.noSkill ? "被封锁" : "能量或资源不足") + "</span>", () => {});
     const ultBtn = el.querySelector(".ult-btn");
-    if (ultReady) {
-      bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name,
-        `${ultEnergyCost} 能量 · ${ultResCost}${r.name}`, role.ultimate.desc,
-        () => { playClick(); useUltimate(); });
-    } else {
-      const ultDesc = p.usedUltimate
-        ? "本场已使用"
-        : role.ultimate.desc + (ultReady ? "" : "<br><br><span style='color:#6b7a94'>需要 " + ultEnergyCost + " 能量与 " + ultResCost + " " + r.name + " 方可发动</span>");
-      bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name,
-        `${ultEnergyCost} 能量 · ${ultResCost}${r.name}`, ultDesc, () => {});
-    }
+    const ultDesc = role.ultimate.desc + (ultReady ? "" : "<br><br><span style='color:#6b7a94'>需要 " + ultEnergyCost + " 能量与 " + ultResCost + " " + ultResLabel + "</span>");
+    if (ultReady) bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name, `${ultEnergyCost} 能量 · ${ultResCost}${ultResLabel}`, role.ultimate.desc, () => { playClick(); useUltimate(); });
+    else bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name, `${ultEnergyCost} 能量 · ${ultResCost}${ultResLabel}`, ultDesc, () => {});
   }
-
   const endBtn = el.querySelector(`#endBtn${i}`);
   endBtn.disabled = !isCurrent || state.over || state.busy || (state.mode === "ai" && i === 1);
-  endBtn.onclick = () => {
-    playClick();
-    if (i === state.current && !state.busy) endTurn();
-  };
+  if (!endBtn.disabled) onTap(endBtn, () => { playClick(); if (i === state.current && !state.busy) endTurn(); });
 
   const handEl = el.querySelector(".hand-area");
-  if (p.hand.length === 0) {
-    handEl.innerHTML = `<div class="hand-empty">${isCurrent ? "没有手牌" : "等待中"}</div>`;
-  } else {
+  if (p.hand.length === 0) handEl.innerHTML = `<div class="hand-empty">${isCurrent ? "没有手牌" : "等待中"}</div>`;
+  else {
     p.hand.forEach((cardObj, idx) => {
       const def = CARDS[cardObj.key];
       const btn = document.createElement("button");
       btn.className = "card " + def.type;
       if (cardObj.isExtra) btn.classList.add("extra-card");
       if (cardObj.isNew) btn.classList.add("new-card");
-      if (!isCurrent) {
-        btn.classList.add("back");
-      } else {
-        btn.disabled = p.energy < def.cost || state.busy || p.frozen || p.locked;
+      if (cardObj.sealed) btn.classList.add("sealed-card");
+      if (cardObj.stolenCostReduce) btn.classList.add("stolen-card");
+      if (!isCurrent) btn.classList.add("back");
+      else {
+        const realCost = Math.max(0, def.cost - (cardObj.stolenCostReduce ? 1 : 0));
+        btn.disabled = p.energy < realCost || state.busy || p.frozen || p.locked || cardObj.sealed;
         const age = state.turnCount - cardObj.born;
         const showAge = def.type === "retain" && age > 0;
-        btn.innerHTML = `
-          <div class="card-cost">${def.cost}</div>
-          <div class="card-name">${def.name}</div>
-          <div class="card-type">${def.type}</div>
-          <div class="card-desc">${def.desc}</div>
-          ${showAge ? `<div class="card-age">已保留 ${age} 回合</div>` : ""}
-        `;
-        btn.onclick = () => { playClick(); playCard(idx); };
+        btn.innerHTML = `<div class="card-cost">${realCost}</div><div class="card-name">${def.name}</div><div class="card-type">${def.type}</div><div class="card-desc">${def.desc}</div>${showAge ? `<div class="card-age">已保留 ${age} 回合</div>` : ""}`;
+        if (!btn.disabled) onTap(btn, () => { playClick(); playCard(idx); });
       }
       handEl.appendChild(btn);
     });
   }
-
-  setTimeout(() => {
-    p.hand.forEach(c => c.isNew = false);
-  }, 600);
+  setTimeout(() => { p.hand.forEach(c => c.isNew = false); }, 600);
 }
 
-function renderLog() {
-  const el = document.getElementById("log");
-  el.innerHTML = state.logs.slice(-12).map(s => `<div>${s}</div>`).join("");
-  el.scrollTop = el.scrollHeight;
-}
-
+function renderLog() { const el = document.getElementById("log"); el.innerHTML = state.logs.slice(-12).map(s => `<div>${s}</div>`).join(""); el.scrollTop = el.scrollHeight; }
 function render() {
   if (!state.players.length) return;
   const p = state.players[state.current];
-  document.getElementById("turnLabel").textContent =
-    state.over ? "对战结束" : `回合 · ${p.name} · 能量 ${p.energy}/${MAX_ENERGY}`;
-  renderSide(0); renderSide(1);
-  renderLog();
+  document.getElementById("turnLabel").textContent = state.over ? "对战结束" : `回合 · ${p.name} · 能量 ${p.energy}/${MAX_ENERGY}`;
+  renderSide(0); renderSide(1); renderLog();
 }
 
 function aiPickBestCard(hand) {
@@ -2369,11 +1190,11 @@ function aiPickBestCard(hand) {
     if (def.type === "control" || def.type === "steal") score += 6;
     if (def.type === "heal") score += 4;
     if (c.isExtra) score -= 20;
+    if (c.sealed) score -= 30;
     if (score > bestScore) { bestScore = score; best = i; }
   });
   return best;
 }
-
 function aiPickWorstCard(hand) {
   if (hand.length === 0) return -1;
   let worst = 0, worstScore = 99999;
@@ -2388,20 +1209,16 @@ function aiPickWorstCard(hand) {
   });
   return worst;
 }
-
 function scoreForAI(cardKey, p, o) {
   const def = CARDS[cardKey];
-  if (cardKey === "pursuit") return p.attackPlayedThisTurn ? 12 : 4;
-  if (cardKey === "combo") return 6 + Math.min(p.cardsPlayedThisTurn * 2, 4);
   if (cardKey === "pierce") return totalShield(o) > 0 ? 13 : 8;
-  if (cardKey === "counter") return o.energy >= 5 ? 12 : 5;
   if (cardKey === "exploit") return normalHand(o).length <= 2 ? 12 : 6;
   if (cardKey === "bloodlust") return p.hp > 8 ? 11 : 3;
   if (cardKey === "overdraft") return normalHand(p).length <= 3 ? 9 : 5;
-  if (cardKey === "discardStrike") return normalHand(p).length > 1 ? 9 : 2;
   if (cardKey === "ambush") return 7;
   if (cardKey === "curse") return 8;
   if (cardKey === "buildup") return 5;
+  if (cardKey === "cleanse") { const hasNeg = p.locked || p.noSkill || p.frozen || p.firstAtkDebuff > 0 || (p.energyBonus || 0) < 0 || p.rouMarks > 0 || p.noEnergyGain || p.hand.some(c => c.sealed); return hasNeg ? 9 : 1; }
   if (def.type === "attack") return 10 + def.cost;
   if (def.type === "heal") return p.hp < p.maxHp * 0.5 ? 12 : 3;
   if (def.type === "shield") return p.hp < p.maxHp * 0.5 ? 8 : 4;
@@ -2417,263 +1234,132 @@ function scoreForAI(cardKey, p, o) {
 function aiStep() {
   if (state.over || state.current !== 1 || state.mode !== "ai") return;
   if (state.busy) { setTimeout(aiStep, 300); return; }
-
-  const p = state.players[1];
-  const role = ROLES[p.role];
-  const sk = role.skill;
-  const opp = state.players[0];
-
-  if (p.frozen) {
-    setTimeout(() => { endTurnAI(); }, 500);
-    return;
-  }
-
-  if (checkUltReady(p) && Math.random() < 0.85) {
-    useUltimateFromAI();
-    return;
-  }
-
-  const canUseSkill = checkSkillReady(p);
-
-  if (canUseSkill) {
+  const p = state.players[1]; const opp = state.players[0];
+  if (p.frozen) { setTimeout(() => endTurnAI(), 500); return; }
+  if (checkUltReady(p) && Math.random() < 0.85) { useUltimateFromAI(); return; }
+  if (checkSkillReady(p)) {
     let use = true;
     if (p.role === "lubiao" && p.hp > p.maxHp - 6) use = false;
-    if (p.role === "zhiyuchen" && totalShield(p) < 3) use = false;
+    if (p.role === "zhiyuchen" && p.resource < 2) use = false;
     if (p.role === "zhangsien" && normalHand(p).length === 0) use = false;
     if (p.role === "gu" && p.resource < 2) use = false;
     if (p.role === "rou" && p.resource < 3) use = false;
-    if (p.role === "lujiancheng") {
-      const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
-      if (maxN < 2) use = false;
-    }
+    if (p.role === "yangkaidong" && (p.maxHp - p.hp) < 6) use = false;
+    if (p.role === "lujiancheng") { const maxN = Math.min(normalHand(opp).length, p.energy, p.resource); if (maxN < 2) use = false; }
     if (use) { useSkillFromAI(); return; }
   }
-
   if (!p.locked) {
     const playable = [];
-    p.hand.forEach((c, idx) => {
-      if (p.energy >= CARDS[c.key].cost) playable.push({ c, idx });
-    });
-    if (playable.length) {
-      playable.sort((a, b) => scoreForAI(b.c.key, p, opp) - scoreForAI(a.c.key, p, opp));
-      playCardFromAI(playable[0].idx);
-      return;
-    }
+    p.hand.forEach((c, idx) => { if (p.energy >= CARDS[c.key].cost - (c.stolenCostReduce ? 1 : 0) && !c.sealed) playable.push({ c, idx }); });
+    if (playable.length) { playable.sort((a, b) => scoreForAI(b.c.key, p, opp) - scoreForAI(a.c.key, p, opp)); playCardFromAI(playable[0].idx); return; }
   }
-
-  setTimeout(() => { endTurnAI(); }, 500);
+  setTimeout(() => endTurnAI(), 500);
 }
 
 function endTurnAI() {
   if (state.over) return;
   const p = state.players[1];
-  if (p.role === "gu" && !p.attackPlayedThisTurn) {
-    addRes(p, 1);
-    log(`${p.name} 未出攻击牌，伪装 +1`);
-  }
+  if (p.role === "gu" && !p.attackPlayedThisTurn) { addRes(p, 1); log(`${p.name} 未出攻击牌，伪装 +1`); }
   if (p.role === "lubiao" && p.resource >= 2) heal(p, 2);
-  p.locked = false;
-  p.noSkill = false;
-  p.firstAtkDebuff = 0;
-  p.combo = 0;
+  if (p.zeroResAtEndTurn) { p.resource = 0; log(`${p.name} 士气清零`); }
+  const sealedCount = p.hand.filter(c => c.sealed).length;
+  p.hand.forEach(c => c.sealed = false);
+  if (sealedCount > 0) log(`${p.name} 的 ${sealedCount} 张封印牌解封`);
+  p.locked = false; p.noSkill = false; p.firstAtkDebuff = 0; p.combo = 0;
   startTurn(0);
 }
 
 function playCardFromAI(index) {
-  const p = state.players[1];
-  const cardObj = p.hand[index];
-  if (!cardObj) { endTurnAI(); return; }
+  const p = state.players[1]; const cardObj = p.hand[index];
+  if (!cardObj || cardObj.sealed) { endTurnAI(); return; }
   const def = CARDS[cardObj.key];
-  if (p.energy < def.cost) { endTurnAI(); return; }
-
+  const realCost = Math.max(0, def.cost - (cardObj.stolenCostReduce ? 1 : 0));
+  if (p.energy < realCost) { endTurnAI(); return; }
   let comboBonus = 0;
   if (def.type === "attack" && p.combo > 0) comboBonus = Math.min(p.combo, 3);
-
-  const sideEl = document.getElementById("side1");
-  const handEl = sideEl.querySelector(".hand-area");
+  const handEl = document.getElementById("side1").querySelector(".hand-area");
   const cardEl = handEl.children[index] || handEl.firstChild;
   const targetEl = document.getElementById("side0").querySelector(".avatar");
-
-  p.energy -= def.cost;
+  p.energy -= realCost;
   p.hand.splice(index, 1);
   p.discard.push(cardObj.key);
   if (p.role === "zhangsien") addRes(p, 1);
   if (p.role === "lubiao") addRes(p, 1);
   p.cardsPlayedThisTurn++;
-  if (def.type === "attack") {
-    p.combo++;
-    p.attackPlayedThisTurn = true;
-    if (p.role === "gu" && p.resource > 0) p.resource = 0;
-  }
-
+  if (def.type === "attack") { p.combo++; p.attackPlayedThisTurn = true; if (p.role === "gu" && p.resource > 0) p.resource = 0; }
   const oppP = state.players[0];
-  if (oppP.role === "zhiban") {
-    addRes(oppP, 1);
-    log(`${oppP.name} 抓到破绽，论据 +1`);
-  }
-
-  lockBusy(700);
-  playClick(0.85);
-  pulseAvatar(1);
+  if (oppP.role === "zhiban") { addRes(oppP, 1); log(`${oppP.name} 抓到破绽，论据 +1`); }
+  lockBusy(700); playClick(0.85); pulseAvatar(1);
   flyCard(cardEl, targetEl, def.type, def.name);
-  log(`电脑 使用「${def.name}」${comboBonus > 0 ? ` (连击 +${comboBonus})` : ""}`);
+  log(`电脑 使用「${def.name}」`);
   render();
-
   setTimeout(() => {
-    const opp2 = state.players[0];
-    const p2 = state.players[1];
-
+    const opp2 = state.players[0]; const p2 = state.players[1];
     if (cardObj.key === "insight" && normalHand(opp2).length > 0) {
       const sel = aiPickBestCard(opp2.hand);
-      if (sel >= 0) {
-        const dropped = opp2.hand.splice(sel, 1)[0];
-        opp2.discard.push(dropped.key);
-        onLoseCard(opp2, 1);
-        log(`电脑 洞察，弃掉你的「${CARDS[dropped.key].name}」`);
-      }
-      draw(p2, 1);
-      render();
-      setTimeout(() => { if (!state.over) aiStep(); }, 550);
-      return;
+      if (sel >= 0) { const dropped = opp2.hand.splice(sel, 1)[0]; opp2.discard.push(dropped.key); onLoseCard(opp2, 1); log(`电脑 洞察，弃掉「${CARDS[dropped.key].name}」`); }
+      draw(p2, 1); render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
     }
-
     if (cardObj.key === "steal" && normalHand(opp2).length > 0) {
       const sel = aiPickBestCard(opp2.hand);
       if (sel >= 0) {
         const stolen = opp2.hand.splice(sel, 1)[0];
-        if (normalHand(p2).length < HAND_LIMIT) {
-          stolen.isExtra = false;
-          stolen.isNew = true;
-          p2.hand.push(stolen);
-          log(`电脑 偷走你的「${CARDS[stolen.key].name}」`);
-          onLoseCard(opp2, 1);
-        } else {
-          opp2.discard.push(stolen.key);
-          onLoseCard(opp2, 1);
-        }
+        if (normalHand(p2).length < HAND_LIMIT) { stolen.isNew = true; p2.hand.push(stolen); log(`电脑 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1); }
+        else { opp2.discard.push(stolen.key); onLoseCard(opp2, 1); }
       }
-      render();
-      setTimeout(() => { if (!state.over) aiStep(); }, 550);
-      return;
+      render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
     }
-
-    execCardEffect(1, cardObj.key, comboBonus, cardObj.born);
-    render();
-    setTimeout(() => { if (!state.over) aiStep(); }, 550);
+    execCardEffect(1, cardObj.key, comboBonus, cardObj);
+    render(); setTimeout(() => { if (!state.over) aiStep(); }, 550);
   }, 280);
 }
 
 function useSkillFromAI() {
-  const p = state.players[1];
-  const role = ROLES[p.role];
-  const sk = role.skill;
-  const opp = state.players[0];
-
+  const p = state.players[1]; const role = ROLES[p.role]; const opp = state.players[0];
   if (p.role === "lujiancheng") {
     const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
     const n = Math.max(1, Math.min(maxN, 2));
-    p.energy -= n;
-    subRes(p, n);
-    p.usedSkill = true;
-    p.combo = 0;
-    lockBusy(1500);
-    playClick(1.3);
-    pulseAvatar(1);
-    banner(sk.name, role.color);
-    log(`电脑 使用夺牌：消耗 ${n} 能量 + ${n} 风度`);
+    p.energy -= n; subRes(p, n); p.usedSkill = true;
+    lockBusy(1500); playClick(1.3); pulseAvatar(1); banner(role.skill.name, role.color);
+    log(`电脑 夺牌：消耗 ${n} 能量 + ${n} 风度`);
     render();
-    setTimeout(() => {
-      promptOpponentDiscard(opp, n, () => {
-        render();
-        setTimeout(() => { if (!state.over) aiStep(); }, 550);
-      });
-    }, 400);
-    return;
+    setTimeout(() => { promptOpponentDiscard(opp, n, () => { render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); }); }, 400); return;
   }
-
+  if (p.role === "zhangxiang") {
+    const sk = role.skill;
+    if (normalHand(opp).length === 0) { endTurnAI(); return; }
+    p.energy -= sk.cost; subRes(p, sk.resCost); p.usedSkill = true;
+    const sel = aiPickBestCard(opp.hand);
+    if (sel >= 0) opp.hand[sel].sealed = true;
+    draw(p, 1);
+    lockBusy(600); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
+    log(`电脑 推演，封印一张牌`);
+    render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
+  }
+  if (p.role === "zhiyuchen") {
+    const sk = role.skill;
+    p.energy -= sk.cost; p.usedSkill = true;
+    const shieldAmt = p.resource; p.resource = 0;
+    if (shieldAmt > 0) dealDamage(1, 0, shieldAmt, { isAttack: true });
+    lockBusy(900); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
+    log(`电脑 转化 ${shieldAmt} 护盾 → ${shieldAmt} 伤害`);
+    render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
+  }
   let resCost = sk.resCost === "all" ? p.resource : sk.resCost;
-
-  p.energy -= sk.cost;
-  subRes(p, resCost);
-  p.usedSkill = true;
-  p.combo = 0;
-
+  p.energy -= sk.cost; subRes(p, resCost); p.usedSkill = true;
   if (opp.role === "zhiban") addRes(opp, 1);
-
-  lockBusy(1000);
-  playClick(1.3);
-  pulseAvatar(1);
-  banner(sk.name, role.color);
+  lockBusy(1000); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
   log(`电脑 使用技能「${sk.name}」`);
   render();
-
   setTimeout(() => {
     switch (p.role) {
-      case "zhangxiang": {
-        const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0) {
-          const i = idxs[Math.floor(Math.random() * idxs.length)];
-          const dropped = opp.hand.splice(i, 1)[0];
-          opp.discard.push(dropped.key);
-          onLoseCard(opp, 1);
-        }
-        draw(p, 2); p.pendingAtkBuff = 4; break;
-      }
-      case "zhangsien":
-        p.doubleDamage = true;
-        opp.energyBonus = (opp.energyBonus || 0) - 1;
-        break;
-      case "zhiyuchen": {
-        const sa = totalShield(p);
-        if (sa > 0) { damageShield(p, sa); dealDamage(1, 0, sa, { isAttack: true }); }
-        draw(p, 2);
-        break;
-      }
-      case "yangkaidong":
-        dealDamage(1, 0, 6, { isAttack: true });
-        gainShield(p, 2);
-        break;
-      case "lubiao":
-        heal(p, 5); draw(p, 1);
-        opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2;
-        break;
-      case "rou": {
-        const isMarked = opp.markedByRou && state.turnCount <= opp.markedByRou;
-        dealDamage(1, 0, isMarked ? 3 + resCost * 2 : 3 + resCost, { isAttack: true });
-        break;
-      }
-      case "xi": {
-        const se = Math.min(2, opp.energy);
-        opp.energy -= se;
-        p.energy = Math.min(MAX_ENERGY, p.energy + se);
-        heal(p, 3);
-        const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) {
-          const i = idxs[Math.floor(Math.random() * idxs.length)];
-          const stolen = opp.hand.splice(i, 1)[0];
-          stolen.isNew = true;
-          p.hand.push(stolen);
-          onLoseCard(opp, 1);
-        }
-        break;
-      }
-      case "gu": {
-        let dmg = 0, healAmt = 0;
-        if (resCost >= 3) { dmg = 9; healAmt = 5; }
-        else if (resCost === 2) { dmg = 5; healAmt = 3; }
-        else if (resCost === 1) { dmg = 2; healAmt = 1; }
-        if (dmg > 0) {
-          dealDamage(1, 0, dmg, { isAttack: true });
-          heal(p, healAmt);
-        }
-        opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2;
-        break;
-      }
-      case "zhiban":
-        dealDamage(1, 0, 5, { isAttack: true });
-        opp.energyBonus = (opp.energyBonus || 0) - 1;
-        if (resCost >= 4) opp.noSkill = true;
-        break;
+      case "zhangsien": p.nextAtkDouble = true; p.zeroResAtEndTurn = true; break;
+      case "yangkaidong": { const dmg = Math.floor((p.maxHp - p.hp) / 3); if (dmg > 0) dealDamage(1, 0, dmg, { isAttack: true, ignoreShield: true }); break; }
+      case "lubiao": p.damageHalfThisTurn = true; p.hurtHealThisTurn = true; break;
+      case "rou": { const marks = opp.rouMarks || 0; dealDamage(1, 0, 3 + resCost * 2 + marks * 2, { isAttack: true }); break; }
+      case "xi": { const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se); const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0); if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); } break; }
+      case "gu": { let dmg = 0, healAmt = 0; if (resCost >= 3) { dmg = 9; healAmt = 5; } else if (resCost === 2) { dmg = 5; healAmt = 3; } else if (resCost === 1) { dmg = 2; healAmt = 1; } if (dmg > 0) { dealDamage(1, 0, dmg, { isAttack: true }); heal(p, healAmt); } opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2; break; }
+      case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; break;
     }
     render();
     setTimeout(() => { if (!state.over) aiStep(); }, 550);
@@ -2681,28 +1367,17 @@ function useSkillFromAI() {
 }
 
 function useUltimateFromAI() {
-  const p = state.players[1];
-  const role = ROLES[p.role];
-  const savedRes = p.resource;
-
-  if (p.role === "lujiancheng") {
-    p.energy -= 4;
-  } else {
-    p.energy -= 3;
-  }
-  p.resource = 0;
-  p.usedUltimate = true;
-  p.combo = 0;
-
-  lockBusy(1200);
-  playClick(1.6);
-  pulseAvatar(1);
-  banner("终极 · " + role.ultimate.name, "#fbbf24");
+  const p = state.players[1]; const role = ROLES[p.role]; const savedRes = p.resource;
+  if (p.role === "lujiancheng") { p.energy -= 4; p.resource = 0; }
+  else if (p.role === "zhiyuchen") { p.energy -= 3; }
+  else { p.energy -= 3; p.resource = 0; }
+  lockBusy(1200); playClick(1.6); pulseAvatar(1); banner("终极 · " + role.ultimate.name, "#fbbf24");
   log(`电脑 发动终极技「${role.ultimate.name}」`);
   render();
-
   setTimeout(() => {
-    execUltimate(1, savedRes);
+    if (p.role === "zhiban") { const dmg = savedRes * 2; dealDamage(1, 0, dmg, { isAttack: true }); if (!state.over) { state.players[0].energy = Math.max(0, state.players[0].energy - 2); } }
+    else if (p.role === "yangkaidong") { const half = Math.floor(p.hp / 2); p.hp -= half; dealDamage(1, 0, half, { isAttack: true, ignoreShield: true }); }
+    else { execUltimate(1, savedRes); }
     render();
     setTimeout(() => { if (!state.over) aiStep(); }, 550);
   }, 500);
@@ -2715,70 +1390,32 @@ function buildRoleList(containerId, selected, onSelect) {
     const btn = document.createElement("button");
     btn.className = "role-card" + (key === selected ? " sel" : "");
     btn.style.setProperty("--c", role.color);
-    btn.innerHTML = `
-      <div class="rc-avatar">${role.short}</div>
-      <div class="rc-name">${role.name}</div>
-      <div class="rc-title">${role.title}</div>
-      <div class="rc-hp">HP ${role.hp}</div>
-    `;
-    btn.onclick = () => {
-      playClick();
-      onSelect(key);
-      buildRoleList(containerId, key, onSelect);
-    };
+    btn.innerHTML = `<div class="rc-avatar">${role.short}</div><div class="rc-name">${role.name}</div><div class="rc-title">${role.title}</div><div class="rc-hp">HP ${role.hp}</div>`;
+    onTap(btn, () => { playClick(); onSelect(key); buildRoleList(containerId, key, onSelect); });
     container.appendChild(btn);
   });
 }
 
 function createPlayer(roleKey, name) {
   const r = ROLES[roleKey];
-  return {
-    role: roleKey, name,
-    hp: r.hp, maxHp: r.hp,
-    shields: [], energy: 0,
-    hand: [], deck: shuffle(DECK_LIST), discard: [],
-    resource: r.resource.init || 0,
-    damageBuff: 0, pendingAtkBuff: 0,
-    doubleDamage: false, energyBonus: 0,
-    usedSkill: false, usedUltimate: false,
-    reflect: 0, damageDealt: 0,
-    combo: 0, frozen: false,
-    locked: false, noSkill: false,
-    trap: 0, firstAtkDebuff: 0,
-    tookDamageThisTurn: false,
-    cardsPlayedThisTurn: 0,
-    attackPlayedThisTurn: false,
-    started: false,
-    pending: [],
-    markedByRou: 0,
-    handOver: 0
-  };
+  return { role: roleKey, name, hp: r.hp, maxHp: r.hp, shields: [], energy: 0, hand: [], deck: shuffle(DECK_LIST), discard: [], resource: r.resource.init || 0,
+    damageBuff: 0, pendingAtkBuff: 0, nextAtkDouble: false, doubleDamage: false, energyBonus: 0,
+    usedSkill: false, reflect: 0, damageDealt: 0, combo: 0, frozen: false, locked: false, noSkill: false,
+    trap: 0, firstAtkDebuff: 0, tookDamageThisTurn: false, cardsPlayedThisTurn: 0, attackPlayedThisTurn: false,
+    started: false, pending: [], rouMarks: 0, rouMarkExpire: 0, handOver: 0, noEnergyGain: false, shieldTimer: 0,
+    counterHealsUsed: 0, damageHalfThisTurn: false, drawOnHurtThisTurn: false, hurtHealThisTurn: false,
+    zeroResAtEndTurn: false, zhiyuchenBuff: 0 };
 }
 
 function startGame() {
-  state.mode = setup.mode;
-  state.over = false;
-  state.logs = [];
-  state.busy = false;
-  state._busyTimer = null;
-  state.current = 0;
-  state.turnCount = 0;
-
+  state.mode = setup.mode; state.over = false; state.logs = []; state.busy = false;
+  state._busyTimer = null; state.current = 0; state.turnCount = 0;
   const keys = Object.keys(ROLES);
-  const role1 = setup.mode === "ai"
-    ? keys[Math.floor(Math.random() * keys.length)]
-    : setup.p1;
-
-  state.players = [
-    createPlayer(setup.p0, "玩家 1"),
-    createPlayer(role1, setup.mode === "ai" ? "电脑" : "玩家 2")
-  ];
-  draw(state.players[0], INITIAL_HAND);
-  draw(state.players[1], INITIAL_HAND);
-
+  const role1 = setup.mode === "ai" ? keys[Math.floor(Math.random() * keys.length)] : setup.p1;
+  state.players = [createPlayer(setup.p0, "玩家 1"), createPlayer(role1, setup.mode === "ai" ? "电脑" : "玩家 2")];
+  draw(state.players[0], INITIAL_HAND); draw(state.players[1], INITIAL_HAND);
   document.getElementById("setup").hidden = true;
   document.getElementById("game").hidden = false;
-
   log(`对局开始：${state.players[0].name}（${ROLES[setup.p0].name}） VS ${state.players[1].name}（${ROLES[role1].name}）`);
   startTurn(0);
 }
@@ -2787,24 +1424,20 @@ function initSetup() {
   buildRoleList("roles0", setup.p0, (k) => setup.p0 = k);
   buildRoleList("roles1", setup.p1, (k) => setup.p1 = k);
   document.querySelectorAll("#modeSeg .seg-btn").forEach(btn => {
-    btn.onclick = () => {
+    onTap(btn, () => {
       playClick();
       document.querySelectorAll("#modeSeg .seg-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      setup.mode = btn.dataset.mode;
+      btn.classList.add("active"); setup.mode = btn.dataset.mode;
       const wrap = document.getElementById("roles1").parentElement;
       wrap.style.opacity = setup.mode === "ai" ? ".4" : "1";
       wrap.style.pointerEvents = setup.mode === "ai" ? "none" : "";
-    };
+    });
   });
-  document.getElementById("startBtn").onclick = () => { playClick(); startGame(); };
+  onTap(document.getElementById("startBtn"), () => { playClick(); startGame(); });
 }
 
-document.getElementById("restartBtn").onclick = () => { playClick(); location.reload(); };
-
-document.addEventListener("pointerdown", (e) => {
-  if (tooltipEl && !tooltipEl.contains(e.target)) hideTooltip();
-});
+onTap(document.getElementById("restartBtn"), () => { playClick(); location.reload(); });
+document.addEventListener("pointerdown", (e) => { if (tooltipEl && !tooltipEl.contains(e.target)) hideTooltip(); });
 
 initSetup();
 </script>
