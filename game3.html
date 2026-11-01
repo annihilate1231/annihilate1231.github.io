@@ -11,7 +11,6 @@
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;font-size:14px;color:#e6ecf5;background:#0a0e17;user-select:none;-webkit-user-select:none;touch-action:manipulation}
   body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(120,100,255,.10),transparent 50%),radial-gradient(ellipse at 85% 0%,rgba(255,90,140,.08),transparent 50%);pointer-events:none;z-index:0}
   button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
-
   #setup{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;overflow-y:auto;z-index:10}
   #setup h1{font-size:34px;font-weight:800;letter-spacing:6px;background:linear-gradient(135deg,#8b9fff 0%,#c084fc 50%,#f472b6 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
   #setup .sub{color:#6b7a94;font-size:13px;letter-spacing:3px;margin-bottom:24px}
@@ -19,37 +18,31 @@
   .opt-label{font-size:11px;color:#6b7a94;letter-spacing:3px;font-weight:600}
   .seg{display:flex;gap:8px}
   .seg-btn{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:#8a95a8;font-weight:500;transition:all .15s}
-  .seg-btn.active{background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.15));border-color:rgba(139,92,246,.5);color:#fff;font-weight:700;box-shadow:0 0 24px -6px rgba(139,92,246,.6)}
+  .seg-btn.active{background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.15));border-color:rgba(139,92,246,.5);color:#fff;font-weight:700}
   .roles{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
   .role-card{flex:0 0 auto;width:88px;padding:12px 8px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s}
-  .role-card:hover{transform:translateY(-2px);border-color:var(--c)}
-  .role-card.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent);box-shadow:0 0 24px -6px var(--c)}
+  .role-card.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent)}
   .rc-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-weight:800;background:var(--c);color:#0a0e17}
   .rc-name{font-size:12px;font-weight:700}
   .rc-title{font-size:10px;color:#6b7a94}
   .rc-hp{font-size:10px;color:#ef5350;font-weight:600}
-  .start{margin-top:12px;padding:16px 72px;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;transition:all .2s}
-  .start:hover{transform:translateY(-2px)}
-
+  .start{margin-top:12px;padding:16px 72px;border-radius:12px;font-size:15px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
   #game{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;padding:10px 14px;gap:10px}
-  .topbar{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-radius:12px;background:rgba(16,22,38,.6);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05)}
-  .turn-indicator{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;letter-spacing:1px}
+  .topbar{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-radius:12px;background:rgba(16,22,38,.6);border:1px solid rgba(255,255,255,.05)}
+  .turn-indicator{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}
   .turn-pulse{width:8px;height:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 12px #8b5cf6;animation:turnPulse 1.6s ease-in-out infinite}
-  @keyframes turnPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+  @keyframes turnPulse{0%,100%{opacity:1}50%{opacity:.5}}
   #turnLabel{color:#c5cfe3}
-  .topbar-actions{display:flex;gap:8px}
-  .btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;font-weight:600;transition:all .15s}
+  .btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;font-weight:600}
   .btn:disabled{opacity:.3;cursor:not-allowed}
-
   .board{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .side{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:rgba(16,22,38,.45);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.05);min-height:0;overflow:hidden;transition:all .3s;--c:#7c9cff}
+  .side{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:rgba(16,22,38,.45);border:1px solid rgba(255,255,255,.05);min-height:0;overflow:hidden;--c:#7c9cff}
   .side.active{border-color:color-mix(in srgb,var(--c) 40%,transparent);box-shadow:0 0 20px -8px color-mix(in srgb,var(--c) 40%,transparent)}
   .side.hit{animation:sideHit .55s}
-  @keyframes sideHit{0%{box-shadow:0 0 0 0 rgba(239,68,68,0),inset 0 0 0 rgba(239,68,68,0)}25%{box-shadow:0 0 0 8px rgba(239,68,68,.55),inset 0 0 80px rgba(239,68,68,.4)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0),inset 0 0 0 rgba(239,68,68,0)}}
-
+  @keyframes sideHit{0%{box-shadow:0 0 0 0 rgba(239,68,68,0)}25%{box-shadow:0 0 0 8px rgba(239,68,68,.55)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
   .hud{flex:none;display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.05)}
   .hud-top{display:flex;gap:10px;align-items:center}
-  .avatar{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900;background:linear-gradient(155deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#0a0e17;box-shadow:0 4px 16px -4px var(--c);transition:transform .25s}
+  .avatar{flex:none;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900;background:linear-gradient(155deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#0a0e17;transition:transform .25s}
   .avatar.pulse{animation:avatarPulse .4s}
   @keyframes avatarPulse{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
   .name-hp{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
@@ -57,36 +50,33 @@
   .pname{font-size:15px;font-weight:800;color:#fff}
   .prole{font-size:11px;color:#6b7a94}
   .hp-bar{position:relative;height:18px;border-radius:9px;background:rgba(0,0,0,.4);overflow:hidden}
-  .hp-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .4s cubic-bezier(.2,.8,.3,1)}
-  .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  .hp-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .4s}
+  .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000}
   .side.right .hp-bar{direction:rtl}
   .side.right .hp-text{direction:ltr}
-
   .stats-line{display:flex;flex-direction:column;gap:5px;width:100%}
   .stats-row{display:flex;align-items:center;gap:12px;width:100%}
   .stat-group{display:flex;align-items:center;gap:6px}
   .stat-group.energy{flex:1;justify-content:center}
-  .stat-num{font-size:12px;font-weight:800;color:#e6ecf5;font-variant-numeric:tabular-nums}
+  .stat-num{font-size:12px;font-weight:800;color:#e6ecf5}
   .stat-num.shield-val{color:#60a5fa}
   .stat-num.energy-val{color:#fbbf24}
   .energy-pips{display:flex;gap:4px;flex-wrap:wrap}
   .pip{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.08);transition:all .2s}
-  .pip.on{background:radial-gradient(circle at 35% 35%,#fde68a,#f59e0b);box-shadow:0 0 8px rgba(245,158,11,.7)}
-  .res-name{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--c)}
+  .pip.on{background:radial-gradient(circle at 35% 35%,#fde68a,#f59e0b);box-shadow:0 0 8px #f59e0b}
+  .res-name{font-size:10px;font-weight:800;color:var(--c)}
   .res-pips{display:flex;gap:3px}
   .rpip{width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.08);transition:all .2s}
   .rpip.on{background:var(--c);box-shadow:0 0 8px var(--c)}
-  .info-btn{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;background:color-mix(in srgb,var(--c) 30%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);line-height:1}
-
+  .info-btn{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;background:color-mix(in srgb,var(--c) 30%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent)}
   .status-line{flex:none;display:flex;flex-wrap:wrap;gap:4px;min-height:22px;max-height:46px;overflow:hidden}
   .st-tag{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;border:1px solid transparent}
   .st-tag.combo{background:rgba(251,146,60,.15);color:#fb923c;border-color:rgba(251,146,60,.3)}
   .st-tag.buff{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25)}
   .st-tag.debuff{background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.25)}
   .st-tag.pending{background:rgba(168,85,247,.15);color:#c084fc;border-color:rgba(168,85,247,.3)}
-
   .actions-line{flex:none;display:flex;gap:8px}
-  .action-btn{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);text-align:left;transition:all .2s;position:relative;overflow:hidden}
+  .action-btn{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);text-align:left;position:relative;overflow:hidden}
   .action-btn.disabled-style{opacity:.35;cursor:not-allowed}
   .btn-icon{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:900;background:rgba(255,255,255,.06)}
   .btn-content{flex:1;min-width:0}
@@ -98,24 +88,18 @@
   .ult-btn.ready{border-color:rgba(251,191,36,.5);animation:ultPulse 2s ease-in-out infinite}
   @keyframes ultPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 24px -4px rgba(251,191,36,.6)}}
   .ult-btn.ready .btn-title{color:#fbbf24}
-
   .end-turn-row{flex:none;display:flex}
-  .end-turn-btn{flex:1;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#fff;transition:all .15s}
+  .end-turn-btn{flex:1;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));color:#fff}
   .end-turn-btn:disabled{background:rgba(255,255,255,.03);color:#4a5468;cursor:not-allowed}
-
-  .hand-area{flex:1;min-height:0;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;align-items:center;padding:6px 4px}
-  .hand-empty{flex:1;display:grid;place-items:center;color:#3a4456;font-size:12px;letter-spacing:2px}
-
-  .card{flex:none;width:92px;height:128px;border-radius:12px;padding:9px 8px;display:flex;flex-direction:column;gap:3px;text-align:left;position:relative;overflow:hidden;background:linear-gradient(180deg,#1e2637 0%,#141a29 100%);border:1px solid rgba(255,255,255,.08);box-shadow:0 2px 4px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.4);transition:all .15s}
+  .hand-area{flex:1;min-height:0;display:flex;gap:10px;overflow-x:auto;align-items:center;padding:6px 4px}
+  .hand-empty{flex:1;display:grid;place-items:center;color:#3a4456;font-size:12px}
+  .card{flex:none;width:92px;height:128px;border-radius:12px;padding:9px 8px;display:flex;flex-direction:column;gap:3px;text-align:left;position:relative;overflow:hidden;background:linear-gradient(180deg,#1e2637 0%,#141a29 100%);border:1px solid rgba(255,255,255,.08);transition:all .15s}
   .card:disabled{opacity:.35;cursor:not-allowed}
-  .card.new-card{animation:cardDeal .45s cubic-bezier(.3,.9,.4,1.1)}
+  .card.new-card{animation:cardDeal .45s}
   @keyframes cardDeal{from{transform:translateY(-30px) scale(.7);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-  .card.extra-card{box-shadow:0 0 0 1.5px #fbbf24,0 4px 20px -4px rgba(251,191,36,.5)}
-  .card.extra-card::before{content:"额外";position:absolute;top:3px;right:5px;font-size:8px;font-weight:900;color:#fbbf24;z-index:2}
+  .card.extra-card{box-shadow:0 0 0 1.5px #fbbf24}
   .card.sealed-card{opacity:.4;filter:grayscale(.8)}
   .card.sealed-card::after{content:"封";position:absolute;top:3px;right:5px;font-size:12px;font-weight:900;color:#ef4444;background:rgba(0,0,0,.7);padding:1px 5px;border-radius:4px;z-index:2}
-  .card.stolen-card{box-shadow:0 0 0 1.5px #d946ef,0 4px 20px -4px rgba(217,70,239,.5)}
-  .card.stolen-card::before{content:"偷";position:absolute;top:3px;right:5px;font-size:8px;font-weight:900;color:#d946ef;z-index:2}
   .card.attack{border-left:3px solid #ef4444}
   .card.shield{border-left:3px solid #3b82f6}
   .card.heal{border-left:3px solid #22c55e}
@@ -148,11 +132,8 @@
   .card-name{font-size:13px;font-weight:800;color:#fff;line-height:1.15}
   .card-type{font-size:8px;font-weight:700;letter-spacing:1.5px;color:#6b7a94;text-transform:uppercase}
   .card-desc{font-size:9.5px;line-height:1.35;color:#a0aabf;margin-top:auto}
-  .card-age{font-size:9px;color:#eab308;font-weight:700;margin-top:2px}
-
   .log{flex:none;height:56px;padding:10px 16px;border-radius:12px;background:rgba(16,22,38,.6);overflow-y:auto;font-size:12px;line-height:1.5;color:#6b7a94}
   .log div:last-child{color:#e6ecf5;font-weight:600}
-
   .side.right .hud-top{flex-direction:row-reverse}
   .side.right .name-hp{text-align:right}
   .side.right .name-line{flex-direction:row-reverse}
@@ -166,18 +147,16 @@
   .side.right .action-btn .btn-title{justify-content:flex-end}
   .side.right .action-btn .btn-desc{text-align:right}
   .side.right .hand-area{flex-direction:row-reverse;justify-content:flex-start}
-
-  .tooltip{position:fixed;z-index:1000;background:rgba(20,26,40,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;max-width:300px;box-shadow:0 16px 48px rgba(0,0,0,.9);pointer-events:none}
+  .tooltip{position:fixed;z-index:1000;background:rgba(20,26,40,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;max-width:300px;pointer-events:none}
   .tooltip-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-  .tooltip-title .tt-icon{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:900;background:color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent);color:var(--c,#8b5cf6)}
+  .tooltip-title .tt-icon{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:10px;background:color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent);color:var(--c,#8b5cf6)}
   .tt-cost{display:inline-block;padding:1px 7px;border-radius:5px;background:rgba(245,158,11,.2);color:#fbbf24;font-size:10px;font-weight:900}
   .tooltip-desc{font-size:12px;line-height:1.55;color:#a0aabf}
-
   .modal-mask{position:fixed;inset:0;z-index:900;background:rgba(5,8,16,.72);display:flex;align-items:center;padding:20px}
   .modal-mask.side-left{justify-content:center;padding-left:5vw;padding-right:calc(50vw + 10px)}
   .modal-mask.side-right{justify-content:center;padding-right:5vw;padding-left:calc(50vw + 10px)}
   .modal-box{background:linear-gradient(160deg,#1c2336,#121826);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px 26px;width:100%;max-height:calc(100vh - 40px);overflow-y:auto}
-  .modal-title{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--c,#8b5cf6);display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .modal-title{font-size:18px;font-weight:900;color:var(--c,#8b5cf6);display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)}
   .modal-title .mt-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:14px;background:color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent);color:var(--c,#8b5cf6)}
   .modal-body{display:flex;flex-direction:column;gap:10px}
   .modal-row{display:flex;gap:10px;font-size:13px;line-height:1.5}
@@ -185,18 +164,15 @@
   .modal-row .mr-value{flex:1;color:#e6ecf5}
   .modal-close{margin-top:18px;width:100%;padding:10px;border-radius:10px;background:color-mix(in srgb,var(--c,#8b5cf6) 25%,transparent);border:1px solid color-mix(in srgb,var(--c,#8b5cf6) 50%,transparent);color:var(--c,#8b5cf6);font-weight:700;font-size:13px}
   .modal-close:disabled{opacity:.4;cursor:not-allowed}
-
   .hand-select-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-height:50vh;overflow-y:auto;padding:8px}
   .hand-select-grid .card{cursor:pointer}
   .hand-select-grid .card.selected{outline:2px solid #ef4444;opacity:.75}
   .hand-select-empty{padding:40px 20px;text-align:center;color:#6b7a94;font-size:13px;width:100%}
   .n-buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-  .n-buttons .btn{min-width:52px;padding:10px 14px;font-size:14px;font-weight:800;background:linear-gradient(135deg,color-mix(in srgb,var(--c,#8b5cf6) 30%,transparent),transparent);border:1px solid color-mix(in srgb,var(--c,#8b5cf6) 50%,transparent)}
-
-  .choice-btn{padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-size:13px;font-weight:700;text-align:left;transition:all .15s;margin-bottom:10px;width:100%}
+  .n-buttons .btn{min-width:52px;padding:10px 14px;font-size:14px;font-weight:800}
+  .choice-btn{padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);font-size:13px;font-weight:700;text-align:left;margin-bottom:10px;width:100%}
   .choice-btn .cb-title{font-size:14px;color:#fff;margin-bottom:4px}
   .choice-btn .cb-desc{font-size:11px;color:#8a95a8;font-weight:500}
-
   #arena{position:fixed;inset:0;pointer-events:none;z-index:100}
   .screen-hit{position:fixed;inset:0;pointer-events:none;z-index:150;background:radial-gradient(ellipse at center,transparent 40%,rgba(239,68,68,.5) 100%);animation:screenHit .5s ease-out forwards}
   @keyframes screenHit{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
@@ -226,14 +202,8 @@
       <button class="seg-btn" data-mode="ai">人机对战</button>
     </div>
   </div>
-  <div class="opt">
-    <span class="opt-label">玩家 1</span>
-    <div class="roles" id="roles0"></div>
-  </div>
-  <div class="opt">
-    <span class="opt-label">玩家 2</span>
-    <div class="roles" id="roles1"></div>
-  </div>
+  <div class="opt"><span class="opt-label">玩家 1</span><div class="roles" id="roles0"></div></div>
+  <div class="opt"><span class="opt-label">玩家 2</span><div class="roles" id="roles1"></div></div>
   <button class="start" id="startBtn">开 始 对 战</button>
 </div>
 
@@ -252,92 +222,105 @@
 <div id="arena"></div>
 
 <script>
+/* ============ 数值改造要点 ============
+ * 1. 所有角色 HP -7（29-35 → 22-28）
+ * 2. 能量 +3/回合（原 +2），初始 4（原 3）
+ * 3. 初始手牌 2（原 1）
+ * 4. 核心伤害牌大幅提升：快攻 3→4，突袭 6→8，血拼 5→7
+ * 5. 治疗 3→2，格挡 3→2，牌库数量削减
+ * 6. 濒死治疗每场仅 1 次
+ * 7. 技能 CD 2 回合（用完后等 1 回合才能再用）
+ * 8. 陆标反制每回合最多 1 次，技能去掉回血
+ * 9. 柔伤害公式降级
+ * 10. 洞察改抽 2，蓄势改即时，透支改自损
+ * ============ */
+
 const ROLES = {
-  zhangxiang: { name: "张响", short: "响", title: "封印者", hp: 29, color: "#7c9cff",
-    resource: { name: "洞察", icon: "👁", max: 3, init: 1, turnStart: 1, detail: "回合开始 +1，上限 3。用于封牌和终极技。" },
-    skill: { name: "推演", cost: 2, resCost: 2, desc: "查看对手手牌，封印 1 张（对手下回合不可用），抽 1 张" },
+  zhangxiang: { name: "张响", short: "响", title: "封印者", hp: 24, color: "#7c9cff",
+    resource: { name: "洞察", icon: "👁", max: 3, init: 1, turnStart: 1, detail: "回合开始 +1，上限 3。" },
+    skill: { name: "推演", cost: 2, resCost: 2, desc: "封印对手 1 张（下回合不可用），抽 1 张" },
     ultimate: { name: "万卷归宗", desc: "封印对手 2 张最高费牌，造成 5 伤，抽 2 张" } },
-  zhangsien: { name: "张思恩", short: "恩", title: "维持者", hp: 31, color: "#ffb347",
+  zhangsien: { name: "张思恩", short: "恩", title: "维持者", hp: 26, color: "#ffb347",
     resource: { name: "士气", icon: "🚩", max: 5, init: 0, detail: "每出一张牌 +1，上限 5。士气≥3 伤害+1，≥5 伤害+2。" },
-    skill: { name: "号令", cost: 2, resCost: 3, desc: "仅下一张攻击牌伤害翻倍，回合结束时士气清零" },
+    skill: { name: "号令", cost: 2, resCost: 3, desc: "下一张攻击牌伤害翻倍，回合结束士气清零" },
     ultimate: { name: "誓师", desc: "造成 5 + 士气×2 伤害" } },
-  zhiyuchen: { name: "智宇晨", short: "晨", title: "转化者", hp: 35, color: "#4fc3f7",
+  zhiyuchen: { name: "智宇晨", short: "晨", title: "转化者", hp: 28, color: "#4fc3f7",
     resource: { name: "护盾", icon: "🛡", max: 6, init: 2, detail: "每累计造成 2 伤 +1 护盾，上限 6。护盾 2 回合消失。" },
     skill: { name: "转化", cost: 1, resCost: "all", desc: "消耗全部护盾：二选一 —— 造成等量伤害 或 每2护盾换1能量" },
     ultimate: { name: "守护领域", desc: "接下来 3 回合每回合：+1 能量 +1 护盾 +2 生命 +1 抽牌" } },
-  yangkaidong: { name: "杨开冬", short: "冬", title: "赌血者", hp: 35, color: "#ef5350",
+  yangkaidong: { name: "杨开冬", short: "冬", title: "赌血者", hp: 24, color: "#ef5350",
     resource: { name: "怒气", icon: "🔥", max: 10, init: 0, detail: "受伤 +2 怒气，上限 10。血量≤50%攻击+2，≤25%攻击+4。" },
     skill: { name: "狂血", cost: 2, resCost: 5, desc: "造成 已损失血量÷3 的伤害（无视护盾）" },
     ultimate: { name: "血战", desc: "损失当前血量的一半，对对手造成等量伤害（无视护盾）" } },
-  lubiao: { name: "陆标", short: "标", title: "反制者", hp: 31, color: "#81c784",
-    resource: { name: "幽默", icon: "😄", max: 4, init: 0, detail: "每出一张牌 +1，上限 4。对手每出一张攻击牌你回 1 血（每回合最多 3 次）。" },
-    skill: { name: "精神防御", cost: 1, resCost: 2, desc: "本回合受伤减半，每次受伤回复 2 生命" },
+  lubiao: { name: "陆标", short: "标", title: "反制者", hp: 26, color: "#81c784",
+    resource: { name: "幽默", icon: "😄", max: 4, init: 0, detail: "每出一张牌 +1，上限 4。对手每出一张攻击牌你回 1 血（每回合最多 1 次）。" },
+    skill: { name: "精神防御", cost: 1, resCost: 2, desc: "本回合受到伤害减半" },
     ultimate: { name: "满堂彩", desc: "回复 8 生命，本回合受伤减半" } },
-  rou: { name: "柔", short: "柔", title: "记仇者", hp: 29, color: "#f06292",
+  rou: { name: "柔", short: "柔", title: "记仇者", hp: 24, color: "#f06292",
     resource: { name: "仇恨", icon: "💢", max: 9, init: 0, detail: "受伤 +1，上限 9。每次受伤攻击者叠 1 层记仇（2 回合）。" },
-    skill: { name: "揪住不放", cost: 2, resCost: "all", desc: "造成 3+仇恨×2 + 对手记仇层数×2 伤害" },
+    skill: { name: "揪住不放", cost: 2, resCost: "all", desc: "造成 3+仇恨 + 对手记仇层数×2 伤害" },
     ultimate: { name: "一报还一报", desc: "记仇敌人受 12 伤（无视护盾）；无记仇 8 伤" } },
-  xi: { name: "汐", short: "汐", title: "偷取者", hp: 27, color: "#ba68c8",
+  xi: { name: "汐", short: "汐", title: "偷取者", hp: 22, color: "#ba68c8",
     resource: { name: "筹码", icon: "🪙", max: 5, init: 0, detail: "每累计造成 3 伤 +1，上限 5。" },
     skill: { name: "利用", cost: 2, resCost: 3, desc: "偷对手 2 能量，抽对手 1 张（本回合耗能-1，攻击伤害减半）" },
     ultimate: { name: "过河拆桥", desc: "偷取对手全部能量，造成 8 伤害" } },
-  gu: { name: "顾", short: "顾", title: "伪装者", hp: 29, color: "#4db6ac",
+  gu: { name: "顾", short: "顾", title: "伪装者", hp: 24, color: "#4db6ac",
     resource: { name: "伪装", icon: "🎭", max: 3, init: 1, detail: "回合结束未出攻击牌 +1（上限 3）；出攻击牌清零。每层减伤 1。" },
     skill: { name: "装弱", cost: 1, resCost: "all", desc: "1层2伤1回，2层5伤3回，3层9伤5回" },
     ultimate: { name: "苦肉计", desc: "造成 10 伤害，回复 8 生命" } },
-  zhiban: { name: "智板", short: "板", title: "抗压者", hp: 28, color: "#ffd54f",
+  zhiban: { name: "智板", short: "板", title: "抗压者", hp: 23, color: "#ffd54f",
     resource: { name: "论据", icon: "💬", max: 5, init: 0, detail: "对手出牌/技能 +1，上限 5。论据≥3 时受到伤害 -1。" },
     skill: { name: "反驳", cost: 2, resCost: 2, desc: "本回合受伤减半，每次受伤抽 1 张" },
     ultimate: { name: "诡辩", desc: "造成 论据×2 伤害，对手下回合能量 -2" } },
-  lujiancheng: { name: "陆建成", short: "陆", title: "控场者", hp: 31, color: "#f59e0b",
+  lujiancheng: { name: "陆建成", short: "陆", title: "控场者", hp: 26, color: "#f59e0b",
     resource: { name: "风度", icon: "🎩", max: 6, init: 2, detail: "每失去 1 张手牌（非打出）+2 风度，上限 6。" },
     skill: { name: "夺牌", cost: 0, resCost: 0, desc: "消耗 n 能量 + n 风度，对手弃 n 张牌" },
-    ultimate: { name: "全部拿来", desc: "抢走对手所有手牌（不计手牌上限），对手接下来 2 回合交牌" } }
+    ultimate: { name: "全部拿来", desc: "抢走对手所有手牌，对手接下来 2 回合交牌" } }
 };
 
 const CARDS = {
-  quick:{name:"快攻",cost:1,type:"attack",desc:"造成 3 点伤害",damage:3},
-  strike:{name:"突袭",cost:2,type:"attack",desc:"造成 6 点伤害",damage:6},
-  block:{name:"格挡",cost:1,type:"shield",desc:"获得 3 点护盾",shield:3},
-  heal:{name:"治疗",cost:1,type:"heal",desc:"回复 3 点生命",heal:3},
-  insight:{name:"洞察",cost:1,type:"draw",desc:"查看对手手牌，选 1 张弃掉，自己抽 1 张"},
-  charge:{name:"蓄能",cost:0,type:"energy",desc:"获得 1 点能量"},
-  lockdown:{name:"封锁",cost:3,type:"control",desc:"对手下回合不能出牌，也不能使用技能"},
-  drain:{name:"克扣",cost:1,type:"control",desc:"对手能量 -1，且下回合不获得能量"},
-  trap:{name:"陷阱",cost:1,type:"trap",desc:"下次被攻击时反伤 4"},
-  steal:{name:"偷取",cost:1,type:"steal",desc:"查看对手手牌，选 1 张偷走"},
-  pierce:{name:"破防",cost:2,type:"cond",desc:"5 伤；对手有护盾则无视护盾 +3"},
-  exploit:{name:"趁虚",cost:1,type:"cond",desc:"3 伤；对手手牌≤2 时改为 6 伤"},
-  bloodlust:{name:"血拼",cost:1,type:"cost",desc:"造成 5 伤；自己失去 3 生命"},
-  overdraft:{name:"透支",cost:0,type:"cost",desc:"抽 2 张；下回合能量 -2"},
-  ambush:{name:"埋伏",cost:2,type:"delay",desc:"2 回合后对对手造成 8 伤"},
-  curse:{name:"诅咒",cost:1,type:"delay",desc:"对手 2 回合后失去 4 生命并弃 1 张牌"},
-  buildup:{name:"蓄势",cost:1,type:"retain",desc:"2 伤；手中每保留 1 回合额外 +2（上限 +6）"},
-  cleanse:{name:"净化",cost:1,type:"cleanse",desc:"清除自身所有负面效果（含诅咒）"}
+  quick:      { name: "快攻",   cost: 1, type: "attack",  desc: "造成 4 点伤害",   damage: 4 },
+  strike:     { name: "突袭",   cost: 2, type: "attack",  desc: "造成 8 点伤害",   damage: 8 },
+  block:      { name: "格挡",   cost: 1, type: "shield",  desc: "获得 2 点护盾",   shield: 2 },
+  heal:       { name: "治疗",   cost: 1, type: "heal",    desc: "回复 2 点生命",   heal: 2 },
+  insight:    { name: "洞察",   cost: 1, type: "draw",    desc: "抽 2 张牌" },
+  charge:     { name: "蓄能",   cost: 0, type: "energy",  desc: "获得 1 点能量" },
+  lockdown:   { name: "封锁",   cost: 3, type: "control", desc: "对手下回合不能出牌，也不能使用技能" },
+  drain:      { name: "克扣",   cost: 1, type: "control", desc: "对手能量 -1，且下回合不获得能量" },
+  trap:       { name: "陷阱",   cost: 1, type: "trap",    desc: "下次被攻击时反伤 4" },
+  steal:      { name: "偷取",   cost: 1, type: "steal",   desc: "查看对手手牌，选 1 张偷走" },
+  pierce:     { name: "破防",   cost: 2, type: "cond",    desc: "7 伤；对手有护盾则无视护盾 +3" },
+  exploit:    { name: "趁虚",   cost: 1, type: "cond",    desc: "4 伤；对手手牌≤2 时改为 8 伤" },
+  bloodlust:  { name: "血拼",   cost: 1, type: "cost",    desc: "造成 7 伤；自己失去 3 生命" },
+  overdraft:  { name: "透支",   cost: 0, type: "cost",    desc: "抽 2 张；自己失去 3 生命" },
+  ambush:     { name: "埋伏",   cost: 2, type: "delay",   desc: "2 回合后对对手造成 10 伤" },
+  curse:      { name: "诅咒",   cost: 1, type: "delay",   desc: "对手 2 回合后失去 5 生命并弃 1 张牌" },
+  buildup:    { name: "蓄势",   cost: 1, type: "retain",  desc: "3 伤；本回合未出其他牌则额外 +3" },
+  cleanse:    { name: "净化",   cost: 0, type: "cleanse", desc: "清除自身所有负面效果（含诅咒）" }
 };
 
 const DECK_LIST = [
-  "block","block","block","block","block",
-  "heal","heal","heal","heal",
+  "block","block","block","heal","heal",
   "charge","charge","charge",
-  "insight","insight","overdraft",
-  "cleanse","cleanse","cleanse",
+  "insight","insight","insight",
+  "cleanse","cleanse","overdraft","overdraft",
   "quick","quick","quick",
   "strike","strike","strike",
-  "bloodlust","bloodlust",
-  "pierce","pierce","exploit","exploit",
-  "lockdown","drain","drain",
-  "trap","trap","steal","steal",
-  "ambush","curse",
+  "bloodlust","bloodlust","bloodlust",
+  "pierce","pierce",
+  "exploit","exploit","exploit",
+  "lockdown","drain","drain","trap","trap","steal","steal",
+  "ambush","ambush","curse","curse",
   "buildup","buildup"
 ];
 
 const MAX_ENERGY = 7;
-const ENERGY_PER_TURN = 2;
+const ENERGY_PER_TURN = 3;
 const HAND_LIMIT = 6;
-const INITIAL_HAND = 1;
+const INITIAL_HAND = 2;
 const SHIELD_MAX = 6;
 const SHIELD_TURNS = 2;
+const SKILL_CD = 2;  // 用完后 2 回合恢复
 
 const clickAudio = new Audio("oneclick.mp3");
 clickAudio.volume = 0.4;
@@ -353,17 +336,10 @@ function addRes(p, n) { const max = ROLES[p.role].resource.max; const before = p
 function subRes(p, n) { p.resource = Math.max(0, p.resource - n); }
 function onLoseCard(p, n = 1) { if (p.role === "lujiancheng") { addRes(p, n * 2); log(`${p.name} 失去 ${n} 张牌，风度 +${n * 2}`); } }
 
-/* ========= 关键：抬手结算 ========= */
-/* 统一所有可点元素：pointerdown 只"武装"，pointerup 才真正执行 */
 function onTap(el, handler) {
   let armed = false;
-  el.addEventListener("pointerdown", (e) => {
-    armed = true;
-    if (e.pointerType === "touch") el.style.touchAction = "manipulation";
-  });
-  el.addEventListener("pointerup", (e) => {
-    if (armed) { armed = false; handler(e); }
-  });
+  el.addEventListener("pointerdown", () => { armed = true; });
+  el.addEventListener("pointerup", (e) => { if (armed) { armed = false; handler(e); } });
   el.addEventListener("pointerleave", () => { armed = false; });
   el.addEventListener("pointercancel", () => { armed = false; });
 }
@@ -408,10 +384,12 @@ function tickShields(p) {
 }
 function heal(p, n) { const before = p.hp; p.hp = Math.min(p.maxHp, p.hp + n); const g = p.hp - before; if (g > 0) { log(`${p.name} 回复 ${g} 点生命`); floatText(state.players.indexOf(p), "+" + g, "heal"); } }
 function tryEmergencyHeal(p) {
+  if (p.emergencyHealUsed) return false;
   const idx = p.hand.findIndex(c => c.key === "heal");
   if (idx < 0) return false;
+  p.emergencyHealUsed = true;
   const card = p.hand.splice(idx, 1)[0]; p.discard.push(card.key); p.hp = 1;
-  log(`${p.name} 濒死时打出治疗，血量回到 1`);
+  log(`${p.name} 濒死时打出治疗，血量回到 1（本场仅此一次）`);
   return true;
 }
 function lockBusy(ms) { state.busy = true; clearTimeout(state._busyTimer); state._busyTimer = setTimeout(unlockBusy, ms); }
@@ -463,8 +441,7 @@ function showResourceModal(idx) {
   modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", role.color);
   modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">${r.icon}</span><span>${r.name}</span></div><div class="modal-body"><div class="modal-row"><div class="mr-label">当前</div><div class="mr-value">${p.resource} / ${r.max}</div></div><div class="modal-row"><div class="mr-label">说明</div><div class="mr-value">${r.detail}</div></div></div><button class="modal-close">关 闭</button></div>`;
   document.body.appendChild(modal); modalEl = modal;
-  const cb = modal.querySelector(".modal-close");
-  onTap(cb, () => { playClick(); closeModal(); });
+  onTap(modal.querySelector(".modal-close"), () => { playClick(); closeModal(); });
   onTap(modal, (e) => { if (e.target === modal) closeModal(); });
 }
 
@@ -524,8 +501,7 @@ function showMultiDiscardModal(p, count, title, onDone) {
   onTap(confirmBtn, () => {
     if (selected.size !== count) return;
     playClick();
-    const indices = [...selected].sort((a, b) => b - a);
-    indices.forEach(i => { const card = p.hand.splice(i, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); });
+    [...selected].sort((a, b) => b - a).forEach(i => { const card = p.hand.splice(i, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); });
     closeModal(); state.busy = false; render(); onDone();
   });
 }
@@ -536,7 +512,7 @@ function showNSelectModal(p, title, maxN, onSelect) {
   const idx = state.players.indexOf(p); const role = ROLES[p.role];
   const modal = document.createElement("div");
   modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", role.color);
-  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">🎩</span><span>${title}</span></div><div class="modal-body"><div style="font-size:12px;color:#6b7a94;margin-bottom:12px;text-align:center;">选择消耗数 n（1 ~ ${maxN}）：消耗 n 能量 + n ${role.resource.name}，对手弃 n 张牌</div><div class="n-buttons"></div></div><button class="modal-close">取 消</button></div>`;
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">🎩</span><span>${title}</span></div><div class="modal-body"><div style="font-size:12px;color:#6b7a94;margin-bottom:12px;text-align:center;">消耗 n 能量 + n ${role.resource.name}，对手弃 n 张</div><div class="n-buttons"></div></div><button class="modal-close">取 消</button></div>`;
   document.body.appendChild(modal); modalEl = modal;
   const btns = modal.querySelector(".n-buttons");
   for (let n = 1; n <= maxN; n++) {
@@ -584,16 +560,10 @@ function showTooltip(anchor, color, icon, title, costLabel, desc) {
   clearTimeout(tooltipTimer); tooltipTimer = setTimeout(hideTooltip, 4000);
 }
 function hideTooltip() { clearTimeout(tooltipTimer); tooltipTimer = null; if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; } }
-
-/* 技能/大招按钮：长按看描述，抬手短按使用（保留原 bindAction，它已经是 pointerup 结算） */
 function bindAction(btn, color, icon, title, costLabel, desc, onTapCb) {
   let pressTimer = null, longPressed = false, armed = false;
   const start = () => { armed = true; longPressed = false; clearTimeout(pressTimer); pressTimer = setTimeout(() => { longPressed = true; showTooltip(btn, color, icon, title, costLabel, desc); }, 450); };
-  const end = () => {
-    clearTimeout(pressTimer); pressTimer = null;
-    if (armed && !longPressed) { hideTooltip(); onTapCb(); }
-    armed = false; longPressed = false;
-  };
+  const end = () => { clearTimeout(pressTimer); pressTimer = null; if (armed && !longPressed) { hideTooltip(); onTapCb(); } armed = false; longPressed = false; };
   const cancel = () => { clearTimeout(pressTimer); pressTimer = null; armed = false; longPressed = false; };
   btn.addEventListener("pointerdown", start);
   btn.addEventListener("pointerup", end);
@@ -626,9 +596,8 @@ function dealDamage(aIdx, dIdx, base, opts = {}) {
   if (dmg > 0) {
     if (def.role === "yangkaidong") addRes(def, 2);
     if (def.role === "rou") { addRes(def, 1); atk.rouMarks = (atk.rouMarks || 0) + 1; atk.rouMarkExpire = state.turnCount + 2; log(`${atk.name} 被${def.name}记仇（${atk.rouMarks} 层）`); }
-    if (def.role === "lubiao" && opts.isAttackCard && def.counterHealsUsed < 3) { def.counterHealsUsed = (def.counterHealsUsed || 0) + 1; heal(def, 1); log(`${def.name} 反制：对手攻击，回复 1 生命`); }
+    if (def.role === "lubiao" && opts.isAttackCard && def.counterHealsUsed < 1) { def.counterHealsUsed = (def.counterHealsUsed || 0) + 1; heal(def, 1); log(`${def.name} 反制：回复 1 生命`); }
     if (def.drawOnHurtThisTurn) { draw(def, 1); log(`${def.name} 抗压：受伤抽 1 张`); }
-    if (def.hurtHealThisTurn) heal(def, 2);
   }
   if (atk.role === "zhiyuchen" && dmg > 0) { atk.damageDealt = (atk.damageDealt || 0) + dmg; const gained = Math.floor(atk.damageDealt / 2); if (gained > 0) { atk.damageDealt -= gained * 2; gainShield(atk, gained); } }
   if (atk.role === "xi" && dmg > 0) { atk.damageDealt = (atk.damageDealt || 0) + dmg; while (atk.damageDealt >= 3) { atk.damageDealt -= 3; addRes(atk, 1); } }
@@ -643,10 +612,10 @@ function tickPending(p) {
   p.pending = p.pending.filter(e => { e.turns--; if (e.turns <= 0) { triggered.push(e); return false; } return true; });
   triggered.forEach(e => {
     const pIdx = state.players.indexOf(p); const oppIdx = 1 - pIdx;
-    if (e.type === "ambush") { log(`${p.name} 的埋伏触发！`); dealDamage(pIdx, oppIdx, 8, { isAttack: true, ignoreShield: true }); }
+    if (e.type === "ambush") { log(`${p.name} 的埋伏触发！`); dealDamage(pIdx, oppIdx, 10, { isAttack: true, ignoreShield: true }); }
     else if (e.type === "curse") {
       log(`${p.name} 的诅咒爆发！`);
-      p.hp = Math.max(0, p.hp - 4); floatText(pIdx, "-4", "damage"); flashSide(pIdx, true); screenHit();
+      p.hp = Math.max(0, p.hp - 5); floatText(pIdx, "-5", "damage"); flashSide(pIdx, true); screenHit();
       if (normalHand(p).length > 0) { const i = p.hand.findIndex(c => !c.isExtra); if (i >= 0) { const card = p.hand.splice(i, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
       if (p.hp <= 0 && !tryEmergencyHeal(p)) endGame(oppIdx);
     }
@@ -659,16 +628,17 @@ function startTurn(i) {
   if (p.rouMarkExpire && state.turnCount >= p.rouMarkExpire) { p.rouMarks = 0; p.rouMarkExpire = 0; }
   tickShields(p); tickPending(p);
   if (state.over) return;
-  if (!p.started) { p.started = true; p.energy = 3; }
+  if (!p.started) { p.started = true; p.energy = 4; }
   else if (p.noEnergyGain) { p.noEnergyGain = false; log(`${p.name} 被封锁，本回合不获得能量`); }
   else p.energy = Math.min(MAX_ENERGY, Math.max(0, p.energy + ENERGY_PER_TURN + (p.energyBonus || 0)));
   p.energyBonus = 0;
-  p.damageBuff = 0; p.doubleDamage = false; p.usedSkill = false; p.reflect = 0; p.combo = 0;
+  p.damageBuff = 0; p.doubleDamage = false; p.reflect = 0; p.combo = 0;
   p.frozen = false; p.trap = 0; p.tookDamageThisTurn = false;
   p.cardsPlayedThisTurn = 0; p.attackPlayedThisTurn = false;
   p.counterHealsUsed = 0;
-  p.damageHalfThisTurn = false; p.drawOnHurtThisTurn = false; p.hurtHealThisTurn = false;
+  p.damageHalfThisTurn = false; p.drawOnHurtThisTurn = false;
   p.zeroResAtEndTurn = false;
+  p.skillCd = Math.max(0, p.skillCd - 1);  // 技能 CD 递减
   if (p.handOver > 0) promptHandOver(p, () => continueTurn(i));
   else continueTurn(i);
 }
@@ -713,7 +683,7 @@ function afterDraw(i) {
     log(`${p.name} 守护领域：+1 能量 +1 护盾 +2 生命 +1 抽（剩余 ${p.zhiyuchenBuff} 回合）`);
   }
   if (role.resource.turnStart) addRes(p, role.resource.turnStart);
-  log(`—— ${p.name} 的回合 · 能量 ${p.energy}/${MAX_ENERGY} ——`);
+  log(`—— ${p.name} 的回合 · 能量 ${p.energy}/${MAX_ENERGY} · 技能CD ${p.skillCd} ——`);
   render();
   if (state.mode === "ai" && i === 1) setTimeout(aiStep, 700);
 }
@@ -764,12 +734,6 @@ function playCard(index) {
   render();
   setTimeout(() => {
     const p2 = state.players[state.current]; const opp2 = state.players[1 - state.current];
-    if (cardObj.key === "insight" && opp2.hand.length > 0) {
-      showHandSelectModal(1 - state.current, "洞察 · 选择要弃掉的牌", (selIdx) => {
-        if (selIdx >= 0) { const dropped = opp2.hand.splice(selIdx, 1)[0]; opp2.discard.push(dropped.key); onLoseCard(opp2, 1); log(`${p2.name} 洞察，弃掉「${CARDS[dropped.key].name}」`); }
-        draw(p2, 1); render();
-      }, state.current); return;
-    }
     if (cardObj.key === "steal" && opp2.hand.length > 0) {
       showHandSelectModal(1 - state.current, "偷取 · 选择要偷走的牌", (selIdx) => {
         if (selIdx >= 0) {
@@ -794,7 +758,7 @@ function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
     case "quick": case "strike": { let base = def.damage + comboBonus; if (isStolenDamage) base = Math.floor(def.damage / 2) + comboBonus; dealDamage(playerIdx, oppIdx, base, { isAttack: true, isAttackCard: true }); break; }
     case "block": gainShield(p, def.shield); break;
     case "heal": heal(p, def.heal); break;
-    case "insight": draw(p, 1); break;
+    case "insight": draw(p, 2); log(`${p.name} 抽 2 张牌`); break;
     case "charge": p.energy = Math.min(MAX_ENERGY, p.energy + 1); log(`${p.name} 能量 +1`); break;
     case "lockdown": opp.locked = true; opp.noSkill = true; log(`${opp.name} 下回合不能出牌也不能用技能`); break;
     case "drain": opp.energy = Math.max(0, opp.energy - 1); opp.noEnergyGain = true; log(`${opp.name} 能量 -1，下回合不获得能量`); break;
@@ -805,17 +769,17 @@ function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
         if (idxs.length > 0) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; p.hand.push(stolen); onLoseCard(opp, 1); log(`${p.name} 偷走 1 张手牌`); }
       } break;
     case "pierce":
-      if (oppShield > 0) { dealDamage(playerIdx, oppIdx, 8, { isAttack: true, isAttackCard: true, ignoreShield: true }); log(`破防：无视护盾`); }
-      else dealDamage(playerIdx, oppIdx, 5, { isAttack: true, isAttackCard: true }); break;
+      if (oppShield > 0) { dealDamage(playerIdx, oppIdx, 10, { isAttack: true, isAttackCard: true, ignoreShield: true }); log(`破防：无视护盾，10 伤`); }
+      else dealDamage(playerIdx, oppIdx, 7, { isAttack: true, isAttackCard: true }); break;
     case "exploit":
-      if (oppHandLen <= 2) { dealDamage(playerIdx, oppIdx, 6, { isAttack: true, isAttackCard: true }); log(`趁虚：对手手牌少`); }
-      else dealDamage(playerIdx, oppIdx, 3, { isAttack: true, isAttackCard: true }); break;
+      if (oppHandLen <= 2) { dealDamage(playerIdx, oppIdx, 8, { isAttack: true, isAttackCard: true }); log(`趁虚：对手手牌少，8 伤`); }
+      else dealDamage(playerIdx, oppIdx, 4, { isAttack: true, isAttackCard: true }); break;
     case "bloodlust":
-      dealDamage(playerIdx, oppIdx, 5, { isAttack: true, isAttackCard: true });
+      dealDamage(playerIdx, oppIdx, 7, { isAttack: true, isAttackCard: true });
       if (state.over) return;
       p.hp = Math.max(0, p.hp - 3); log(`${p.name} 自损 3`); floatText(playerIdx, "-3", "damage");
       if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
-    case "overdraft": draw(p, 2); p.energyBonus = (p.energyBonus || 0) - 2; log(`${p.name} 下回合能量 -2`); break;
+    case "overdraft": draw(p, 2); p.hp = Math.max(0, p.hp - 3); log(`${p.name} 透支：抽 2 张，自损 3`); floatText(playerIdx, "-3", "damage"); if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
     case "cleanse": {
       const removed = [];
       if (p.locked) { p.locked = false; removed.push("出牌封锁"); }
@@ -834,21 +798,28 @@ function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
       else log(`${p.name} 净化：无负面效果可清除`);
       floatText(playerIdx, "净化", "cleanse"); break;
     }
-    case "ambush": p.pending.push({ type: "ambush", turns: 2 }); log(`${p.name} 布下埋伏，2 回合后爆发`); break;
+    case "ambush": p.pending.push({ type: "ambush", turns: 2 }); log(`${p.name} 布下埋伏，2 回合后爆发（10 伤）`); break;
     case "curse": opp.pending.push({ type: "curse", turns: 2, from: playerIdx }); log(`${opp.name} 被诅咒，2 回合后爆发`); break;
-    case "buildup": { const age = state.turnCount - (cardObj?.born || 0); const extra = Math.min(age * 2, 6); dealDamage(playerIdx, oppIdx, 2 + extra, { isAttack: true, isAttackCard: true }); if (extra > 0) log(`蓄势：保留 ${age} 回合，额外 +${extra}`); break; }
+    case "buildup": {
+      // 蓄势重做：若本回合未出过其他牌则额外 +3
+      const extra = p.cardsPlayedThisTurn === 1 ? 3 : 0;
+      dealDamage(playerIdx, oppIdx, 3 + extra, { isAttack: true, isAttackCard: true });
+      if (extra > 0) log(`蓄势：本回合首张牌，额外 +3`);
+      break;
+    }
   }
 }
 
 function checkSkillReady(p) {
   const role = ROLES[p.role];
+  if (p.skillCd > 0 || p.frozen || p.noSkill) return false;
   if (p.role === "lujiancheng") {
     const opp = state.players[1 - state.players.indexOf(p)];
     const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
-    return !p.usedSkill && !p.frozen && !p.noSkill && maxN >= 1;
+    return maxN >= 1;
   }
   const sk = role.skill;
-  if (!p.usedSkill && !p.frozen && !p.noSkill && p.energy >= sk.cost) {
+  if (p.energy >= sk.cost) {
     if (sk.resCost === "all") return p.resource >= 1;
     return p.resource >= sk.resCost;
   }
@@ -869,7 +840,7 @@ function useSkill() {
   if (p.role === "zhangxiang") { doZhangxiangSkill(p); return; }
   if (p.role === "zhiyuchen") { doZhiyuchenSkill(p); return; }
   let resCost = sk.resCost === "all" ? p.resource : sk.resCost;
-  p.energy -= sk.cost; subRes(p, resCost); p.usedSkill = true; p.combo = 0;
+  p.energy -= sk.cost; subRes(p, resCost); p.skillCd = SKILL_CD;
   const oppIdx = 1 - state.current; const opp = state.players[oppIdx];
   if (opp.role === "zhiban") addRes(opp, 1);
   lockBusy(1000); playClick(1.3); pulseAvatar(state.current);
@@ -880,8 +851,8 @@ function useSkill() {
     switch (p.role) {
       case "zhangsien": p.nextAtkDouble = true; p.zeroResAtEndTurn = true; log(`${p.name} 号令：下一张攻击牌伤害翻倍`); break;
       case "yangkaidong": { const lostHp = p.maxHp - p.hp; const dmg = Math.floor(lostHp / 3); if (dmg > 0) dealDamage(state.current, oppIdx, dmg, { isAttack: true, ignoreShield: true }); log(`${p.name} 狂血：造成 ${dmg} 伤害`); break; }
-      case "lubiao": p.damageHalfThisTurn = true; p.hurtHealThisTurn = true; break;
-      case "rou": { const marks = (opp.rouMarks || 0); const dmg = 3 + resCost * 2 + marks * 2; dealDamage(state.current, oppIdx, dmg, { isAttack: true }); break; }
+      case "lubiao": p.damageHalfThisTurn = true; log(`${p.name} 精神防御：本回合受伤减半`); break;
+      case "rou": { const marks = (opp.rouMarks || 0); const dmg = 3 + resCost + marks * 2; dealDamage(state.current, oppIdx, dmg, { isAttack: true }); break; }
       case "xi": {
         const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se);
         const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
@@ -889,7 +860,7 @@ function useSkill() {
         break;
       }
       case "gu": { let dmg = 0, healAmt = 0; if (resCost >= 3) { dmg = 9; healAmt = 5; } else if (resCost === 2) { dmg = 5; healAmt = 3; } else if (resCost === 1) { dmg = 2; healAmt = 1; } if (dmg > 0) { dealDamage(state.current, oppIdx, dmg, { isAttack: true }); heal(p, healAmt); } opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2; break; }
-      case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; break;
+      case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; log(`${p.name} 反驳：受伤减半，每次受伤抽 1`); break;
     }
     render();
   }, 350);
@@ -901,11 +872,11 @@ function doZhangxiangSkill(p) {
   if (normalHand(opp).length === 0) { log(`对手没有手牌可封`); return; }
   showHandSelectModal(1 - idx, "推演 · 选择要封印的牌", (selIdx) => {
     const sk = ROLES[p.role].skill;
-    if (p.energy < sk.cost || p.resource < sk.resCost) { log(`能量或资源不足`); render(); return; }
-    p.energy -= sk.cost; subRes(p, sk.resCost); p.usedSkill = true;
+    if (p.energy < sk.cost || p.resource < sk.resCost || p.skillCd > 0) { log(`条件不足`); render(); return; }
+    p.energy -= sk.cost; subRes(p, sk.resCost); p.skillCd = SKILL_CD;
     const oppP = state.players[1 - idx];
     if (oppP.role === "zhiban") addRes(oppP, 1);
-    if (selIdx >= 0) { oppP.hand[selIdx].sealed = true; log(`${p.name} 推演，封印了「${CARDS[oppP.hand[selIdx].key].name}」（对手下回合不可用）`); }
+    if (selIdx >= 0) { oppP.hand[selIdx].sealed = true; log(`${p.name} 推演，封印了「${CARDS[oppP.hand[selIdx].key].name}」`); }
     draw(p, 1);
     lockBusy(600); playClick(1.3); pulseAvatar(idx);
     banner(sk.name, ROLES[p.role].color);
@@ -919,12 +890,12 @@ function doZhiyuchenSkill(p) {
   if (shieldAmt < 1) return;
   const choices = [
     { title: "转化伤害", desc: `造成 ${shieldAmt} 点伤害` },
-    { title: "转化能量", desc: shieldAmt >= 2 ? `每 2 护盾换 1 能量，获得 ${Math.min(3, Math.floor(shieldAmt / 2))} 能量` : `护盾不足 2，无法转化能量`, disabled: shieldAmt < 2 }
+    { title: "转化能量", desc: shieldAmt >= 2 ? `获得 ${Math.min(3, Math.floor(shieldAmt / 2))} 能量` : `护盾不足 2`, disabled: shieldAmt < 2 }
   ];
   showChoiceModal(p, "转化 · 选择方向", choices, (i) => {
     const sk = ROLES[p.role].skill;
-    if (p.energy < sk.cost) { log(`能量不足`); render(); return; }
-    p.energy -= sk.cost; p.usedSkill = true;
+    if (p.energy < sk.cost || p.skillCd > 0) { log(`能量不足或冷却中`); render(); return; }
+    p.energy -= sk.cost; p.skillCd = SKILL_CD;
     lockBusy(900); playClick(1.3); pulseAvatar(idx);
     if (i === 0) { p.resource = 0; dealDamage(idx, 1 - idx, shieldAmt, { isAttack: true }); log(`${p.name} 转化 ${shieldAmt} 护盾 → ${shieldAmt} 伤害`); }
     else { const gain = Math.min(3, Math.floor(shieldAmt / 2)); p.resource = 0; p.energy = Math.min(MAX_ENERGY, p.energy + gain); log(`${p.name} 转化 ${shieldAmt} 护盾 → ${gain} 能量`); }
@@ -934,10 +905,10 @@ function doZhiyuchenSkill(p) {
 
 function doLujianchengSkill(p, n) {
   const idx = state.players.indexOf(p); const opp = state.players[1 - idx];
-  p.energy -= n; subRes(p, n); p.usedSkill = true;
+  p.energy -= n; subRes(p, n); p.skillCd = SKILL_CD;
   lockBusy(1500); playClick(1.3); pulseAvatar(idx);
   banner(ROLES[p.role].skill.name, ROLES[p.role].color);
-  log(`${p.name} 使用夺牌：消耗 ${n} 能量 + ${n} 风度`);
+  log(`${p.name} 夺牌：消耗 ${n} 能量 + ${n} 风度`);
   render();
   setTimeout(() => { promptOpponentDiscard(opp, n, () => { render(); unlockBusy(); }); }, 400);
 }
@@ -1056,6 +1027,8 @@ function renderSide(i) {
   const shieldAmt = totalShield(p);
   const skReady = checkSkillReady(p);
   const skDis = !isCurrent || !skReady;
+  const skillOnCd = p.skillCd > 0;
+
   let resCostLabel;
   if (p.role === "lujiancheng") resCostLabel = "n能量+n" + r.name;
   else resCostLabel = role.skill.resCost === "all" ? "全" + r.name : role.skill.resCost + r.name;
@@ -1063,6 +1036,7 @@ function renderSide(i) {
   const ultEnergyCost = p.role === "lujiancheng" ? 4 : 3;
   const ultResLabel = p.role === "zhiyuchen" ? "护盾" : (p.role === "zhangsien" ? "" : (p.role === "zhiban" ? "论据" : r.name));
   const resRow = p.role === "zhiyuchen" ? "" : `<div class="stats-row"><div class="stat-group"><span class="res-name">${r.icon} ${r.name}</span><div class="res-pips">${Array.from({ length: r.max }, (_, k) => `<span class="rpip ${k < p.resource ? "on" : ""}"></span>`).join("")}</div><span class="stat-num" style="color:${role.color}">${p.resource}</span><button class="info-btn" data-info="${i}">?</button></div></div>`;
+
   el.innerHTML = `
     <div class="hud">
       <div class="hud-top">
@@ -1085,7 +1059,7 @@ function renderSide(i) {
       <button class="action-btn skill-btn ${skDis ? "disabled-style" : ""}">
         <div class="btn-icon">⚡</div>
         <div class="btn-content">
-          <div class="btn-title"><span>${role.skill.name}</span><span class="cost-badge">${p.role === "lujiancheng" ? resCostLabel : `${role.skill.cost} · ${resCostLabel}`}</span></div>
+          <div class="btn-title"><span>${role.skill.name}</span><span class="cost-badge">${skillOnCd ? "CD " + p.skillCd : (p.role === "lujiancheng" ? resCostLabel : `${role.skill.cost} · ${resCostLabel}`)}</span></div>
           <div class="btn-desc">${role.skill.desc}</div>
         </div>
       </button>
@@ -1100,13 +1074,14 @@ function renderSide(i) {
     <div class="end-turn-row"><button class="end-turn-btn" id="endBtn${i}">结 束 回 合</button></div>
     <div class="hand-area"></div>
   `;
+
   const sts = [];
   if (p.combo > 0) sts.push({ text: `连击 ${p.combo}`, type: "combo" });
   if (p.pendingAtkBuff) sts.push({ text: `下次攻击+${p.pendingAtkBuff}`, type: "buff" });
   if (p.nextAtkDouble) sts.push({ text: "下张攻击翻倍", type: "buff" });
   if (p.doubleDamage) sts.push({ text: "伤害翻倍", type: "buff" });
   if (p.energyBonus) sts.push({ text: `下回合能量${p.energyBonus}`, type: "debuff" });
-  if (p.usedSkill) sts.push({ text: "技能已用", type: "debuff" });
+  if (skillOnCd) sts.push({ text: `技能CD ${p.skillCd}`, type: "debuff" });
   if (p.role === "zhangsien" && p.resource >= 5) sts.push({ text: "士气巅峰", type: "buff" });
   else if (p.role === "zhangsien" && p.resource >= 3) sts.push({ text: "士气旺盛", type: "buff" });
   if (p.role === "yangkaidong" && p.resource >= 5) sts.push({ text: "怒气护体", type: "buff" });
@@ -1115,7 +1090,6 @@ function renderSide(i) {
   if (p.trap > 0) sts.push({ text: `陷阱${p.trap}`, type: "buff" });
   if (p.damageHalfThisTurn) sts.push({ text: "减伤中", type: "buff" });
   if (p.drawOnHurtThisTurn) sts.push({ text: "受伤抽牌", type: "buff" });
-  if (p.hurtHealThisTurn) sts.push({ text: "受伤回复", type: "buff" });
   if (p.firstAtkDebuff > 0) sts.push({ text: `首攻-${p.firstAtkDebuff}`, type: "debuff" });
   if (p.locked) sts.push({ text: "出牌封锁", type: "debuff" });
   if (p.noSkill) sts.push({ text: "技能封锁", type: "debuff" });
@@ -1124,24 +1098,35 @@ function renderSide(i) {
   if (p.rouMarks > 0) sts.push({ text: `被记仇 ${p.rouMarks} 层`, type: "debuff" });
   if (p.handOver > 0) sts.push({ text: `需交牌 ${p.handOver} 次`, type: "debuff" });
   if (p.zhiyuchenBuff > 0) sts.push({ text: `守护领域 ${p.zhiyuchenBuff} 回合`, type: "buff" });
+  if (p.emergencyHealUsed) sts.push({ text: "濒死回血已用", type: "debuff" });
   const sealedOnMe = p.hand.filter(c => c.sealed).length;
   if (sealedOnMe > 0) sts.push({ text: `被封印 ${sealedOnMe} 张`, type: "debuff" });
-  p.pending.forEach(e => { if (e.type === "ambush") sts.push({ text: `埋伏 ${e.turns} 回合`, type: "pending" }); if (e.type === "curse") sts.push({ text: `诅咒 ${e.turns} 回合`, type: "debuff" }); });
+
+  p.pending.forEach(e => {
+    if (e.type === "ambush") sts.push({ text: `埋伏 ${e.turns} 回合`, type: "pending" });
+    if (e.type === "curse") sts.push({ text: `诅咒 ${e.turns} 回合`, type: "debuff" });
+  });
   const opp = state.players[1 - i];
-  opp.pending.forEach(e => { if (e.type === "ambush") sts.push({ text: `⚠ 对手埋伏 ${e.turns} 回合`, type: "debuff" }); if (e.type === "curse") sts.push({ text: `对手被诅咒 ${e.turns} 回合`, type: "buff" }); });
+  opp.pending.forEach(e => {
+    if (e.type === "ambush") sts.push({ text: `⚠ 对手埋伏 ${e.turns} 回合`, type: "debuff" });
+    if (e.type === "curse") sts.push({ text: `对手被诅咒 ${e.turns} 回合`, type: "buff" });
+  });
+
   el.querySelector(".status-line").innerHTML = sts.map(s => `<span class="st-tag ${s.type}">${s.text}</span>`).join("");
 
   const infoBtn = el.querySelector(".info-btn");
   if (infoBtn) onTap(infoBtn, (e) => { e.stopPropagation(); playClick(); showResourceModal(i); });
+
   const skBtn = el.querySelector(".skill-btn");
   if (i === state.current) {
     if (!skDis) bindAction(skBtn, role.color, "⚡", role.skill.name, `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc, () => { playClick(); useSkill(); });
-    else bindAction(skBtn, role.color, "⚡", role.skill.name, `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc + "<br><br><span style='color:#6b7a94'>不可用：" + (p.usedSkill ? "技能已用" : p.frozen ? "罚站" : p.noSkill ? "被封锁" : "能量或资源不足") + "</span>", () => {});
+    else bindAction(skBtn, role.color, "⚡", role.skill.name, `${role.skill.cost} 能量 · ${resCostLabel}`, role.skill.desc + "<br><br><span style='color:#6b7a94'>不可用：" + (skillOnCd ? "冷却中（剩余 " + p.skillCd + " 回合）" : p.frozen ? "罚站" : p.noSkill ? "被封锁" : "能量或资源不足") + "</span>", () => {});
     const ultBtn = el.querySelector(".ult-btn");
     const ultDesc = role.ultimate.desc + (ultReady ? "" : "<br><br><span style='color:#6b7a94'>需要 " + ultEnergyCost + " 能量与 " + ultResCost + " " + ultResLabel + "</span>");
     if (ultReady) bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name, `${ultEnergyCost} 能量 · ${ultResCost}${ultResLabel}`, role.ultimate.desc, () => { playClick(); useUltimate(); });
     else bindAction(ultBtn, "#fbbf24", "★", "终极 · " + role.ultimate.name, `${ultEnergyCost} 能量 · ${ultResCost}${ultResLabel}`, ultDesc, () => {});
   }
+
   const endBtn = el.querySelector(`#endBtn${i}`);
   endBtn.disabled = !isCurrent || state.over || state.busy || (state.mode === "ai" && i === 1);
   if (!endBtn.disabled) onTap(endBtn, () => { playClick(); if (i === state.current && !state.busy) endTurn(); });
@@ -1211,40 +1196,40 @@ function aiPickWorstCard(hand) {
 }
 function scoreForAI(cardKey, p, o) {
   const def = CARDS[cardKey];
-  if (cardKey === "pierce") return totalShield(o) > 0 ? 13 : 8;
-  if (cardKey === "exploit") return normalHand(o).length <= 2 ? 12 : 6;
-  if (cardKey === "bloodlust") return p.hp > 8 ? 11 : 3;
-  if (cardKey === "overdraft") return normalHand(p).length <= 3 ? 9 : 5;
-  if (cardKey === "ambush") return 7;
-  if (cardKey === "curse") return 8;
-  if (cardKey === "buildup") return 5;
-  if (cardKey === "cleanse") { const hasNeg = p.locked || p.noSkill || p.frozen || p.firstAtkDebuff > 0 || (p.energyBonus || 0) < 0 || p.rouMarks > 0 || p.noEnergyGain || p.hand.some(c => c.sealed); return hasNeg ? 9 : 1; }
-  if (def.type === "attack") return 10 + def.cost;
-  if (def.type === "heal") return p.hp < p.maxHp * 0.5 ? 12 : 3;
-  if (def.type === "shield") return p.hp < p.maxHp * 0.5 ? 8 : 4;
-  if (cardKey === "lockdown") return o.energy >= 5 ? 10 : 5;
-  if (cardKey === "drain") return o.energy >= 2 ? 7 : 3;
+  if (cardKey === "pierce") return totalShield(o) > 0 ? 13 : 9;
+  if (cardKey === "exploit") return normalHand(o).length <= 2 ? 13 : 7;
+  if (cardKey === "bloodlust") return p.hp > 6 ? 12 : 2;
+  if (cardKey === "overdraft") return p.hp > 6 && normalHand(p).length <= 3 ? 9 : 1;
+  if (cardKey === "ambush") return 8;
+  if (cardKey === "curse") return 9;
+  if (cardKey === "buildup") return p.cardsPlayedThisTurn === 0 ? 8 : 4;
+  if (cardKey === "cleanse") { const hasNeg = p.locked || p.noSkill || p.frozen || p.firstAtkDebuff > 0 || (p.energyBonus || 0) < 0 || p.rouMarks > 0 || p.noEnergyGain || p.hand.some(c => c.sealed); return hasNeg ? 9 : 0; }
+  if (def.type === "attack") return 11 + def.cost;
+  if (def.type === "heal") return p.hp < p.maxHp * 0.4 ? 10 : 2;
+  if (def.type === "shield") return p.hp < p.maxHp * 0.4 ? 7 : 3;
+  if (cardKey === "lockdown") return o.energy >= 5 ? 11 : 5;
+  if (cardKey === "drain") return o.energy >= 2 ? 8 : 3;
   if (cardKey === "trap") return 5;
   if (cardKey === "steal") return normalHand(o).length >= 2 ? 9 : 4;
-  if (def.type === "draw") return 3;
-  if (def.type === "energy") return 2;
+  if (def.type === "draw") return 4;
+  if (def.type === "energy") return 3;
   return 5;
 }
 
 function aiStep() {
   if (state.over || state.current !== 1 || state.mode !== "ai") return;
   if (state.busy) { setTimeout(aiStep, 300); return; }
-  const p = state.players[1]; const opp = state.players[0];
+  const p = state.players[1]; const role = ROLES[p.role]; const opp = state.players[0];
   if (p.frozen) { setTimeout(() => endTurnAI(), 500); return; }
   if (checkUltReady(p) && Math.random() < 0.85) { useUltimateFromAI(); return; }
   if (checkSkillReady(p)) {
     let use = true;
-    if (p.role === "lubiao" && p.hp > p.maxHp - 6) use = false;
+    if (p.role === "lubiao" && p.hp > p.maxHp - 5) use = false;
     if (p.role === "zhiyuchen" && p.resource < 2) use = false;
     if (p.role === "zhangsien" && normalHand(p).length === 0) use = false;
     if (p.role === "gu" && p.resource < 2) use = false;
     if (p.role === "rou" && p.resource < 3) use = false;
-    if (p.role === "yangkaidong" && (p.maxHp - p.hp) < 6) use = false;
+    if (p.role === "yangkaidong" && (p.maxHp - p.hp) < 5) use = false;
     if (p.role === "lujiancheng") { const maxN = Math.min(normalHand(opp).length, p.energy, p.resource); if (maxN < 2) use = false; }
     if (use) { useSkillFromAI(); return; }
   }
@@ -1295,11 +1280,6 @@ function playCardFromAI(index) {
   render();
   setTimeout(() => {
     const opp2 = state.players[0]; const p2 = state.players[1];
-    if (cardObj.key === "insight" && normalHand(opp2).length > 0) {
-      const sel = aiPickBestCard(opp2.hand);
-      if (sel >= 0) { const dropped = opp2.hand.splice(sel, 1)[0]; opp2.discard.push(dropped.key); onLoseCard(opp2, 1); log(`电脑 洞察，弃掉「${CARDS[dropped.key].name}」`); }
-      draw(p2, 1); render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
-    }
     if (cardObj.key === "steal" && normalHand(opp2).length > 0) {
       const sel = aiPickBestCard(opp2.hand);
       if (sel >= 0) {
@@ -1319,7 +1299,7 @@ function useSkillFromAI() {
   if (p.role === "lujiancheng") {
     const maxN = Math.min(normalHand(opp).length, p.energy, p.resource);
     const n = Math.max(1, Math.min(maxN, 2));
-    p.energy -= n; subRes(p, n); p.usedSkill = true;
+    p.energy -= n; subRes(p, n); p.skillCd = SKILL_CD;
     lockBusy(1500); playClick(1.3); pulseAvatar(1); banner(role.skill.name, role.color);
     log(`电脑 夺牌：消耗 ${n} 能量 + ${n} 风度`);
     render();
@@ -1328,17 +1308,17 @@ function useSkillFromAI() {
   if (p.role === "zhangxiang") {
     const sk = role.skill;
     if (normalHand(opp).length === 0) { endTurnAI(); return; }
-    p.energy -= sk.cost; subRes(p, sk.resCost); p.usedSkill = true;
+    p.energy -= sk.cost; subRes(p, sk.resCost); p.skillCd = SKILL_CD;
     const sel = aiPickBestCard(opp.hand);
     if (sel >= 0) opp.hand[sel].sealed = true;
     draw(p, 1);
     lockBusy(600); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
-    log(`电脑 推演，封印一张牌`);
+    log(`电脑 推演，封印了一张牌`);
     render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
   }
   if (p.role === "zhiyuchen") {
     const sk = role.skill;
-    p.energy -= sk.cost; p.usedSkill = true;
+    p.energy -= sk.cost; p.skillCd = SKILL_CD;
     const shieldAmt = p.resource; p.resource = 0;
     if (shieldAmt > 0) dealDamage(1, 0, shieldAmt, { isAttack: true });
     lockBusy(900); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
@@ -1346,7 +1326,7 @@ function useSkillFromAI() {
     render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
   }
   let resCost = sk.resCost === "all" ? p.resource : sk.resCost;
-  p.energy -= sk.cost; subRes(p, resCost); p.usedSkill = true;
+  p.energy -= sk.cost; subRes(p, resCost); p.skillCd = SKILL_CD;
   if (opp.role === "zhiban") addRes(opp, 1);
   lockBusy(1000); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
   log(`电脑 使用技能「${sk.name}」`);
@@ -1355,8 +1335,8 @@ function useSkillFromAI() {
     switch (p.role) {
       case "zhangsien": p.nextAtkDouble = true; p.zeroResAtEndTurn = true; break;
       case "yangkaidong": { const dmg = Math.floor((p.maxHp - p.hp) / 3); if (dmg > 0) dealDamage(1, 0, dmg, { isAttack: true, ignoreShield: true }); break; }
-      case "lubiao": p.damageHalfThisTurn = true; p.hurtHealThisTurn = true; break;
-      case "rou": { const marks = opp.rouMarks || 0; dealDamage(1, 0, 3 + resCost * 2 + marks * 2, { isAttack: true }); break; }
+      case "lubiao": p.damageHalfThisTurn = true; break;
+      case "rou": { const marks = opp.rouMarks || 0; dealDamage(1, 0, 3 + resCost + marks * 2, { isAttack: true }); break; }
       case "xi": { const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se); const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0); if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); } break; }
       case "gu": { let dmg = 0, healAmt = 0; if (resCost >= 3) { dmg = 9; healAmt = 5; } else if (resCost === 2) { dmg = 5; healAmt = 3; } else if (resCost === 1) { dmg = 2; healAmt = 1; } if (dmg > 0) { dealDamage(1, 0, dmg, { isAttack: true }); heal(p, healAmt); } opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2; break; }
       case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; break;
@@ -1398,13 +1378,25 @@ function buildRoleList(containerId, selected, onSelect) {
 
 function createPlayer(roleKey, name) {
   const r = ROLES[roleKey];
-  return { role: roleKey, name, hp: r.hp, maxHp: r.hp, shields: [], energy: 0, hand: [], deck: shuffle(DECK_LIST), discard: [], resource: r.resource.init || 0,
-    damageBuff: 0, pendingAtkBuff: 0, nextAtkDouble: false, doubleDamage: false, energyBonus: 0,
-    usedSkill: false, reflect: 0, damageDealt: 0, combo: 0, frozen: false, locked: false, noSkill: false,
-    trap: 0, firstAtkDebuff: 0, tookDamageThisTurn: false, cardsPlayedThisTurn: 0, attackPlayedThisTurn: false,
-    started: false, pending: [], rouMarks: 0, rouMarkExpire: 0, handOver: 0, noEnergyGain: false, shieldTimer: 0,
-    counterHealsUsed: 0, damageHalfThisTurn: false, drawOnHurtThisTurn: false, hurtHealThisTurn: false,
-    zeroResAtEndTurn: false, zhiyuchenBuff: 0 };
+  return {
+    role: roleKey, name, hp: r.hp, maxHp: r.hp,
+    shields: [], energy: 0,
+    hand: [], deck: shuffle(DECK_LIST), discard: [],
+    resource: r.resource.init || 0,
+    damageBuff: 0, pendingAtkBuff: 0, nextAtkDouble: false,
+    doubleDamage: false, energyBonus: 0,
+    skillCd: 0,
+    reflect: 0, damageDealt: 0, combo: 0,
+    frozen: false, locked: false, noSkill: false,
+    trap: 0, firstAtkDebuff: 0, tookDamageThisTurn: false,
+    cardsPlayedThisTurn: 0, attackPlayedThisTurn: false,
+    started: false, pending: [],
+    rouMarks: 0, rouMarkExpire: 0, handOver: 0,
+    noEnergyGain: false, shieldTimer: 0, counterHealsUsed: 0,
+    damageHalfThisTurn: false, drawOnHurtThisTurn: false,
+    zeroResAtEndTurn: false, zhiyuchenBuff: 0,
+    emergencyHealUsed: false
+  };
 }
 
 function startGame() {

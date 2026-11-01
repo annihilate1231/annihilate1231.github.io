@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b1020">
+<title>指挥官战争 · 双人同屏</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+  html,body{
+    width:100%;height:100%;overflow:hidden;background:#0b1020;
+    touch-action:none;overscroll-behavior:none;
+    user-select:none;-webkit-user-select:none;
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:#e8eefc;
+  }
+  #app{position:fixed;inset:0;overflow:hidden;}
+  canvas{position:absolute;inset:0;display:block;}
+  .hidden{display:none !important;}
+
+  /* ---------- HUD 按钮 ---------- */
+  .hud{
+    position:absolute;left:0;right:0;bottom:0;height:116px;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding:0 12px calc(10px + env(safe-area-inset-bottom)) 12px;
+    pointer-events:none;z-index:10;
+  }
+  .side{display:flex;gap:9px;pointer-events:none;}
+  .btn{
+    pointer-events:auto;
+    width:74px;height:74px;border-radius:18px;
+    background:rgba(255,255,255,.055);
+    border:2px solid rgba(255,255,255,.14);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;color:#dbe6ff;
+    transition:transform .07s ease,background .08s,border-color .08s,opacity .12s;
+    will-change:transform;cursor:pointer;
+  }
+  .btn .ico{font-size:23px;line-height:1;pointer-events:none;}
+  .btn .lbl{font-size:11px;margin-top:3px;opacity:.85;letter-spacing:.5px;pointer-events:none;}
+  .btn .cost{
+    position:absolute;top:-6px;right:-6px;min-width:21px;height:21px;border-radius:11px;
+    background:#22304a;font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    border:1.5px solid rgba(255,255,255,.22);pointer-events:none;
+    color:#bfe0ff;
+  }
+  .btn .cd{
+    position:absolute;inset:0;border-radius:16px;
+    background:rgba(5,8,18,.72);display:none;
+    align-items:center;justify-content:center;
+    font-size:17px;font-weight:800;color:#ffd166;pointer-events:none;
+  }
+  .btn.cooling .cd{display:flex;}
+  .btn.pressed{transform:scale(.9);}
+  .btn.disabled{opacity:.34;}
+  .btn.skill .ico{font-size:25px;}
+
+  .p1 .btn{border-color:rgba(255,122,74,.38);}
+  .p1 .btn.pressed{background:rgba(255,122,74,.30);border-color:#ff7a4a;}
+  .p1 .btn.skill{border-color:rgba(255,193,7,.5);}
+  .p1 .btn.skill.pressed{background:rgba(255,193,7,.28);border-color:#ffc107;}
+
+  .p2 .btn{border-color:rgba(77,171,247,.38);}
+  .p2 .btn.pressed{background:rgba(77,171,247,.30);border-color:#4dabf7;}
+  .p2 .btn.skill{border-color:rgba(255,193,7,.5);}
+  .p2 .btn.skill.pressed{background:rgba(255,193,7,.28);border-color:#ffc107;}
+
+  /* ---------- 遮罩层 ---------- */
+  .overlay{
+    position:absolute;inset:0;z-index:50;
+    background:radial-gradient(circle at 50% 40%,#141d33 0%,#080b16 75%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:10px 16px;
+  }
+  .title{
+    font-size:clamp(18px,3.4vh,30px);font-weight:900;letter-spacing:6px;
+    background:linear-gradient(90deg,#ff7a4a,#ffc107,#4dabf7);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:2px;
+  }
+  .subtitle{font-size:11px;color:#7a8bb0;letter-spacing:2px;margin-bottom:10px;}
+
+  .pick-wrap{display:flex;align-items:center;gap:14px;width:100%;max-width:900px;justify-content:center;}
+  .pick-side{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;max-width:380px;}
+  .pick-name{font-size:13px;font-weight:800;letter-spacing:2px;padding:3px 14px;border-radius:20px;}
+  .pick-side[data-side="0"] .pick-name{background:rgba(255,122,74,.18);color:#ff9b6b;border:1px solid rgba(255,122,74,.4);}
+  .pick-side[data-side="1"] .pick-name{background:rgba(77,171,247,.18);color:#7cc4ff;border:1px solid rgba(77,171,247,.4);}
+  .pick-cards{display:flex;gap:8px;width:100%;justify-content:center;}
+  .card{
+    flex:1;max-width:118px;min-height:104px;border-radius:14px;
+    background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.11);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:8px 6px;gap:3px;cursor:pointer;
+    transition:transform .1s,border-color .12s,background .12s;
+  }
+  .card:active{transform:scale(.95);}
+  .card .ci{font-size:24px;line-height:1;}
+  .card .cn{font-size:12.5px;font-weight:800;letter-spacing:1px;}
+  .card .cd2{font-size:9.5px;line-height:1.3;color:#8fa3c8;text-align:center;}
+  .pick-side[data-side="0"] .card.sel{border-color:#ff7a4a;background:rgba(255,122,74,.16);}
+  .pick-side[data-side="1"] .card.sel{border-color:#4dabf7;background:rgba(77,171,247,.16);}
+
+  .vs{font-size:16px;font-weight:900;color:#33415e;letter-spacing:1px;}
+  .tip{margin-top:12px;font-size:10.5px;color:#63748f;text-align:center;line-height:1.6;}
+
+  .win-text{font-size:clamp(26px,6vh,52px);font-weight:900;letter-spacing:8px;margin-bottom:6px;}
+  .win-sub{font-size:13px;color:#8fa3c8;margin-bottom:22px;letter-spacing:2px;}
+  .restart{
+    padding:12px 40px;border-radius:30px;font-size:15px;font-weight:800;letter-spacing:3px;
+    background:linear-gradient(135deg,#ff7a4a,#ffc107);color:#1a1005;cursor:pointer;
+    box-shadow:0 6px 24px rgba(255,140,60,.35);
+  }
+  .restart:active{transform:scale(.95);}
+  .restart.ghost{
+    margin-top:12px;background:rgba(255,255,255,.08);color:#a9bcdf;
+    box-shadow:none;font-size:12px;padding:9px 26px;letter-spacing:2px;
+  }
+
+  #rotateHint{
+    display:none;position:fixed;inset:0;z-index:200;background:#0b1020;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    color:#8fa3c8;font-size:15px;letter-spacing:2px;
+  }
+  #rotateHint .rb{font-size:44px;animation:rot 1.6s ease-in-out infinite;}
+  @keyframes rot{0%,100%{transform:rotate(0)}50%{transform:rotate(90deg)}}
+  @media (orientation:portrait){
+    #rotateHint{display:flex;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="cv"></canvas>
+
+  <!-- 战斗 HUD -->
+  <div id="hud" class="hud hidden">
+    <div class="side p1">
+      <div class="btn skill" data-action="skill" data-player="0">
+        <span class="ico">⚡</span><span class="lbl">技能</span>
+        <span class="cd"></span>
+      </div>
+      <div class="btn unit" data-action="unit" data-unit="sword" data-player="0">
+        <span class="ico">⚔️</span><span class="lbl">剑士</span><span class="cost">2</span>
+      </div>
+      <div class="btn unit" data-action="unit" data-unit="archer" data-player="0">
+        <span class="ico">🏹</span><span class="lbl">弓手</span><span class="cost">3</span>
+      </div>
+      <div class="btn unit" data-action="unit" data-unit="tank" data-player="0">
+        <span class="ico">🛡️</span><span class="lbl">重装</span><span class="cost">5</span>
+      </div>
+    </div>
+    <div class="side p2">
+      <div class="btn unit" data-action="unit" data-unit="tank" data-player="1">
+        <span class="ico">🛡️</span><span class="lbl">重装</span><span class="cost">5</span>
+      </div>
+      <div class="btn unit" data-action="unit" data-unit="archer" data-player="1">
+        <span class="ico">🏹</span><span class="lbl">弓手</span><span class="cost">3</span>
+      </div>
+      <div class="btn unit" data-action="unit" data-unit="sword" data-player="1">
+        <span class="ico">⚔️</span><span class="lbl">剑士</span><span class="cost">2</span>
+      </div>
+      <div class="btn skill" data-action="skill" data-player="1">
+        <span class="ico">⚡</span><span class="lbl">技能</span>
+        <span class="cd"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 开始界面 -->
+  <div id="startScreen" class="overlay">
+    <div class="title">指挥官战争</div>
+    <div class="subtitle">双人同屏 · 实时对战</div>
+    <div class="pick-wrap">
+      <div class="pick-side" data-side="0">
+        <div class="pick-name">玩家 1</div>
+        <div class="pick-cards"></div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="pick-side" data-side="1">
+        <div class="pick-name">玩家 2</div>
+        <div class="pick-cards"></div>
+      </div>
+    </div>
+    <div class="tip">各自点击自己半场的指挥官卡片 · 双方选定后立即开战</div>
+  </div>
+
+  <!-- 结算界面 -->
+  <div id="endScreen" class="overlay hidden">
+    <div class="win-text" id="winText">玩家 1 胜利</div>
+    <div class="win-sub" id="winSub"></div>
+    <div class="restart" id="restartBtn">再 来 一 局</div>
+    <div class="restart ghost" id="reselectBtn">重 选 指 挥 官</div>
+  </div>
+
+  <div id="rotateHint"><div class="rb">📱</div><div>请横置设备进行游戏</div></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ======================== 常量配置 ======================== */
+var MAX_ENERGY   = 10;
+var ENERGY_RATE  = 1 / 0.7;      // 每秒回能
+var BASE_HP      = 620;
+var HUD_H        = 116;
+
+var UNIT_DEFS = {
+  sword : { name:'剑士', cost:2, hp:110, speed:95,  range:22,  dmg:20, atkCd:0.70, r:13, proj:false },
+  archer: { name:'弓手', cost:3, hp:70,  speed:85,  range:165, dmg:18, atkCd:0.70, r:11, proj:true  },
+  tank  : { name:'重装', cost:5, hp:300, speed:40,  range:24,  dmg:26, atkCd:1.00, r:17, proj:false }
+};
+
+/* 兵种克制：克制方伤害倍率 */
+var COUNTER = {
+  sword : { archer: 1.8 },
+  archer: { tank  : 2.0 },
+  tank  : { sword : 2.0 }
+};
+
+var COMMANDERS = {
+  blitz: {
+    id:'blitz', name:'突击官', icon:'⚡',
+    desc:'移速+20% 攻速+15%',
+    skillName:'全军冲锋', skillDesc:'4秒全军移速翻倍',
+    speedMul:1.20, atkCdMul:0.87, hpMul:1, rangeMul:1, dmgTakenMul:1, baseDmgMul:1,
+    skill:{ type:'speed', cd:15, dur:4 }
+  },
+  bulwark: {
+    id:'bulwark', name:'铁壁官', icon:'🛡️',
+    desc:'生命+25% 受伤-10%',
+    skillName:'不动壁垒', skillDesc:'5秒全军减伤70%',
+    speedMul:1, atkCdMul:1, hpMul:1.25, rangeMul:1, dmgTakenMul:0.9, baseDmgMul:1,
+    skill:{ type:'shield', cd:18, dur:5 }
+  },
+  artillery: {
+    id:'artillery', name:'炮术官', icon:'💥',
+    desc:'射程+15% 拆塔+40%',
+    skillName:'炮火覆盖', skillDesc:'对敌方最密集处范围伤害',
+    speedMul:1, atkCdMul:1, hpMul:1, rangeMul:1.15, dmgTakenMul:1, baseDmgMul:1.4,
+    skill:{ type:'strike', cd:13, dur:0 }
+  }
+};
+
+var CMD_LIST = ['blitz','bulwark','artillery'];
+
+/* ======================== 画布 ======================== */
+var canvas = document.getElementById('cv');
+var ctx = canvas.getContext('2d', { alpha:false });
+
+var W = 1, H = 1, DPR = 1;
+var laneY = 0;
+
+/* ======================== 游戏状态 ======================== */
+var G = {
+  units: [],
+  projectiles: [],
+  fx: [],
+  bases: [],
+  energy: [6, 6],
+  skillCd: [0, 0],
+  commanders: [COMMANDERS.blitz, COMMANDERS.blitz],
+  running: false,
+  over: false,
+  winner: -1,
+  time: 0
+};
+
+var chosen = [null, null];
+var presses = new Map();          // pointerId -> { kind, player, unitKey, el }
+var buyLast = [0, 0];
+
+/* ======================== 工具 ======================== */
+function roundRect(c, x, y, w, h, r){
+  if (w < 2*r) r = w/2;
+  if (h < 2*r) r = h/2;
+  if (r < 0) r = 0;
+  c.beginPath();
+  c.moveTo(x+r, y);
+  c.arcTo(x+w, y,   x+w, y+h, r);
+  c.arcTo(x+w, y+h, x,   y+h, r);
+  c.arcTo(x,   y+h, x,   y,   r);
+  c.arcTo(x,   y,   x+w, y,   r);
+  c.closePath();
+}
+
+/* ======================== 尺寸 ======================== */
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  laneY = (H - HUD_H) * 0.46;
+
+  if (G.bases.length === 2){
+    G.bases[0].x = 54;
+    G.bases[1].x = W - 54;
+  }
+}
+
+/* ======================== 基地 ======================== */
+function initBases(){
+  G.bases = [
+    { owner:0, x:54,     hp:BASE_HP, maxHp:BASE_HP, flash:0 },
+    { owner:1, x:W - 54, hp:BASE_HP, maxHp:BASE_HP, flash:0 }
+  ];
+}
+
+/* ======================== 开局 / 结束 ======================== */
+function startGame(){
+  G.commanders = [ COMMANDERS[chosen[0]], COMMANDERS[chosen[1]] ];
+  G.units = [];
+  G.projectiles = [];
+  G.fx = [];
+  G.energy = [6, 6];
+  G.skillCd = [0, 0];
+  G.time = 0;
+  G.over = false;
+  G.winner = -1;
+  G.running = true;
+  buyLast = [0, 0];
+  presses.clear();
+
+  initBases();
+
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('endScreen').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+
+  var skills = document.querySelectorAll('.btn.skill');
+  for (var i = 0; i < skills.length; i++){
+    var el = skills[i];
+    var p = parseInt(el.getAttribute('data-player'), 10);
+    el.querySelector('.ico').textContent = G.commanders[p].icon;
+    el.classList.remove('cooling', 'pressed', 'disabled');
+    el._cool = false;
+    el._lastCd = -1;
+  }
+  var units = document.querySelectorAll('.btn.unit');
+  for (var j = 0; j < units.length; j++){
+    units[j].classList.remove('pressed', 'disabled');
+    units[j]._dis = false;
+  }
+}
+
+function endGame(winner){
+  if (G.over) return;
+  G.over = true;
+  G.running = false;
+  G.winner = winner;
+
+  presses.forEach(function(p){ p.el.classList.remove('pressed'); });
+  presses.clear();
+
+  var winText = document.getElementById('winText');
+  var winSub  = document.getElementById('winSub');
+  winText.textContent = '玩家 ' + (winner + 1) + ' 胜利';
+  winText.style.color = winner === 0 ? '#ff8f66' : '#74c0fc';
+  winSub.textContent = '指挥官：' + G.commanders[winner].name;
+
+  setTimeout(function(){
+    if (G.over) document.getElementById('endScreen').classList.remove('hidden');
+  }, 500);
+}
+
+/* ======================== 出兵 ======================== */
+function spawnUnit(owner, typeKey){
+  var d = UNIT_DEFS[typeKey];
+  var c = G.commanders[owner];
+  var dir = owner === 0 ? 1 : -1;
+  var x = owner === 0 ? 100 : W - 100;
+  var y = laneY + (Math.random() - 0.5) * 58;
+
+  var hp = d.hp * c.hpMul;
+  G.units.push({
+    owner: owner,
+    type: typeKey,
+    dir: dir,
+    x: x, y: y,
+    hp: hp, maxHp: hp,
+    speed: d.speed * c.speedMul,
+    range: d.range * c.rangeMul,
+    dmg: d.dmg,
+    atkCd: d.atkCd * c.atkCdMul,
+    cd: d.atkCd * c.atkCdMul * (0.35 + Math.random() * 0.4),
+    r: d.r,
+    proj: d.proj,
+    dmgTaken: c.dmgTakenMul,
+    baseDmgMul: c.baseDmgMul,
+    buffSpeed: 0,
+    buffShield: 0,
+    flash: 0,
+    bob: Math.random() * 6.283
+  });
+}
+
+/* 每 150ms 最多出一个兵，按住即持续出兵 */
+function tryBuy(player, unitKey){
+  if (!G.running || G.over) return;
+  var now = performance.now();
+  if (now - buyLast[player] < 150) return;
+  var cost = UNIT_DEFS[unitKey].cost;
+  if (G.energy[player] < cost) return;
+  buyLast[player] = now;
+  G.energy[player] -= cost;
+  spawnUnit(player, unitKey);
+}
+
+/* ======================== 伤害 ======================== */
+function applyDamage(target, dmg){
+  var d = dmg * (target.dmgTaken || 1);
+  if (target.buffShield > 0) d *= 0.3;
+  target.hp -= d;
+  target.flash = 1;
+}
+
+function performAttack(u, target){
+  var cm = COUNTER[u.type];
+  var mult = (cm && cm[target.type]) || 1;
+  var dmg = u.dmg * mult;
+
+  if (u.proj){
+    G.projectiles.push({
+      x: u.x, y: u.y - 6,
+      target: target, dmg: dmg,
+      speed: 760, alive: true, life: 2.2,
+      owner: u.owner
+    });
+  } else {
+    applyDamage(target, dmg);
+    G.fx.push({ x: target.x, y: target.y, r: 10, t: 0, dur: 0.16, type:'hit' });
+  }
+}
+
+function damageBase(u, base){
+  base.hp -= u.dmg * u.baseDmgMul;
+  base.flash = 1;
+  G.fx.push({ x: base.x, y: laneY, r: 16, t: 0, dur: 0.2, type:'hit' });
+}
+
+/* ======================== 技能 ======================== */
+function useSkill(player){
+  if (!G.running || G.over) return;
+  if (G.skillCd[player] > 0) return;
+
+  var c = G.commanders[player];
+  var sk = c.skill;
+
+  if (sk.type === 'speed'){
+    for (var i = 0; i < G.units.length; i++){
+      if (G.units[i].owner === player) G.units[i].buffSpeed = sk.dur;
+    }
+    G.fx.push({ x: player === 0 ? 110 : W - 110, y: laneY, r: 70, t: 0, dur: 0.5, type:'ring' });
+  }
+  else if (sk.type === 'shield'){
+    for (var j = 0; j < G.units.length; j++){
+      if (G.units[j].owner === player) G.units[j].buffShield = sk.dur;
+    }
+    G.fx.push({ x: player === 0 ? 110 : W - 110, y: laneY, r: 70, t: 0, dur: 0.5, type:'ring' });
+  }
+  else if (sk.type === 'strike'){
+    doStrike(player);
+  }
+
+  G.skillCd[player] = sk.cd;
+}
+
+function doStrike(player){
+  var enemies = [];
+  for (var i = 0; i < G.units.length; i++){
+    if (G.units[i].owner !== player && G.units[i].hp > 0) enemies.push(G.units[i]);
+  }
+
+  if (enemies.length === 0){
+    var b = G.bases[1 - player];
+    b.hp -= 90;
+    b.flash = 1;
+    G.fx.push({ x: b.x, y: laneY, r: 100, t: 0, dur: 0.5, type:'boom' });
+    return;
+  }
+
+  // 找敌人最密集处
+  var bestX = enemies[0].x, bestCount = -1;
+  for (var a = 0; a < enemies.length; a++){
+    var cnt = 0;
+    for (var k = 0; k < enemies.length; k++){
+      if (Math.abs(enemies[k].x - enemies[a].x) < 110) cnt++;
+    }
+    if (cnt > bestCount){ bestCount = cnt; bestX = enemies[a].x; }
+  }
+
+  var R = 115;
+  for (var m = 0; m < enemies.length; m++){
+    if (Math.abs(enemies[m].x - bestX) < R) applyDamage(enemies[m], 135);
+  }
+  G.fx.push({ x: bestX, y: laneY, r: R, t: 0, dur: 0.55, type:'boom' });
+}
+
+/* ======================== 更新 ======================== */
+function update(dt){
+  G.time += dt;
+
+  for (var i = 0; i < 2; i++){
+    G.energy[i] = Math.min(MAX_ENERGY, G.energy[i] + ENERGY_RATE * dt);
+    if (G.skillCd[i] > 0) G.skillCd[i] = Math.max(0, G.skillCd[i] - dt);
+  }
+
+  // 按住连发
+  presses.forEach(function(p){
+    if (p.kind === 'unit') tryBuy(p.player, p.unitKey);
+  });
+
+  var units = G.units;
+
+  for (var a = 0; a < units.length; a++){
+    var u = units[a];
+    if (u.hp <= 0) continue;
+
+    if (u.flash > 0) u.flash = Math.max(0, u.flash - dt * 5);
+    if (u.buffSpeed > 0) u.buffSpeed = Math.max(0, u.buffSpeed - dt);
+    if (u.buffShield > 0) u.buffShield = Math.max(0, u.buffShield - dt);
+
+    // 最近敌人
+    var target = null, targetD = Infinity;
+    for (var b = 0; b < units.length; b++){
+      var o = units[b];
+      if (o === u || o.hp <= 0 || o.owner === u.owner) continue;
+      var d = Math.abs(o.x - u.x);
+      if (d < targetD){ targetD = d; target = o; }
+    }
+
+    var enemyBase = G.bases[1 - u.owner];
+    var distBase = Math.abs(enemyBase.x - u.x);
+    var acted = false;
+
+    // 打单位
+    if (target && targetD <= u.range + target.r + u.r){
+      acted = true;
+      u.cd -= dt;
+      if (u.cd <= 0){
+        u.cd = u.atkCd;
+        performAttack(u, target);
+      }
+    }
+
+    // 打基地
+    if (!acted && distBase <= u.range + 30 + u.r){
+      acted = true;
+      u.cd -= dt;
+      if (u.cd <= 0){
+        u.cd = u.atkCd;
+        damageBase(u, enemyBase);
+      }
+    }
+
+    // 移动
+    if (!acted){
+      var spd = u.speed;
+      if (u.buffSpeed > 0) spd *= 2;
+      u.x += u.dir * spd * dt;
+      if (u.x < 24) u.x = 24;
+      if (u.x > W - 24) u.x = W - 24;
+    }
+  }
+
+  // 投射物
+  var projs = G.projectiles;
+  for (var p = 0; p < projs.length; p++){
+    var pr = projs[p];
+    if (!pr.alive) continue;
+    var t = pr.target;
+    if (!t || t.hp <= 0){ pr.alive = false; continue; }
+
+    var dx = t.x - pr.x;
+    var dy = t.y - pr.y;
+    var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    var step = pr.speed * dt;
+
+    if (dist <= step + 9){
+      applyDamage(t, pr.dmg);
+      G.fx.push({ x: t.x, y: t.y, r: 9, t: 0, dur: 0.16, type:'hit' });
+      pr.alive = false;
+    } else {
+      pr.x += dx / dist * step;
+      pr.y += dy / dist * step;
+    }
+    pr.life -= dt;
+    if (pr.life <= 0) pr.alive = false;
+  }
+
+  // 清理死亡单位（原地压缩）
+  var w = 0;
+  for (var c1 = 0; c1 < units.length; c1++){
+    if (units[c1].hp > 0) units[w++] = units[c1];
+  }
+  units.length = w;
+
+  // 清理投射物
+  w = 0;
+  for (var c2 = 0; c2 < projs.length; c2++){
+    if (projs[c2].alive) projs[w++] = projs[c2];
+  }
+  projs.length = w;
+
+  // 特效
+  for (var f = G.fx.length - 1; f >= 0; f--){
+    G.fx[f].t += dt;
+    if (G.fx[f].t >= G.fx[f].dur) G.fx.splice(f, 1);
+  }
+
+  // 基地闪烁衰减
+  for (var g = 0; g < 2; g++){
+    if (G.bases[g].flash > 0) G.bases[g].flash = Math.max(0, G.bases[g].flash - dt * 4);
+  }
+
+  // 胜负
+  for (var h = 0; h < 2; h++){
+    if (G.bases[h].hp <= 0){
+      G.bases[h].hp = 0;
+      endGame(1 - h);
+      return;
+    }
+  }
+}
+
+/* ======================== 渲染 ======================== */
+function render(){
+  ctx.fillStyle = '#0b1020';
+  ctx.fillRect(0, 0, W, H);
+
+  // 地面条
+  var g = ctx.createLinearGradient(0, laneY - 118, 0, laneY + 118);
+  g.addColorStop(0,   'rgba(255,255,255,0.012)');
+  g.addColorStop(0.5, 'rgba(255,255,255,0.058)');
+  g.addColorStop(1,   'rgba(255,255,255,0.012)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, laneY - 118, W, 236);
+
+  // 中线
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.075)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([9, 13]);
+  ctx.beginPath();
+  ctx.moveTo(W/2, laneY - 120);
+  ctx.lineTo(W/2, laneY + 120);
+  ctx.stroke();
+  ctx.restore();
+
+  // 两侧氛围光
+  var rg = ctx.createRadialGradient(0, laneY, 0, 0, laneY, W * 0.42);
+  rg.addColorStop(0, 'rgba(255,110,60,0.13)');
+  rg.addColorStop(1, 'rgba(255,110,60,0)');
+  ctx.fillStyle = rg;
+  ctx.fillRect(0, 0, W, H);
+
+  rg = ctx.createRadialGradient(W, laneY, 0, W, laneY, W * 0.42);
+  rg.addColorStop(0, 'rgba(60,150,255,0.13)');
+  rg.addColorStop(1, 'rgba(60,150,255,0)');
+  ctx.fillStyle = rg;
+  ctx.fillRect(0, 0, W, H);
+
+  for (var i = 0; i < G.bases.length; i++) drawBase(G.bases[i]);
+  for (var j = 0; j < G.units.length; j++) drawUnit(G.units[j]);
+  for (var k = 0; k < G.projectiles.length; k++){
+    var p = G.projectiles[k];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3.2, 0, 6.283);
+    ctx.fillStyle = p.owner === 0 ? '#ffd08a' : '#a8d8ff';
+    ctx.fill();
+  }
+  for (var f = 0; f < G.fx.length; f++) drawFx(G.fx[f]);
+
+  drawEnergyBar(0);
+  drawEnergyBar(1);
+}
+
+function drawBase(b){
+  var isP1 = b.owner === 0;
+  var main = isP1 ? '#ff7a4a' : '#4dabf7';
+  var dark = isP1 ? '#8a2f16' : '#17518f';
+  var w = 46, h = 132;
+
+  ctx.save();
+  ctx.translate(b.x, laneY);
+
+  var gl = ctx.createRadialGradient(0, 0, 0, 0, 0, 95);
+  gl.addColorStop(0, isP1 ? 'rgba(255,110,60,0.28)' : 'rgba(60,150,255,0.28)');
+  gl.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gl;
+  ctx.beginPath();
+  ctx.arc(0, 0, 95, 0, 6.283);
+  ctx.fill();
+
+  var grd = ctx.createLinearGradient(-w/2, 0, w/2, 0);
+  grd.addColorStop(0, dark);
+  grd.addColorStop(0.5, main);
+  grd.addColorStop(1, dark);
+  ctx.fillStyle = grd;
+  roundRect(ctx, -w/2, -h/2, w, h, 9);
+  ctx.fill();
+
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = b.flash > 0 ? '#ffffff' : (isP1 ? '#ffb08a' : '#a5d4ff');
+  roundRect(ctx, -w/2, -h/2, w, h, 9);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = 2;
+  for (var i = -2; i <= 2; i++){
+    ctx.beginPath();
+    ctx.moveTo(-w/2 + 6, i * 22);
+    ctx.lineTo(w/2 - 6, i * 22);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 血条
+  var bw = 78, bh = 8;
+  var bx = b.x - bw/2;
+  var by = laneY - h/2 - 22;
+
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  roundRect(ctx, bx, by, bw, bh, 4);
+  ctx.fill();
+
+  var pct = Math.max(0, b.hp / b.maxHp);
+  if (pct > 0){
+    ctx.fillStyle = pct > 0.35 ? main : '#ff3b30';
+    roundRect(ctx, bx, by, bw * pct, bh, 4);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.lineWidth = 1.2;
+  roundRect(ctx, bx, by, bw, bh, 4);
+  ctx.stroke();
+
+  ctx.fillStyle = '#c9d8f5';
+  ctx.font = '700 10px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(String(Math.max(0, Math.ceil(b.hp))), b.x, by - 4);
+}
+
+function drawUnit(u){
+  var isP1 = u.owner === 0;
+  var baseCol = isP1 ? '#ff7a4a' : '#4dabf7';
+  var darkCol = isP1 ? '#a03a1a' : '#1b5a9e';
+  var y = u.y + Math.sin(G.time * 7 + u.bob) * 1.6;
+
+  ctx.save();
+  ctx.translate(u.x, y);
+
+  var hit = u.flash > 0;
+
+  if (u.buffShield > 0){
+    ctx.beginPath();
+    ctx.arc(0, 0, u.r + 7, 0, 6.283);
+    ctx.strokeStyle = 'rgba(255,210,80,0.85)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+  if (u.buffSpeed > 0){
+    ctx.beginPath();
+    ctx.arc(0, 0, u.r + 5, 0, 6.283);
+    ctx.strokeStyle = 'rgba(120,255,180,0.7)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  if (u.type === 'sword'){
+    ctx.moveTo(0, -u.r);
+    ctx.lineTo(u.r, 0);
+    ctx.lineTo(0, u.r);
+    ctx.lineTo(-u.r, 0);
+    ctx.closePath();
+  } else if (u.type === 'archer'){
+    ctx.arc(0, 0, u.r, 0, 6.283);
+  } else {
+    roundRect(ctx, -u.r, -u.r, u.r * 2, u.r * 2, 5);
+  }
+
+  ctx.fillStyle = hit ? '#ffffff' : baseCol;
+  ctx.fill();
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = hit ? '#ffffff' : darkCol;
+  ctx.stroke();
+
+  // 朝向小三角
+  ctx.beginPath();
+  ctx.moveTo(u.dir * (u.r + 1), 0);
+  ctx.lineTo(u.dir * (u.r - 5), -4);
+  ctx.lineTo(u.dir * (u.r - 5), 4);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.fill();
+
+  ctx.restore();
+
+  if (u.hp < u.maxHp){
+    var bw = u.r * 2 + 6;
+    var bh = 3.5;
+    var bx = u.x - bw / 2;
+    var by = y - u.r - 9;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = isP1 ? '#ff9d6b' : '#74c0fc';
+    ctx.fillRect(bx, by, bw * Math.max(0, u.hp / u.maxHp), bh);
+  }
+}
+
+function drawFx(f){
+  var p = Math.min(1, f.t / f.dur);
+
+  if (f.type === 'hit'){
+    ctx.globalAlpha = 1 - p;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r + p * 8, 0, 6.283);
+    ctx.strokeStyle = '#ffe0a3';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  else if (f.type === 'ring'){
+    ctx.globalAlpha = 1 - p;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, f.r * (0.3 + p * 1.2), 0, 6.283);
+    ctx.strokeStyle = '#7dffb0';
+    ctx.lineWidth = 5 * (1 - p) + 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  else if (f.type === 'boom'){
+    ctx.globalAlpha = 1 - p;
+    var r = f.r * (0.35 + p * 0.85);
+    var gr = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
+    gr.addColorStop(0, 'rgba(255,240,180,0.85)');
+    gr.addColorStop(0.5, 'rgba(255,150,60,0.45)');
+    gr.addColorStop(1, 'rgba(255,80,0,0)');
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, r, 0, 6.283);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawEnergyBar(player){
+  var isP1 = player === 0;
+  var barW = Math.min(210, W * 0.27);
+  var barH = 13;
+  var x = isP1 ? 16 : W - 16 - barW;
+  var y = 15;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.075)';
+  roundRect(ctx, x, y, barW, barH, 6.5);
+  ctx.fill();
+
+  var pct = G.energy[player] / MAX_ENERGY;
+  if (pct > 0){
+    var grd = ctx.createLinearGradient(x, 0, x + barW, 0);
+    if (isP1){
+      grd.addColorStop(0, '#ff7a4a');
+      grd.addColorStop(1, '#ffc107');
+    } else {
+      grd.addColorStop(0, '#4dabf7');
+      grd.addColorStop(1, '#63e6be');
+    }
+    ctx.fillStyle = grd;
+    roundRect(ctx, x, y, Math.max(4, barW * pct), barH, 6.5);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 1;
+  for (var i = 1; i < MAX_ENERGY; i++){
+    var tx = x + (barW / MAX_ENERGY) * i;
+    ctx.beginPath();
+    ctx.moveTo(tx, y + 1);
+    ctx.lineTo(tx, y + barH - 1);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1.2;
+  roundRect(ctx, x, y, barW, barH, 6.5);
+  ctx.stroke();
+
+  ctx.font = '800 11px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(220,235,255,0.92)';
+  ctx.textAlign = isP1 ? 'left' : 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillText(
+    'P' + (player + 1) + ' · ' + G.commanders[player].name +
+    '   ' + Math.floor(G.energy[player]) + '/' + MAX_ENERGY,
+    isP1 ? x : x + barW,
+    y + barH + 5
+  );
+}
+
+/* ======================== HUD DOM 同步 ======================== */
+var unitBtns  = Array.prototype.slice.call(document.querySelectorAll('.btn.unit'));
+var skillBtns = Array.prototype.slice.call(document.querySelectorAll('.btn.skill'));
+
+function updateHudDom(){
+  for (var i = 0; i < unitBtns.length; i++){
+    var el = unitBtns[i];
+    var p = parseInt(el.getAttribute('data-player'), 10);
+    var cost = UNIT_DEFS[el.getAttribute('data-unit')].cost;
+    var dis = G.energy[p] < cost;
+    if (el._dis !== dis){
+      el._dis = dis;
+      el.classList.toggle('disabled', dis);
+    }
+  }
+
+  for (var j = 0; j < skillBtns.length; j++){
+    var s = skillBtns[j];
+    var p2 = parseInt(s.getAttribute('data-player'), 10);
+    var cd = G.skillCd[p2];
+    var cooling = cd > 0;
+
+    if (s._cool !== cooling){
+      s._cool = cooling;
+      s.classList.toggle('cooling', cooling);
+    }
+    if (cooling){
+      var sec = Math.ceil(cd);
+      if (s._lastCd !== sec){
+        s._lastCd = sec;
+        var cdEl = s.querySelector('.cd');
+        if (cdEl) cdEl.textContent = sec;
+      }
+    }
+  }
+}
+
+/* ======================== 多指触控 ======================== */
+function bindCombatButtons(){
+  var btns = document.querySelectorAll('.btn');
+  for (var i = 0; i < btns.length; i++){
+    (function(el){
+      el.addEventListener('pointerdown', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if (!G.running || G.over) return;
+
+        var player = parseInt(el.getAttribute('data-player'), 10);
+        var action = el.getAttribute('data-action');
+
+        el.classList.add('pressed');
+
+        if (action === 'skill'){
+          useSkill(player);
+          presses.set(e.pointerId, { kind:'skill', player:player, el:el });
+        } else {
+          var unitKey = el.getAttribute('data-unit');
+          presses.set(e.pointerId, {
+            kind:'unit', player:player, unitKey:unitKey, el:el
+          });
+          tryBuy(player, unitKey);      // 按下立即出第一个
+        }
+      }, { passive:false });
+    })(btns[i]);
+  }
+}
+
+function releasePointer(e){
+  var p = presses.get(e.pointerId);
+  if (!p) return;
+  presses.delete(e.pointerId);
+
+  // 同一按钮上可能还有其他手指按着
+  var still = false;
+  presses.forEach(function(o){
+    if (o.el === p.el) still = true;
+  });
+  if (!still) p.el.classList.remove('pressed');
+}
+
+window.addEventListener('pointerup', releasePointer);
+window.addEventListener('pointercancel', releasePointer);
+window.addEventListener('blur', function(){
+  presses.forEach(function(p){ p.el.classList.remove('pressed'); });
+  presses.clear();
+});
+
+/* ======================== 指挥官选择 ======================== */
+var startTimer = null;
+
+function buildPicker(){
+  var sides = document.querySelectorAll('.pick-side');
+  for (var i = 0; i < sides.length; i++){
+    (function(sideEl){
+      var side = parseInt(sideEl.getAttribute('data-side'), 10);
+      var wrap = sideEl.querySelector('.pick-cards');
+
+      for (var j = 0; j < CMD_LIST.length; j++){
+        (function(id){
+          var c = COMMANDERS[id];
+          var card = document.createElement('div');
+          card.className = 'card';
+          card.setAttribute('data-cmd', id);
+          card.innerHTML =
+            '<span class="ci">' + c.icon + '</span>' +
+            '<span class="cn">' + c.name + '</span>' +
+            '<span class="cd2">' + c.desc + '</span>';
+
+          card.addEventListener('pointerdown', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            if (G.running) return;
+
+            chosen[side] = id;
+
+            var all = card.parentNode.querySelectorAll('.card');
+            for (var k = 0; k < all.length; k++) all[k].classList.remove('sel');
+            card.classList.add('sel');
+
+            if (chosen[0] && chosen[1] && !startTimer){
+              startTimer = setTimeout(function(){
+                startTimer = null;
+                startGame();
+              }, 220);
+            }
+          }, { passive:false });
+
+          wrap.appendChild(card);
+        })(CMD_LIST[j]);
+      }
+    })(sides[i]);
+  }
+}
+
+/* ======================== 结算按钮 ======================== */
+document.getElementById('restartBtn').addEventListener('pointerdown', function(e){
+  e.preventDefault();
+  if (startTimer){ clearTimeout(startTimer); startTimer = null; }
+  document.getElementById('endScreen').classList.add('hidden');
+  startGame();
+}, { passive:false });
+
+document.getElementById('reselectBtn').addEventListener('pointerdown', function(e){
+  e.preventDefault();
+  if (startTimer){ clearTimeout(startTimer); startTimer = null; }
+  document.getElementById('endScreen').classList.add('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+  G.running = false;
+  G.over = false;
+  presses.clear();
+
+  var cards = document.querySelectorAll('.card');
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('sel');
+  chosen = [null, null];
+}, { passive:false });
+
+/* ======================== 尺寸变化 ======================== */
+var resizeTimer = null;
+function onResize(){
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function(){
+    resizeTimer = null;
+    resize();
+    for (var i = 0; i < G.units.length; i++){
+      var u = G.units[i];
+      if (u.x < 24) u.x = 24;
+      if (u.x > W - 24) u.x = W - 24;
+    }
+  }, 90);
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
+
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+/* ======================== 主循环 ======================== */
+var lastT = performance.now();
+
+function loop(now){
+  var dt = (now - lastT) / 1000;
+  lastT = now;
+  if (dt > 0.05) dt = 0.05;
+
+  if (G.running && !G.over) update(dt);
+
+  render();
+  updateHudDom();
+
+  requestAnimationFrame(loop);
+}
+
+/* ======================== 启动 ======================== */
+resize();
+initBases();
+bindCombatButtons();
+buildPicker();
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>
