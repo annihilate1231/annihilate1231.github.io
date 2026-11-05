@@ -22,7 +22,7 @@
             padding: 0;
             box-sizing: border-box;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -39,47 +39,29 @@
 
         /* ================= 极光背景 ================= */
         .aurora-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2;
-            overflow: hidden;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
         }
-
         .aurora-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
             animation: floatAurora 20s infinite alternate ease-in-out;
         }
         .blob1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(163, 229, 255, 0.6); }
         .blob2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: rgba(255, 218, 224, 0.5); animation-delay: -10s; }
         .blob3 { top: 30%; left: 40%; width: 40vw; height: 40vw; background: rgba(212, 252, 235, 0.5); animation-duration: 25s; }
-
         @keyframes floatAurora {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(10%, 10%) scale(1.1); }
         }
 
-        #particle-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 
         /* ================= 水波纹特效 ================= */
         .water-ripple {
-            position: fixed;
-            border-radius: 50%;
-            background: transparent;
-            border: 1.5px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%) scale(0);
-            animation: rippleAnim 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-            pointer-events: none;
-            z-index: 9999;
+            position: fixed; border-radius: 50%; background: transparent;
+            border: 1.5px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%) scale(0); animation: rippleAnim 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+            pointer-events: none; z-index: 9999;
         }
         @keyframes rippleAnim {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
@@ -88,344 +70,172 @@
 
         /* ================= 开场动画层 ================= */
         #splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: var(--bg-light);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-light); z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: all 1s cubic-bezier(0.77, 0, 0.175, 1);
         }
-        
-        #splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-50px) scale(1.05); /* 向上淡出放大 */
-        }
-
+        #splash-screen.hidden { opacity: 0; visibility: hidden; transform: translateY(-50px) scale(1.05); }
         .splash-avatar {
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            background: #fff;
-            padding: 5px;
-            box-shadow: 0 10px 30px rgba(108, 178, 235, 0.2);
-            margin-bottom: 30px;
-            mix-blend-mode: multiply;
+            width: 180px; height: 180px; border-radius: 50%; background: #fff; padding: 5px;
+            box-shadow: 0 10px 30px rgba(108, 178, 235, 0.2); margin-bottom: 30px; mix-blend-mode: multiply;
         }
+        .splash-name { font-size: 3.5rem; font-weight: 800; letter-spacing: 8px; color: #2c3e50; min-height: 60px; }
 
-        .splash-name {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: 8px;
-            color: #2c3e50;
-            min-height: 60px;
-        }
-
-        /* ================= 主内容区 (展开动画) ================= */
+        /* ================= 主内容区 ================= */
         .main-container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 1000px;
-            margin-top: 5vh;
-            margin-bottom: 10vh;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            opacity: 0; /* 初始隐藏，由 JS 触发显示 */
-            transform: translateY(30px);
-            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; z-index: 10; width: 90%; max-width: 1000px;
+            margin-top: 5vh; margin-bottom: 10vh; display: flex; flex-direction: column; gap: 30px;
+            opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .main-container.reveal {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .main-container.reveal { opacity: 1; transform: translateY(0); }
 
-        /* PC端布局适配 */
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        @media (max-width: 768px) {
-            .grid-layout { grid-template-columns: 1fr; }
-        }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
 
         /* ================= 透明浮岛卡片 ================= */
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            padding: 35px;
-            box-shadow: var(--glass-shadow);
-            transition: background 0.5s ease, box-shadow 0.5s ease;
-            width: 100%;
+            background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); border-radius: 28px; padding: 35px;
+            box-shadow: var(--glass-shadow); transition: background 0.5s ease, box-shadow 0.5s ease; width: 100%;
         }
+        .glass-card:hover { background: rgba(255, 255, 255, 0.6); box-shadow: 0 15px 50px rgba(142, 158, 171, 0.25); }
 
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 15px 50px rgba(142, 158, 171, 0.25);
-        }
-
-        /* ================= 头部（主界面） ================= */
-        .hero-section {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            justify-content: center;
-            text-align: left;
-        }
-        @media (max-width: 600px) {
-            .hero-section { flex-direction: column; text-align: center; gap: 15px; }
-        }
-
+        /* ================= 头部区域 ================= */
+        .hero-section { display: flex; align-items: center; gap: 30px; justify-content: center; text-align: left; }
+        @media (max-width: 600px) { .hero-section { flex-direction: column; text-align: center; gap: 15px; } }
         .hero-avatar {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            background: #fff;
-            mix-blend-mode: multiply;
-            box-shadow: 0 10px 30px rgba(108, 178, 235, 0.2);
-            animation: floatSoft 6s infinite ease-in-out;
+            width: 120px; height: 120px; border-radius: 50%; background: #fff; mix-blend-mode: multiply;
+            box-shadow: 0 10px 30px rgba(108, 178, 235, 0.2); animation: floatSoft 6s infinite ease-in-out;
         }
-        @keyframes floatSoft {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        @keyframes floatSoft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .hero-text h1 { font-size: 2.5rem; letter-spacing: 4px; margin-bottom: 10px; }
+        .slogan { font-size: 1.1rem; color: var(--text-sub); font-family: "STKaiti", "楷体", serif; letter-spacing: 2px; }
 
-        .hero-text h1 {
-            font-size: 2.5rem;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-        }
-        .slogan {
-            font-size: 1.1rem;
-            color: var(--text-sub);
-            font-family: "STKaiti", "楷体", serif;
-            letter-spacing: 2px;
-        }
-
-        /* ================= 快捷按钮组 ================= */
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
+        /* ================= 按钮组 ================= */
+        .btn-group { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
         .btn {
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            color: #34495e;
-            padding: 12px 28px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.9); color: #34495e;
+            padding: 12px 28px; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center;
+            gap: 8px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
+        .btn:hover { background: #fff; transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(108, 178, 235, 0.2); color: var(--accent); }
 
-        .btn:hover {
-            background: #fff;
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(108, 178, 235, 0.2);
-            color: var(--accent);
-        }
-
-        /* ================= 时钟与音乐面板 ================= */
-        .left-col {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .clock-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
-            padding: 30px;
-        }
-        .clock-time {
-            font-size: 3rem; font-weight: 300; color: #2c3e50;
-            font-family: 'Courier New', Courier, monospace;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
+        /* ================= 时钟卡片 ================= */
+        .left-col { display: flex; flex-direction: column; gap: 30px; }
+        .clock-card { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; }
+        .clock-time { font-size: 3rem; font-weight: 300; color: #2c3e50; font-family: 'Courier New', monospace; text-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .clock-date { font-size: 1rem; color: var(--text-sub); margin-top: 5px; }
 
-        .music-card {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 30px;
+        /* ================= 音乐播放器面板 ================= */
+        .music-card { display: flex; flex-direction: column; gap: 25px; padding: 30px; position: relative; z-index: 50; }
+        .music-header { display: flex; align-items: flex-start; justify-content: space-between; }
+        .music-info { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        
+        /* --- 定制下拉选择框 --- */
+        .custom-select-container { position: relative; margin-top: 5px; }
+        .custom-select-trigger {
+            display: inline-flex; align-items: center; justify-content: space-between;
+            padding: 10px 20px; font-size: 1.1rem; font-weight: bold; color: #2980b9;
+            background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(108, 178, 235, 0.3);
+            border-radius: 14px; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 178, 235, 0.1); min-width: 160px;
         }
-        .music-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .custom-select-trigger:hover {
+            background: #fff; box-shadow: 0 6px 20px rgba(108, 178, 235, 0.25); transform: translateY(-2px);
         }
-        .music-info { display: flex; flex-direction: column; }
-        .music-name { font-size: 1.1rem; font-weight: bold; }
-        .music-artist { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+        .custom-select-trigger.active { border-color: var(--accent); background: #fff; }
+        
+        .custom-select-trigger .select-icon { margin-right: 8px; font-size: 1.2rem; }
+        .custom-select-trigger .arrow { font-size: 0.8rem; color: var(--accent); transition: transform 0.3s ease; }
+        .custom-select-trigger.active .arrow { transform: rotate(180deg); }
+
+        .custom-options {
+            position: absolute; top: calc(100% + 10px); left: 0; width: 100%; min-width: 180px;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 16px; padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); z-index: 100;
+            opacity: 0; visibility: hidden; transform: translateY(-10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            list-style: none;
+        }
+        .custom-options.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+        .custom-option {
+            padding: 12px 15px; font-size: 0.95rem; font-weight: 500; color: #34495e;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .custom-option:hover { background: rgba(108, 178, 235, 0.15); color: #2980b9; padding-left: 20px; }
+        .custom-option.selected { background: rgba(108, 178, 235, 0.25); color: #2980b9; font-weight: bold; }
+        /* 选中状态的播放小动效 */
+        .custom-option.selected::after {
+            content: '🎵'; font-size: 0.8rem; animation: bounceMusic 1s infinite alternate;
+        }
+        @keyframes bounceMusic { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+        /* ------------------------ */
+
+        .music-artist { font-size: 0.85rem; color: var(--text-sub); margin-top: 8px; }
 
         .play-btn {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            border: 1px solid rgba(108, 178, 235, 0.5);
-            background: rgba(255,255,255,0.6);
-            color: #2980b9;
-            font-size: 1.4rem;
-            cursor: pointer;
-            display: flex; justify-content: center; align-items: center;
-            transition: all 0.3s;
+            width: 55px; height: 55px; border-radius: 50%; border: 1px solid rgba(108, 178, 235, 0.5);
+            background: rgba(255,255,255,0.6); color: #2980b9; font-size: 1.4rem; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; transition: all 0.3s; flex-shrink: 0;
         }
-        .play-btn:hover { background: #fff; box-shadow: 0 0 20px rgba(108, 178, 235, 0.4); }
+        .play-btn:hover { background: #fff; box-shadow: 0 0 20px rgba(108, 178, 235, 0.4); transform: scale(1.05); }
         
-        /* 音乐图标旋转动画 */
         @keyframes spinMusic { 100% { transform: rotate(360deg); } }
-        .play-btn.playing .music-icon {
-            display: inline-block;
-            animation: spinMusic 3s linear infinite;
-        }
+        .play-btn.playing .music-icon { display: inline-block; animation: spinMusic 3s linear infinite; }
 
-        /* 音乐进度条 */
-        .music-progress-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 0.8rem;
-            color: var(--text-sub);
-            font-family: monospace;
-        }
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
+        .music-progress-container { display: flex; align-items: center; gap: 15px; font-size: 0.8rem; color: var(--text-sub); font-family: monospace; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 6px; cursor: pointer;
-            background: rgba(0,0,0,0.1); border-radius: 3px;
-        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(0,0,0,0.1); border-radius: 3px; }
         input[type=range]::-webkit-slider-thumb {
-            height: 16px; width: 16px; border-radius: 50%;
-            background: #fff; cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -5px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
+            height: 16px; width: 16px; border-radius: 50%; background: #fff; cursor: pointer;
+            -webkit-appearance: none; margin-top: -5px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: transform 0.1s;
         }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-        /* ================= 俄罗斯方块面板 ================= */
-        .tetris-card {
-            display: flex;
-            flex-direction: column;
-        }
-        .panel-title {
-            font-size: 1.1rem; font-weight: 600; color: #34495e;
-            margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px;
-        }
-        .tetris-container {
-            display: flex; gap: 20px; align-items: flex-start; justify-content: center;
-        }
-        #tetrisCanvas {
-            background: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
-        }
+        /* ================= 俄罗斯方块 ================= */
+        .tetris-card { display: flex; flex-direction: column; }
+        .panel-title { font-size: 1.1rem; font-weight: 600; color: #34495e; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px; }
+        .tetris-container { display: flex; gap: 20px; align-items: flex-start; justify-content: center; }
+        #tetrisCanvas { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02); }
         .tetris-info { display: flex; flex-direction: column; gap: 15px; }
         .score-text { font-size: 1.2rem; color: #34495e; font-weight: bold; }
-        .restart-btn {
-            background: rgba(108, 178, 235, 0.15);
-            color: #2980b9;
-            border: 1px solid rgba(108, 178, 235, 0.3);
-            padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
-        }
+        .restart-btn { background: rgba(108, 178, 235, 0.15); color: #2980b9; border: 1px solid rgba(108, 178, 235, 0.3); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
         .restart-btn:hover { background: rgba(108, 178, 235, 0.3); }
 
-        /* 移动端虚拟按键 (默认隐藏) */
-        .mobile-controls {
-            display: none;
-            gap: 10px;
-            margin-top: 15px;
-            justify-content: center;
-        }
+        .mobile-controls { display: none; gap: 10px; margin-top: 15px; justify-content: center; }
         .mobile-controls button {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            border: 1px solid rgba(108, 178, 235, 0.4);
-            background: rgba(255, 255, 255, 0.6);
-            color: #2980b9; font-size: 1.2rem;
-            touch-action: manipulation; /* 防止双击缩放 */
+            width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(108, 178, 235, 0.4);
+            background: rgba(255, 255, 255, 0.6); color: #2980b9; font-size: 1.2rem; touch-action: manipulation;
         }
-        .mobile-controls button:active {
-            background: rgba(108, 178, 235, 0.3);
-            transform: scale(0.95);
-        }
-        @media (max-width: 768px) {
-            .mobile-controls { display: flex; }
-        }
+        .mobile-controls button:active { background: rgba(108, 178, 235, 0.3); transform: scale(0.95); }
+        @media (max-width: 768px) { .mobile-controls { display: flex; } }
 
         /* ================= 公告栏 ================= */
         .announcement {
-            text-align: center;
-            font-size: 0.95rem;
-            color: #555;
-            line-height: 1.6;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            border: 1px dashed rgba(108, 178, 235, 0.4);
+            text-align: center; font-size: 0.95rem; color: #555; line-height: 1.6; padding: 25px;
+            background: rgba(255, 255, 255, 0.3); border-radius: 20px; border: 1px dashed rgba(108, 178, 235, 0.4);
         }
 
         /* ================= 流体泡泡 ================= */
         .breeze-bubble {
-            position: fixed;
-            width: 90px; height: 90px;
-            border-radius: 50%;
-            z-index: 100;
+            position: fixed; width: 90px; height: 90px; border-radius: 50%; z-index: 100;
             background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.3) 40%, rgba(163, 229, 255, 0.15) 80%, transparent 100%);
-            box-shadow: 
-                inset -5px -5px 15px rgba(0, 0, 0, 0.05),
-                inset 5px 5px 15px rgba(255, 255, 255, 0.9),
-                0 15px 30px rgba(0, 0, 0, 0.1),
-                0 0 20px rgba(163, 229, 255, 0.4);
-            backdrop-filter: blur(3px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            cursor: grab;
-            top: 20%; right: 10%;
-            touch-action: none;
-            /* 弹性过渡，用于松开时的回弹 */
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.5);
-            will-change: transform, left, top;
+            box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.05), inset 5px 5px 15px rgba(255, 255, 255, 0.9), 0 15px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(163, 229, 255, 0.4);
+            backdrop-filter: blur(3px); border: 1px solid rgba(255, 255, 255, 0.8); cursor: grab;
+            top: 20%; right: 10%; touch-action: none;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.5); will-change: transform, left, top;
         }
         .breeze-bubble:active { cursor: grabbing; }
-        /* 高光 */
-        .breeze-bubble::before {
-            content: ''; position: absolute; top: 15%; left: 20%;
-            width: 18px; height: 10px; background: rgba(255, 255, 255, 1);
-            border-radius: 50%; transform: rotate(-45deg); filter: blur(1px);
-        }
-        /* 次级高光 */
-        .breeze-bubble::after {
-            content: ''; position: absolute; bottom: 20%; right: 20%;
-            width: 8px; height: 5px; background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%; transform: rotate(-45deg); filter: blur(1px);
-        }
+        .breeze-bubble::before { content: ''; position: absolute; top: 15%; left: 20%; width: 18px; height: 10px; background: rgba(255, 255, 255, 1); border-radius: 50%; transform: rotate(-45deg); filter: blur(1px); }
+        .breeze-bubble::after { content: ''; position: absolute; bottom: 20%; right: 20%; width: 8px; height: 5px; background: rgba(255, 255, 255, 0.6); border-radius: 50%; transform: rotate(-45deg); filter: blur(1px); }
 
-        /* 模态框 */
+        /* ================= 模态框 ================= */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(232, 240, 248, 0.6); backdrop-filter: blur(10px);
@@ -436,8 +246,7 @@
         .modal-content {
             background: rgba(255, 255, 255, 0.85); border: 1px solid #fff; border-radius: 24px;
             padding: 40px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
+            transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center;
         }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-content h2 { color: #2c3e50; margin-bottom: 25px; }
@@ -447,10 +256,7 @@
             border: 1px solid rgba(108, 178, 235, 0.2); border-radius: 12px;
             color: #34495e; text-decoration: none; transition: all 0.3s; font-weight: 600;
         }
-        .game-item:hover {
-            background: #fff; border-color: var(--accent); transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 178, 235, 0.2);
-        }
+        .game-item:hover { background: #fff; border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(108, 178, 235, 0.2); }
         .close-btn { background: transparent; border: none; color: #95a5a6; font-size: 1rem; cursor: pointer; transition: 0.3s; }
         .close-btn:hover { color: #e74c3c; }
     </style>
@@ -470,8 +276,6 @@
         <div class="aurora-blob blob3"></div>
     </div>
     <canvas id="particle-canvas"></canvas>
-
-    <!-- 拖拽泡泡 -->
     <div class="breeze-bubble" id="bubble"></div>
 
     <!-- 主内容区 -->
@@ -489,16 +293,14 @@
         <!-- 快捷入口 -->
         <div class="btn-group">
             <button class="btn" onclick="toggleGameModal(true)">🎮 游戏世界</button>
-            <!-- 唤起 QQ 加好友页面 -->
             <a href="mqqapi://card/show_pslcard?src_type=internal&version=1&uin=3168565832&card_type=person&source=qzone" onclick="promptQQ(event)" class="btn">💬 加我 QQ</a>
         </div>
 
-        <!-- 核心功能区 (PC双列布局) -->
+        <!-- 核心功能区 -->
         <div class="grid-layout">
             
             <!-- 左列：时钟 + 音乐 -->
             <div class="left-col">
-                <!-- 时钟 -->
                 <div class="glass-card clock-card">
                     <div class="clock-time" id="clock-time">00:00:00</div>
                     <div class="clock-date" id="clock-date">加载中...</div>
@@ -508,14 +310,30 @@
                 <div class="glass-card music-card">
                     <div class="music-header">
                         <div class="music-info">
-                            <div class="music-name">手写的从前</div>
+                            
+                            <!-- 定制化选歌 UI -->
+                            <div class="custom-select-container" id="customSelect">
+                                <div class="custom-select-trigger" id="selectTrigger">
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="select-icon">🎵</span>
+                                        <span id="currentSongText">手写的从前</span>
+                                    </div>
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <ul class="custom-options" id="selectOptions">
+                                    <li class="custom-option selected" data-value="Handwrittenbefore.mp3">手写的从前</li>
+                                    <li class="custom-option" data-value="Anchored.mp3">搁浅</li>
+                                    <li class="custom-option" data-value="FireworksCool.mp3">烟花易冷</li>
+                                </ul>
+                            </div>
                             <div class="music-artist">沉浸旋律 · 悠然自得</div>
+
                         </div>
                         <button class="play-btn" id="playBtn">
                             <span class="music-icon">🎵</span>
                         </button>
                     </div>
-                    <!-- 进度条 -->
+                    
                     <div class="music-progress-container">
                         <span id="current-time">00:00</span>
                         <input type="range" id="music-progress" value="0" min="0" max="100" step="0.1">
@@ -537,7 +355,6 @@
                         <button class="restart-btn" onclick="startTetris()">重新开始</button>
                     </div>
                 </div>
-                <!-- PE端虚拟按键 -->
                 <div class="mobile-controls">
                     <button onclick="tetrisAction('left')">←</button>
                     <button onclick="tetrisAction('rotate')">↻</button>
@@ -552,7 +369,6 @@
         <div class="announcement glass-card">
             📢 <strong>幻境公告：</strong><br>
             欢迎来到我的云端小屋。这里可以听歌、玩方块。<br>
-            <!-- 在下面这行文字里，你可以自己修改公告内容 -->
             最近正在努力敲代码，如果觉得好玩，记得加我 QQ 和我交流哦！<br>
         </div>
 
@@ -573,6 +389,7 @@
         </div>
     </div>
 
+    <!-- 音频标签 -->
     <audio id="audioPlayer" loop src="Handwrittenbefore.mp3"></audio>
 
     <script>
@@ -590,11 +407,9 @@
                     i++;
                     setTimeout(typeSplash, 200);
                 } else {
-                    // 打字完成，停留 1 秒后展开主界面
                     setTimeout(() => {
                         splashScreen.classList.add("hidden");
                         mainContent.classList.add("reveal");
-                        // 移除遮罩层防止阻挡点击
                         setTimeout(() => splashScreen.remove(), 1000);
                     }, 1000);
                 }
@@ -623,8 +438,6 @@
 
         // ================= 3. QQ 唤起处理 =================
         function promptQQ(e) {
-            // 这里利用了 QQ 的 URL Scheme。如果在电脑端没有安装QQ，点击可能没反应，所以给个提示。
-            // 实际点击会触发 <a> 标签的 href="mqqapi://..."
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (!isMobile) {
                 alert("正在尝试唤起本地 QQ...\n如果未能跳转，请手动搜索 QQ 号：3168565832");
@@ -647,12 +460,69 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // ================= 5. 音乐播放器逻辑 =================
+        // ================= 5. 音乐播放器逻辑 (含定制下拉菜单) =================
         const playBtn = document.getElementById('playBtn');
         const audioPlayer = document.getElementById('audioPlayer');
         const progressBar = document.getElementById('music-progress');
         const currentTimeEl = document.getElementById('current-time');
         const totalTimeEl = document.getElementById('total-time');
+
+        // 定制下拉 UI 逻辑
+        const selectTrigger = document.getElementById('selectTrigger');
+        const selectOptions = document.getElementById('selectOptions');
+        const currentSongText = document.getElementById('currentSongText');
+        const customOptions = document.querySelectorAll('.custom-option');
+
+        // 点击触发器展开/收起
+        selectTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止冒泡，防止被全局点击（如播放音效或水波纹）干扰
+            selectTrigger.classList.toggle('active');
+            selectOptions.classList.toggle('active');
+        });
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            if (!selectTrigger.contains(e.target) && !selectOptions.contains(e.target)) {
+                selectTrigger.classList.remove('active');
+                selectOptions.classList.remove('active');
+            }
+        });
+
+        // 处理选项点击
+        customOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation(); // 阻止冒泡
+                const newValue = this.getAttribute('data-value');
+                const newText = this.innerText;
+
+                // UI 更新
+                currentSongText.innerText = newText;
+                selectTrigger.classList.remove('active');
+                selectOptions.classList.remove('active');
+
+                // 高亮状态切换
+                customOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+
+                // 切歌逻辑
+                const wasPlaying = !audioPlayer.paused;
+                audioPlayer.src = newValue;
+                audioPlayer.load(); 
+                
+                if (wasPlaying) {
+                    audioPlayer.play().then(() => {
+                        playBtn.classList.add('playing');
+                    }).catch(err => {
+                        console.error("切换歌曲失败", err);
+                        playBtn.classList.remove('playing');
+                    });
+                }
+                
+                progressBar.value = 0;
+                currentTimeEl.textContent = "00:00";
+                totalTimeEl.textContent = "00:00";
+            });
+        });
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return "00:00";
@@ -674,19 +544,16 @@
             }
         });
 
-        // 获取总时长
         audioPlayer.addEventListener('loadedmetadata', () => {
             totalTimeEl.textContent = formatTime(audioPlayer.duration);
             progressBar.max = audioPlayer.duration;
         });
 
-        // 时间更新时同步进度条
         audioPlayer.addEventListener('timeupdate', () => {
             progressBar.value = audioPlayer.currentTime;
             currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
         });
 
-        // 拖拽进度条
         progressBar.addEventListener('input', () => {
             currentTimeEl.textContent = formatTime(progressBar.value);
             audioPlayer.currentTime = progressBar.value;
@@ -703,69 +570,43 @@
         // ================= 7. 动感流体泡泡拖拽 =================
         const bubble = document.getElementById('bubble');
         let isDragging = false;
-        let startX = 0, startY = 0;
         let prevX = 0, prevY = 0;
         let offX = 0, offY = 0;
-        let animationFrameId = null;
 
         function startDrag(e) {
             const cx = e.clientX || (e.touches && e.touches[0].clientX);
             const cy = e.clientY || (e.touches && e.touches[0].clientY);
             if (!cx) return;
-            
             isDragging = true;
             const rect = bubble.getBoundingClientRect();
             offX = cx - rect.left; offY = cy - rect.top;
-            
             prevX = cx; prevY = cy;
-            
-            // 取消过渡，准备实时计算形变
             bubble.style.transition = 'none';
             e.preventDefault(); e.stopPropagation();
         }
 
         function onDrag(e) {
             if (!isDragging) return;
-            
             const cx = e.clientX || (e.touches && e.touches[0].clientX);
             const cy = e.clientY || (e.touches && e.touches[0].clientY);
             if (!cx) return;
-
-            // 边界限制
             let x = Math.max(0, Math.min(cx - offX, window.innerWidth - bubble.offsetWidth));
             let y = Math.max(0, Math.min(cy - offY, window.innerHeight - bubble.offsetHeight));
             
-            // 计算移动速度 (用于形变)
-            let dx = cx - prevX;
-            let dy = cy - prevY;
+            let dx = cx - prevX, dy = cy - prevY;
             let speed = Math.sqrt(dx*dx + dy*dy);
-            
-            // 限制最大形变
-            let maxStretch = 0.4; 
-            let stretch = Math.min(speed / 50, maxStretch);
-            
-            // 计算拉伸角度
+            let stretch = Math.min(speed / 50, 0.4);
             let angle = Math.atan2(dy, dx) * 180 / Math.PI;
             
-            // 应用形变（沿着移动方向拉伸）
-            bubble.style.transform = `rotate(${angle}deg) scale(${1 + stretch}, ${1 - stretch})`;
-            // 对内部内容反向旋转一下保持平衡，这里泡泡没内容，所以不需要
-            // 但为了更好看，可以稍微有点倾斜
             bubble.style.transform = `scale(${1 + stretch}, ${1 - stretch}) rotate(${angle}deg)`;
-            
-            bubble.style.left = x + 'px'; 
-            bubble.style.top = y + 'px';
-            bubble.style.right = 'auto';
-            
+            bubble.style.left = x + 'px'; bubble.style.top = y + 'px'; bubble.style.right = 'auto';
             prevX = cx; prevY = cy;
-            
             e.preventDefault();
         }
 
         function stopDrag() {
             if (isDragging) {
                 isDragging = false;
-                // 恢复弹性过渡，触发果冻回弹效果
                 bubble.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.5), left 0.1s, top 0.1s';
                 bubble.style.transform = 'scale(1, 1) rotate(0deg)';
             }
@@ -798,22 +639,18 @@
 
         class Particle {
             constructor() {
-                this.x = Math.random() * W;
-                this.y = Math.random() * H;
+                this.x = Math.random() * W; this.y = Math.random() * H;
                 this.size = Math.random() * 4 + 1;
                 this.speedY = Math.random() * 0.3 + 0.1;
                 this.speedX = (Math.random() - 0.5) * 0.3;
                 this.opacity = Math.random() * 0.5 + 0.2;
             }
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctx.fill();
             }
             update() {
-                this.y -= this.speedY;
-                this.x += this.speedX;
+                this.y -= this.speedY; this.x += this.speedX;
                 if (mouse.x != null && mouse.y != null) {
                     let dx = mouse.x - this.x, dy = mouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
@@ -824,8 +661,7 @@
                     }
                 }
                 if (this.y < -10 || this.x < -10 || this.x > W + 10) {
-                    this.y = H + 10;
-                    this.x = Math.random() * W;
+                    this.y = H + 10; this.x = Math.random() * W;
                 }
                 this.draw();
             }
@@ -837,17 +673,11 @@
         }
         initCanvas(); animate(); window.addEventListener("resize", initCanvas);
 
-        // ================= 9. 俄罗斯方块 (适配PE) =================
+        // ================= 9. 俄罗斯方块 =================
         const tetrisCanvas = document.getElementById('tetrisCanvas');
         const tCtx = tetrisCanvas.getContext('2d');
         const COLS = 10, ROWS = 20, BLOCK_SIZE = 20;
-        
-        let board = [];
-        let score = 0;
-        let dropCounter = 0, dropInterval = 1000, lastTime = 0;
-        let piece = null;
-        let gameOver = false;
-
+        let board = [], score = 0, dropCounter = 0, dropInterval = 1000, lastTime = 0, piece = null, gameOver = false;
         const COLORS = ['#ffb7b2', '#ffdac1', '#e2f0cb', '#b5ead7', '#c7ceea', '#ffb7b2'];
         const SHAPES = [
             [[1,1,1,1]], [[1,1],[1,1]], [[0,1,0],[1,1,1]],
@@ -857,41 +687,27 @@
         function createPiece() {
             const typeId = Math.floor(Math.random() * SHAPES.length);
             return {
-                shape: SHAPES[typeId],
-                color: COLORS[typeId],
-                x: Math.floor(COLS / 2) - Math.floor(SHAPES[typeId][0].length / 2),
-                y: 0
+                shape: SHAPES[typeId], color: COLORS[typeId],
+                x: Math.floor(COLS / 2) - Math.floor(SHAPES[typeId][0].length / 2), y: 0
             };
         }
 
         function drawBoard() {
             tCtx.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
-            
-            tCtx.strokeStyle = 'rgba(0, 0, 0, 0.03)';
-            tCtx.lineWidth = 1;
-            for(let i=0; i<=COLS; i++) {
-                tCtx.beginPath(); tCtx.moveTo(i*BLOCK_SIZE, 0); tCtx.lineTo(i*BLOCK_SIZE, ROWS*BLOCK_SIZE); tCtx.stroke();
-            }
-            for(let j=0; j<=ROWS; j++) {
-                tCtx.beginPath(); tCtx.moveTo(0, j*BLOCK_SIZE); tCtx.lineTo(COLS*BLOCK_SIZE, j*BLOCK_SIZE); tCtx.stroke();
-            }
+            tCtx.strokeStyle = 'rgba(0, 0, 0, 0.03)'; tCtx.lineWidth = 1;
+            for(let i=0; i<=COLS; i++) { tCtx.beginPath(); tCtx.moveTo(i*BLOCK_SIZE, 0); tCtx.lineTo(i*BLOCK_SIZE, ROWS*BLOCK_SIZE); tCtx.stroke(); }
+            for(let j=0; j<=ROWS; j++) { tCtx.beginPath(); tCtx.moveTo(0, j*BLOCK_SIZE); tCtx.lineTo(COLS*BLOCK_SIZE, j*BLOCK_SIZE); tCtx.stroke(); }
 
             board.forEach((row, y) => {
                 row.forEach((value, x) => {
-                    if (value) {
-                        tCtx.fillStyle = value;
-                        tCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-                    }
+                    if (value) { tCtx.fillStyle = value; tCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1); }
                 });
             });
 
             if (piece) {
                 piece.shape.forEach((row, y) => {
                     row.forEach((value, x) => {
-                        if (value) {
-                            tCtx.fillStyle = piece.color;
-                            tCtx.fillRect((piece.x + x) * BLOCK_SIZE, (piece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-                        }
+                        if (value) { tCtx.fillStyle = piece.color; tCtx.fillRect((piece.x + x) * BLOCK_SIZE, (piece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1); }
                     });
                 });
             }
@@ -899,9 +715,7 @@
             if (gameOver) {
                 tCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 tCtx.fillRect(0, tetrisCanvas.height / 2 - 30, tetrisCanvas.width, 60);
-                tCtx.fillStyle = '#e74c3c';
-                tCtx.font = 'bold 18px sans-serif';
-                tCtx.textAlign = 'center';
+                tCtx.fillStyle = '#e74c3c'; tCtx.font = 'bold 18px sans-serif'; tCtx.textAlign = 'center';
                 tCtx.fillText('游戏结束', tetrisCanvas.width / 2, tetrisCanvas.height / 2 + 6);
             }
         }
@@ -925,64 +739,40 @@
                     if (value && piece.y + y >= 0) board[piece.y + y][piece.x + x] = piece.color;
                 });
             });
-            clearLines();
-            piece = createPiece();
-            if (collide()) gameOver = true;
+            clearLines(); piece = createPiece(); if (collide()) gameOver = true;
         }
 
         function clearLines() {
             for (let y = ROWS - 1; y >= 0; y--) {
                 if (board[y].every(value => value !== null)) {
-                    board.splice(y, 1);
-                    board.unshift(new Array(COLS).fill(null));
-                    score += 100;
-                    document.getElementById('score').innerText = score;
-                    y++;
+                    board.splice(y, 1); board.unshift(new Array(COLS).fill(null));
+                    score += 100; document.getElementById('score').innerText = score; y++;
                 }
             }
         }
 
-        function drop() {
-            piece.y++;
-            if (collide()) { piece.y--; merge(); }
-            dropCounter = 0;
-        }
-
+        function drop() { piece.y++; if (collide()) { piece.y--; merge(); } dropCounter = 0; }
         function rotate() {
             const shape = piece.shape;
             const rotated = shape[0].map((_, i) => shape.map(row => row[i]).reverse());
-            const oldShape = piece.shape;
-            piece.shape = rotated;
-            if (collide()) piece.shape = oldShape;
+            const oldShape = piece.shape; piece.shape = rotated; if (collide()) piece.shape = oldShape;
         }
-
-        function move(dir) {
-            piece.x += dir;
-            if (collide()) piece.x -= dir;
-        }
+        function move(dir) { piece.x += dir; if (collide()) piece.x -= dir; }
 
         function updateTetris(time = 0) {
             if (gameOver) { drawBoard(); return; }
-            const deltaTime = time - lastTime;
-            lastTime = time;
-            dropCounter += deltaTime;
-            if (dropCounter > dropInterval) drop();
-            drawBoard();
-            requestAnimationFrame(updateTetris);
+            const deltaTime = time - lastTime; lastTime = time;
+            dropCounter += deltaTime; if (dropCounter > dropInterval) drop();
+            drawBoard(); requestAnimationFrame(updateTetris);
         }
 
         function startTetris() {
             board = Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
-            score = 0;
-            document.getElementById('score').innerText = score;
-            gameOver = false;
-            piece = createPiece();
-            lastTime = performance.now();
-            dropCounter = 0;
-            requestAnimationFrame(updateTetris);
+            score = 0; document.getElementById('score').innerText = score;
+            gameOver = false; piece = createPiece();
+            lastTime = performance.now(); dropCounter = 0; requestAnimationFrame(updateTetris);
         }
 
-        // 键盘事件
         document.addEventListener('keydown', e => {
             if (gameOver || !piece) return;
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -994,7 +784,6 @@
             }
         });
 
-        // 移动端虚拟按键事件
         window.tetrisAction = function(action) {
             if (gameOver || !piece) return;
             if (action === 'left') { move(-1); drawBoard(); }

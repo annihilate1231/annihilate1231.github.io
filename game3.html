@@ -33,6 +33,7 @@
   .turn-pulse{width:8px;height:8px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 12px #8b5cf6;animation:turnPulse 1.6s ease-in-out infinite}
   @keyframes turnPulse{0%,100%{opacity:1}50%{opacity:.5}}
   #turnLabel{color:#c5cfe3}
+  .phase-label{font-size:11px;padding:2px 10px;border-radius:8px;background:rgba(139,92,246,.2);color:#c4b5fd;font-weight:800;letter-spacing:1px;border:1px solid rgba(139,92,246,.4)}
   .btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;font-weight:600}
   .btn:disabled{opacity:.3;cursor:not-allowed}
   .board{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -52,6 +53,7 @@
   .pname{font-size:15px;font-weight:800;color:#fff}
   .prole{font-size:11px;color:#6b7a94}
   .handcount{font-size:10px;color:#a0aabf;margin-left:auto;background:rgba(255,255,255,.06);padding:1px 8px;border-radius:8px;font-weight:700}
+  .handcount.over{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
   .hp-bar{position:relative;height:18px;border-radius:9px;background:rgba(0,0,0,.4);overflow:hidden}
   .hp-fill{height:100%;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .4s}
   .hp-text{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000}
@@ -85,6 +87,7 @@
   .actions-line.shuangwu{flex-wrap:wrap}
   .action-btn{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);text-align:left;position:relative;overflow:hidden}
   .action-btn.disabled-style{opacity:.35;cursor:not-allowed}
+  .action-btn.zaobi-counter{border-color:#f0abfc!important;box-shadow:0 0 16px -2px rgba(240,171,252,.6);animation:counterCardPulse 0.8s ease-in-out infinite}
   .btn-icon{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:900;background:rgba(255,255,255,.06)}
   .btn-content{flex:1;min-width:0}
   .btn-title{font-size:12px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -205,6 +208,8 @@
   .counter-bar{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:250;background:rgba(240,171,252,.15);border:1px solid #f0abfc;padding:8px 24px;border-radius:24px;color:#f0abfc;font-weight:900;font-size:14px;letter-spacing:2px;pointer-events:none;animation:counterBarPulse 0.3s ease-out}
   @keyframes counterBarPulse{from{transform:translateX(-50%) scale(0.8);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
   .counter-bar.warn{background:rgba(239,68,68,.15);border-color:#ef4444;color:#fca5a5}
+  .phase-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:400;padding:12px 36px;border-radius:16px;background:linear-gradient(135deg,rgba(139,92,246,.9),rgba(99,102,241,.9));color:#fff;font-weight:900;font-size:18px;letter-spacing:4px;pointer-events:none;animation:phaseFade 1s ease-out forwards;box-shadow:0 0 40px rgba(139,92,246,.6)}
+  @keyframes phaseFade{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(.9)}}
   .win-banner{position:fixed;inset:0;display:flex;flex-direction:column;gap:24px;align-items:center;justify-content:center;background:rgba(10,14,23,.85);z-index:500}
   .win-banner h2{font-size:52px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f472b6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 </style>
@@ -228,8 +233,8 @@
 
 <div id="game" hidden>
   <div class="topbar">
-    <div class="turn-indicator"><div class="turn-pulse"></div><span id="turnLabel">准备中</span></div>
-    <div class="topbar-actions"><button class="btn" id="restartBtn">重开</button></div>
+    <div class="turn-indicator"><div class="turn-pulse"></div><span id="turnLabel">准备中</span><span id="phaseLabel" class="phase-label" hidden>回合开始</span></div>
+    <div class="topbar-actions"><button class="btn" id="restartBtn">你有本事爆了啊</button></div>
   </div>
   <div class="board">
     <div class="side left" id="side0"></div>
@@ -241,14 +246,13 @@
 <div id="arena"></div>
 
 <script>
-/* 修复总结：
- * 1. 反制窗口延长到 800ms
- * 2. 能量不足时也弹窗口（红色警告），但无懈可击不可点
- * 3. HUD 显示手牌数，玩家能看到消耗
- * 4. 反制成功后立即飘字（反制！手牌-1，能量-1）
- * 5. resolveCounter 偶数分支也解锁 busy，避免卡死
- * 6. 加防重复执行 execFn 保护
- */
+/* ============================================================
+ * 本轮改动
+ * 1. 无懈可击：删扣敌方能量，反制反制后原牌正确生效
+ * 2. 爽唔：交任意 N 张得 N 精力，大招能量 3→2，扎啤可在反制窗口使用
+ * 3. 回合 4 阶段：开始→摸牌→出牌→弃牌→结束
+ * 4. 杨开冬大招：消耗一半血量，造成该血量 1.5 倍伤害
+ * ============================================================ */
 
 const ROLES = {
   zhangxiang: { name: "张响", short: "响", title: "封印者", hp: 28, color: "#7c9cff",
@@ -266,7 +270,7 @@ const ROLES = {
   yangkaidong: { name: "杨开冬", short: "冬", title: "赌血者", hp: 28, color: "#ef5350",
     resource: { name: "怒气", icon: "🔥", max: 10, init: 0, detail: "受伤 +3 怒气，上限 10。血量≤50%攻击+2，≤30%攻击+5。" },
     skill: { name: "狂血", type: "burst", cost: 1, resCost: 5, desc: "造成 已损失血量÷2 的伤害（无视护盾）" },
-    ultimate: { name: "血战", desc: "损失当前血量的一半，对对手造成等量伤害（无视护盾）" } },
+    ultimate: { name: "血战", desc: "损失当前血量的一半，造成该血量 1.5 倍伤害（无视护盾）" } },
   lubiao: { name: "陆标", short: "标", title: "反制者", hp: 30, color: "#81c784",
     resource: { name: "幽默", icon: "😄", max: 4, init: 0, detail: "每出一张牌 +1，上限 4。对手每出一张攻击牌你回 1 血（每回合最多 1 次）。" },
     skill: { name: "精神防御", type: "buff", cost: 0, resCost: 2, desc: "本回合受到伤害减半" },
@@ -292,9 +296,9 @@ const ROLES = {
     skill: { name: "夺牌", type: "control", cost: 0, resCost: 0, desc: "消耗 n 能量 + n 风度，对手弃 n 张牌" },
     ultimate: { name: "全部拿来", desc: "抢走对手所有手牌，对手接下来 2 回合交牌" } },
   shuangwu: { name: "爽唔", short: "爽", title: "送牌者", hp: 26, color: "#ec4899",
-    resource: { name: "精力", icon: "💪", max: 5, init: 0, detail: "主动交 1 张手牌给对手，精力 +2（每回合限 1 次）。" },
-    skill: { name: "扎啤", type: "control", cost: 1, resCost: 0, specialCd: 4, desc: "清除自身所有负面效果（同无懈可击主动，CD 4）" },
-    ultimate: { name: "暴力炸精", desc: "交换双方普通手牌（消耗 3 能量 + 4 精力）" } }
+    resource: { name: "精力", icon: "💪", max: 5, init: 0, detail: "交任意张牌，每张 +1 精力（每回合限 1 次）。" },
+    skill: { name: "扎啤", type: "control", cost: 1, resCost: 0, specialCd: 4, desc: "清除自身所有负面效果（同无懈可击主动，CD 4），可在反制窗口使用" },
+    ultimate: { name: "暴力炸精", desc: "交换双方普通手牌（3 能量 + 4 精力）" } }
 };
 
 const CARDS = {
@@ -333,21 +337,21 @@ const DECK_LIST = [
   "buildup","buildup"
 ];
 
-const MAX_ENERGY = 5;
+const MAX_ENERGY = 6;
 const ENERGY_PER_TURN = 2;
 const HAND_LIMIT = 6;
 const INITIAL_HAND = 2;
-const SHIELD_MAX = 6;
+const SHIELD_MAX = 5;
 const SHIELD_TURNS = 2;
 const TRAP_TURNS = 2;
 const SKILL_CD = 3;
-const COUNTER_WINDOW_MS = 1200;
+const COUNTER_WINDOW_MS = 800;
 
 const clickAudio = new Audio("oneclick.mp3");
 clickAudio.volume = 0.4;
 function playClick(rate = 1) { try { clickAudio.currentTime = 0; clickAudio.playbackRate = rate; clickAudio.play().catch(() => {}); } catch (e) {} }
 
-const state = { mode: "human", players: [], current: 0, over: false, logs: [], busy: false, _busyTimer: null, turnCount: 0, counterWindow: null };
+const state = { mode: "human", players: [], current: 0, over: false, logs: [], busy: false, _busyTimer: null, turnCount: 0, counterWindow: null, phase: "idle" };
 const setup = { mode: "human", p0: "zhangxiang", p1: "yangkaidong" };
 
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -443,6 +447,7 @@ function flashSide(idx, isHit = false) { const el = document.getElementById("sid
 function screenHit() { const el = document.createElement("div"); el.className = "screen-hit"; document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 550); }
 function pulseAvatar(idx) { const side = document.getElementById("side" + idx); if (!side) return; const av = side.querySelector(".avatar"); if (!av) return; av.classList.remove("pulse"); void av.offsetWidth; av.classList.add("pulse"); }
 function banner(text, color = "#fbbf24") { const el = document.createElement("div"); el.className = "banner-tag"; el.textContent = text; el.style.color = color; document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 1400); }
+function phaseBanner(text) { const el = document.createElement("div"); el.className = "phase-banner"; el.textContent = text; document.body.appendChild(el); setTimeout(() => el.remove(), 1100); }
 function flyCounter(text) { const el = document.createElement("div"); el.className = "fly-counter"; el.textContent = text; el.style.left = "50%"; el.style.top = "40%"; document.getElementById("arena").appendChild(el); setTimeout(() => el.remove(), 1500); }
 function counterBar(text, warn = false) { const el = document.createElement("div"); el.className = "counter-bar" + (warn ? " warn" : ""); el.textContent = text; document.body.appendChild(el); setTimeout(() => el.remove(), COUNTER_WINDOW_MS + 100); }
 function flyCard(fromEl, toEl, type, text) {
@@ -535,6 +540,52 @@ function showMultiDiscardModal(p, count, title, onDone) {
   });
 }
 
+function showLendModal(p, onDone) {
+  closeModal();
+  clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
+  const idx = state.players.indexOf(p);
+  const opp = state.players[1 - idx];
+  const maxRes = ROLES[p.role].resource.max - p.resource;
+  const maxCards = Math.min(normalHand(p).length, maxRes);
+  const selected = new Set();
+  const modal = document.createElement("div");
+  modal.className = "modal-mask " + sideClassFor(idx); modal.style.setProperty("--c", "#ec4899");
+  modal.innerHTML = `<div class="modal-box"><div class="modal-title"><span class="mt-icon">💪</span><span>交牌换精力（每张 +1）</span></div><div style="font-size:12px;color:#6b7a94;margin-bottom:8px;text-align:center;">当前精力 ${p.resource}/${ROLES[p.role].resource.max}，最多可选 ${maxCards} 张</div><div class="hand-select-grid"></div><button class="modal-close">取 消</button><button class="modal-close" disabled style="margin-top:6px;">确认交牌（0 张）</button></div>`;
+  document.body.appendChild(modal); modalEl = modal;
+  const grid = modal.querySelector(".hand-select-grid");
+  const [cancelBtn, confirmBtn] = modal.querySelectorAll(".modal-close");
+  p.hand.map((c, i) => ({ c, i })).filter(x => !x.c.isExtra).forEach(({ c, i }) => {
+    const def = CARDS[c.key];
+    const btn = document.createElement("button");
+    btn.className = "card " + def.type;
+    btn.innerHTML = `<div class="card-cost">${def.cost}</div><div class="card-name">${def.name}</div><div class="card-type">${def.type}</div><div class="card-desc">${def.desc}</div>`;
+    onTap(btn, () => {
+      playClick();
+      if (selected.has(i)) { selected.delete(i); btn.classList.remove("selected"); }
+      else { if (selected.size >= maxCards) return; selected.add(i); btn.classList.add("selected"); }
+      confirmBtn.textContent = `确认交牌（${selected.size} 张，+${selected.size} 精力）`;
+      confirmBtn.disabled = selected.size === 0;
+    });
+    grid.appendChild(btn);
+  });
+  onTap(cancelBtn, () => { playClick(); closeModal(); state.busy = false; render(); });
+  onTap(confirmBtn, () => {
+    if (selected.size === 0) return;
+    playClick();
+    const indices = [...selected].sort((a, b) => b - a);
+    const names = [];
+    indices.forEach(i => {
+      const card = p.hand.splice(i, 1)[0];
+      names.push(CARDS[card.key].name);
+      opp.hand.push(card);
+    });
+    p.lendUsed = true;
+    addRes(p, selected.size);
+    log(`${p.name} 交给 ${opp.name} ${selected.size} 张牌（${names.join("、")}），精力 +${selected.size}`);
+    closeModal(); state.busy = false; render(); onDone();
+  });
+}
+
 function showNSelectModal(p, title, maxN, onSelect) {
   closeModal();
   clearTimeout(state._busyTimer); state._busyTimer = null; state.busy = true;
@@ -601,61 +652,63 @@ function useWuxieActive(p) {
 }
 
 /* ============================================================
- * 反制系统（修复版）
+ * 反制系统（已修复：删扣敌方能量，偶数层原牌生效）
  * ============================================================ */
-
 function getWuxieInfo(idx) {
   const p = state.players[idx];
   const idxs = [];
   p.hand.forEach((c, i) => { if (c.key === "cleanse" && !c.sealed) idxs.push(i); });
-  return {
-    has: idxs.length > 0,
-    count: idxs.length,
-    hasEnergy: p.energy >= 1,
-    canCounter: idxs.length > 0 && p.energy >= 1,
-    player: p,
-  };
+  return { has: idxs.length > 0, hasEnergy: p.energy >= 1, canCounter: idxs.length > 0 && p.energy >= 1 };
+}
+
+function getZhaobiInfo(idx) {
+  const p = state.players[idx];
+  if (p.role !== "shuangwu") return { canUse: false };
+  if (p.skillCd > 0) return { canUse: false };
+  if (p.energy < 1) return { canUse: false };
+  return { canUse: true };
 }
 
 function openCounterWindow(attackerIdx, cardObj, execFn, counterCount) {
   const respPlayer = counterCount % 2 === 0 ? (1 - attackerIdx) : attackerIdx;
   const resp = state.players[respPlayer];
-  const info = getWuxieInfo(respPlayer);
+  const winfo = getWuxieInfo(respPlayer);
+  const zinfo = getZhaobiInfo(respPlayer);
 
   // AI 响应
   if (state.mode === "ai" && respPlayer === 1) {
-    if (info.canCounter && aiShouldCounter(cardObj, resp, counterCount)) {
-      setTimeout(() => doCounterAI(attackerIdx, cardObj, execFn, counterCount), 300);
-    } else {
-      setTimeout(() => resolveCounter(execFn, counterCount), 100);
+    if (winfo.canCounter && aiShouldCounter(cardObj, resp, counterCount)) {
+      setTimeout(() => doCounterAI(attackerIdx, cardObj, execFn, counterCount, "wuxie"), 300);
+      return;
     }
-    return;
-  }
-
-  // 玩家响应：没有无懈可击 → 直接结算
-  if (!info.has) {
+    if (zinfo.canUse && aiShouldCounter(cardObj, resp, counterCount)) {
+      setTimeout(() => doCounterAI(attackerIdx, cardObj, execFn, counterCount, "zhaobi"), 300);
+      return;
+    }
     setTimeout(() => resolveCounter(execFn, counterCount), 100);
     return;
   }
 
-  // 打开窗口（无论能量是否够，都打开让玩家看到）
+  // 玩家响应：无可用手段
+  if (!winfo.has && !zinfo.canUse) {
+    setTimeout(() => resolveCounter(execFn, counterCount), 100);
+    return;
+  }
+
   state.counterWindow = {
-    active: true,
-    attackerIdx,
-    cardObj,
-    execFn,
-    counterCount,
-    responsePlayer: respPlayer,
-    hasEnergy: info.hasEnergy,
-    hasWuxie: info.has,
-    timer: null,
+    active: true, attackerIdx, cardObj, execFn, counterCount,
+    responsePlayer: respPlayer, hasEnergy: winfo.hasEnergy,
+    hasWuxie: winfo.has, canZhaobi: zinfo.canUse, timer: null,
   };
 
-  if (info.hasEnergy) {
-    log(`⚡ ${resp.name} 有 ${COUNTER_WINDOW_MS / 1000} 秒反制时间（点击无懈可击）`);
+  if (winfo.hasEnergy && winfo.has) {
+    log(`⚡ ${resp.name} 有 ${COUNTER_WINDOW_MS / 1000} 秒反制时间（无懈可击${zinfo.canUse ? " / 扎啤" : ""}）`);
     counterBar("⚡ " + resp.name + " · 反制窗口 " + (COUNTER_WINDOW_MS / 1000) + "s");
-  } else {
-    log(`⚠ ${resp.name} 有可用无懈可击，但能量不足（当前 ${resp.energy}，需 1），无法反制`);
+  } else if (zinfo.canUse) {
+    log(`⚡ ${resp.name} 可用扎啤反制（${COUNTER_WINDOW_MS / 1000}s）`);
+    counterBar("⚡ " + resp.name + " · 可用扎啤反制 " + (COUNTER_WINDOW_MS / 1000) + "s");
+  } else if (winfo.has && !winfo.hasEnergy) {
+    log(`⚠ ${resp.name} 有可用无懈可击，但能量不足`);
     counterBar("⚠ 能量不足，无法反制", true);
   }
   render();
@@ -677,45 +730,44 @@ function resolveCounter(execFn, counterCount) {
   state.busy = false;
 
   if (counterCount % 2 === 0) {
-    log(`✅ 反制链结束（原牌生效）`);
+    log(`✅ 反制链结束（${counterCount} 次反制，原牌生效）`);
     try { execFn(); } catch (e) { console.error(e); }
     setTimeout(() => { try { render(); } catch(e){} }, 50);
   } else {
-    log(`✨ 反制成功！牌被抵消`);
+    log(`✨ 反制成功！牌被抵消（${counterCount} 次反制，牌失效）`);
     flyCounter("牌被抵消");
     try { render(); } catch (e) { console.error(e); }
   }
 }
 
-function doCounterFromWindow() {
+function doCounterFromWindow(type = "wuxie") {
   const cw = state.counterWindow;
   if (!cw || !cw.active) return;
 
   const respPlayer = cw.responsePlayer;
   const resp = state.players[respPlayer];
-  const wuxieIdx = resp.hand.findIndex(c => c.key === "cleanse" && !c.sealed);
-  if (wuxieIdx < 0) { log(`${resp.name} 没有可用的无懈可击`); return; }
-  if (resp.energy < 1) {
-    log(`⚠ ${resp.name} 能量不足 1，无法反制`);
-    floatText(respPlayer, "能量不足", "warn");
-    return;
-  }
-
   clearTimeout(cw.timer);
 
-  // 消耗：手牌 -1，能量 -1（双方）
-  const wuxie = resp.hand.splice(wuxieIdx, 1)[0];
-  resp.discard.push(wuxie.key);
-  resp.energy -= 1;
-  const other = state.players[1 - respPlayer];
-  other.energy = Math.max(0, other.energy - 1);
-
-  const label = cw.counterCount === 0 ? "反制" : "反制反制";
-  log(`✨ ${resp.name} 用无懈可击${label}「${CARDS[cw.cardObj.key].name}」！手牌 -1，能量 -1`);
-  flyCounter(label + "！");
-  floatText(respPlayer, "-1 手牌", "handmin");
-  floatText(respPlayer, "能量 -1", "energy");
-  floatText(1 - respPlayer, "能量 -1", "energy");
+  if (type === "zhaobi") {
+    if (resp.role !== "shuangwu" || resp.skillCd > 0 || resp.energy < 1) return;
+    resp.energy -= 1;
+    resp.skillCd = getSkillCd(ROLES[resp.role]);
+    log(`💪 ${resp.name} 用扎啤反制「${CARDS[cw.cardObj.key].name}」！能量 -1，CD 重置`);
+    flyCounter("扎啤反制！");
+    floatText(respPlayer, "能量 -1", "energy");
+  } else {
+    const wuxieIdx = resp.hand.findIndex(c => c.key === "cleanse" && !c.sealed);
+    if (wuxieIdx < 0) return;
+    if (resp.energy < 1) return;
+    const wuxie = resp.hand.splice(wuxieIdx, 1)[0];
+    resp.discard.push(wuxie.key);
+    resp.energy -= 1;
+    const label = cw.counterCount === 0 ? "反制" : "反制反制";
+    log(`✨ ${resp.name} 用无懈可击${label}「${CARDS[cw.cardObj.key].name}」！手牌 -1，能量 -1`);
+    flyCounter(label + "！");
+    floatText(respPlayer, "-1 手牌", "handmin");
+    floatText(respPlayer, "能量 -1", "energy");
+  }
 
   const savedAttackerIdx = cw.attackerIdx;
   const savedCardObj = cw.cardObj;
@@ -731,29 +783,33 @@ function doCounterFromWindow() {
   }, 500);
 }
 
-function doCounterAI(attackerIdx, cardObj, execFn, counterCount) {
+function doCounterAI(attackerIdx, cardObj, execFn, counterCount, type) {
   const respPlayer = counterCount % 2 === 0 ? (1 - attackerIdx) : attackerIdx;
   const resp = state.players[respPlayer];
-  const wuxieIdx = resp.hand.findIndex(c => c.key === "cleanse" && !c.sealed);
-  if (wuxieIdx < 0 || resp.energy < 1) { resolveCounter(execFn, counterCount); return; }
 
-  const wuxie = resp.hand.splice(wuxieIdx, 1)[0];
-  resp.discard.push(wuxie.key);
-  resp.energy -= 1;
-  const other = state.players[1 - respPlayer];
-  other.energy = Math.max(0, other.energy - 1);
+  if (type === "zhaobi") {
+    if (resp.role !== "shuangwu" || resp.skillCd > 0 || resp.energy < 1) { resolveCounter(execFn, counterCount); return; }
+    resp.energy -= 1;
+    resp.skillCd = getSkillCd(ROLES[resp.role]);
+    log(`💪 电脑用扎啤反制「${CARDS[cardObj.key].name}」！`);
+    flyCounter("扎啤反制！");
+    floatText(respPlayer, "能量 -1", "energy");
+  } else {
+    const wuxieIdx = resp.hand.findIndex(c => c.key === "cleanse" && !c.sealed);
+    if (wuxieIdx < 0 || resp.energy < 1) { resolveCounter(execFn, counterCount); return; }
+    const wuxie = resp.hand.splice(wuxieIdx, 1)[0];
+    resp.discard.push(wuxie.key);
+    resp.energy -= 1;
+    const label = counterCount === 0 ? "反制" : "反制反制";
+    log(`✨ 电脑用无懈可击${label}「${CARDS[cardObj.key].name}」！手牌 -1，能量 -1`);
+    flyCounter(label + "！");
+    floatText(respPlayer, "-1 手牌", "handmin");
+    floatText(respPlayer, "能量 -1", "energy");
+  }
 
-  const label = counterCount === 0 ? "反制" : "反制反制";
-  log(`✨ 电脑用无懈可击${label}「${CARDS[cardObj.key].name}」！手牌 -1，能量 -1`);
-  flyCounter(label + "！");
-  floatText(respPlayer, "-1 手牌", "handmin");
-  floatText(respPlayer, "能量 -1", "energy");
   playClick(1.4);
   render();
-
-  setTimeout(() => {
-    openCounterWindow(attackerIdx, cardObj, execFn, counterCount + 1);
-  }, 500);
+  setTimeout(() => { openCounterWindow(attackerIdx, cardObj, execFn, counterCount + 1); }, 500);
 }
 
 function aiShouldCounter(cardObj, resp, counterCount) {
@@ -851,13 +907,18 @@ function tickPending(p) {
 function startTurn(i) {
   state.current = i; state.turnCount++;
   const p = state.players[i]; const role = ROLES[p.role];
+  state.phase = "start";
+
+  // 阶段 1：回合开始
   if (p.rouMarkExpire && state.turnCount >= p.rouMarkExpire) { p.rouMarks = 0; p.rouMarkExpire = 0; }
   tickShields(p); tickPending(p); tickTrap(p);
   if (state.over) return;
+
   if (!p.started) { p.started = true; p.energy = 3; }
   else if (p.noEnergyGain) { p.noEnergyGain = false; log(`${p.name} 被封锁，本回合不获得能量`); }
   else p.energy = Math.min(MAX_ENERGY, Math.max(0, p.energy + ENERGY_PER_TURN + (p.energyBonus || 0)));
   p.energyBonus = 0;
+
   p.damageBuff = 0; p.doubleDamage = false; p.reflect = 0; p.combo = 0;
   p.frozen = false; p.tookDamageThisTurn = false;
   p.cardsPlayedThisTurn = 0; p.attackPlayedThisTurn = false;
@@ -867,8 +928,74 @@ function startTurn(i) {
   p.cannotPlayMoreThisTurn = false;
   p.lendUsed = false;
   p.skillCd = Math.max(0, p.skillCd - 1);
-  if (p.handOver > 0) promptHandOver(p, () => continueTurn(i));
-  else continueTurn(i);
+  if (role.resource.turnStart) addRes(p, role.resource.turnStart);
+
+  // 阶段 2：摸牌
+  state.phase = "draw";
+  draw(p, 2, true);
+  if (p.zhiyuchenBuff > 0) {
+    p.energy = Math.min(MAX_ENERGY, p.energy + 1);
+    gainShield(p, 1); heal(p, 2); draw(p, 1, true);
+    p.zhiyuchenBuff--;
+    log(`${p.name} 守护领域：+1 能量 +1 护盾 +2 生命 +1 抽（剩余 ${p.zhiyuchenBuff} 回合）`);
+  }
+  log(`—— ${p.name} 的回合 · 能量 ${p.energy}/${MAX_ENERGY} · 技能CD ${p.skillCd} ——`);
+
+  // 阶段 3：出牌
+  state.phase = "play";
+  render();
+  if (p.handOver > 0) promptHandOver(p, () => { render(); maybeAITurn(i); });
+  else maybeAITurn(i);
+}
+
+function endTurn() {
+  if (state.over || state.busy) return;
+  if (state.mode === "ai" && state.current === 1) return;
+  if (state.counterWindow && state.counterWindow.active) return;
+  if (state.phase !== "play") return;
+
+  const p = state.players[state.current];
+  state.phase = "discard";
+  const overflow = p.hand.length - HAND_LIMIT;
+  if (overflow > 0) {
+    promptDiscard(p, overflow, () => {
+      log(`${p.name} 弃掉 ${overflow} 张牌`);
+      doEndPhase(p);
+    });
+  } else {
+    doEndPhase(p);
+  }
+}
+
+function doEndPhase(p) {
+  state.phase = "end";
+  if (p.role === "gu" && !p.attackPlayedThisTurn) { addRes(p, 1); log(`${p.name} 未出攻击牌，伪装 +1`); }
+  if (p.role === "lubiao" && p.resource >= 2) heal(p, 2);
+  if (p.zeroResAtEndTurn) { p.resource = 0; log(`${p.name} 士气清零`); }
+  const sealedCount = p.hand.filter(c => c.sealed).length;
+  p.hand.forEach(c => c.sealed = false);
+  if (sealedCount > 0) log(`${p.name} 的 ${sealedCount} 张封印牌解封`);
+  p.locked = false; p.noSkill = false; p.firstAtkDebuff = 0; p.combo = 0;
+  if (state.over) return;
+  startTurn(1 - state.current);
+}
+
+function endTurnAI() {
+  if (state.over) return;
+  if (state.counterWindow && state.counterWindow.active) return;
+  if (state.phase !== "play") return;
+  const p = state.players[1];
+  state.phase = "discard";
+  const overflow = p.hand.length - HAND_LIMIT;
+  if (overflow > 0) {
+    for (let k = 0; k < overflow; k++) { const sel = aiPickWorstCard(p.hand); if (sel >= 0) { const card = p.hand.splice(sel, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
+    log(`电脑 弃掉 ${overflow} 张牌`);
+  }
+  doEndPhase(p);
+}
+
+function maybeAITurn(i) {
+  if (state.mode === "ai" && i === 1 && !state.over) setTimeout(aiStep, 400);
 }
 
 function promptHandOver(p, onDone) {
@@ -885,56 +1012,20 @@ function promptHandOver(p, onDone) {
   }, idx);
 }
 
-function continueTurn(i) {
-  const p = state.players[i];
-  draw(p, 2, true);
-  const overflow = normalHand(p).length - HAND_LIMIT;
-  if (overflow > 0) promptDiscard(p, overflow, () => afterDraw(i));
-  else afterDraw(i);
-}
-
 function promptDiscard(p, count, onDone) {
   const idx = state.players.indexOf(p);
   if (state.mode === "ai" && idx === 1) {
     for (let k = 0; k < count; k++) { const sel = aiPickWorstCard(p.hand); if (sel >= 0) { const card = p.hand.splice(sel, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
-    log(`电脑 弃掉 ${count} 张牌`); render(); setTimeout(onDone, 400); return;
+    render(); setTimeout(onDone, 400); return;
   }
-  showMultiDiscardModal(p, count, `手牌已满（${HAND_LIMIT}），弃 ${count} 张`, () => { log(`${p.name} 弃掉 ${count} 张牌`); onDone(); });
-}
-
-function afterDraw(i) {
-  const p = state.players[i]; const role = ROLES[p.role];
-  if (p.zhiyuchenBuff > 0) {
-    p.energy = Math.min(MAX_ENERGY, p.energy + 1);
-    gainShield(p, 1); heal(p, 2); draw(p, 1);
-    p.zhiyuchenBuff--;
-    log(`${p.name} 守护领域：+1 能量 +1 护盾 +2 生命 +1 抽（剩余 ${p.zhiyuchenBuff} 回合）`);
-  }
-  if (role.resource.turnStart) addRes(p, role.resource.turnStart);
-  log(`—— ${p.name} 的回合 · 能量 ${p.energy}/${MAX_ENERGY} · 技能CD ${p.skillCd} ——`);
-  render();
-  if (state.mode === "ai" && i === 1) setTimeout(aiStep, 700);
-}
-
-function endTurn() {
-  if (state.over || state.busy) return;
-  if (state.mode === "ai" && state.current === 1) return;
-  if (state.counterWindow && state.counterWindow.active) return;
-  const p = state.players[state.current];
-  if (p.role === "gu" && !p.attackPlayedThisTurn) { addRes(p, 1); log(`${p.name} 未出攻击牌，伪装 +1`); }
-  if (p.role === "lubiao" && p.resource >= 2) heal(p, 2);
-  if (p.zeroResAtEndTurn) { p.resource = 0; log(`${p.name} 士气清零`); }
-  const sealedCount = p.hand.filter(c => c.sealed).length;
-  p.hand.forEach(c => c.sealed = false);
-  if (sealedCount > 0) log(`${p.name} 的 ${sealedCount} 张封印牌解封`);
-  p.locked = false; p.noSkill = false; p.firstAtkDebuff = 0; p.combo = 0;
-  startTurn(1 - state.current);
+  showMultiDiscardModal(p, count, `手牌超上限（${HAND_LIMIT}），弃 ${count} 张`, () => { onDone(); });
 }
 
 function playCard(index) {
   if (state.over || state.busy) return;
   if (state.counterWindow && state.counterWindow.active) return;
   if (state.mode === "ai" && state.current === 1) return;
+  if (state.phase !== "play") { log(`当前阶段不能出牌`); return; }
   const p = state.players[state.current];
 
   if (p.cannotPlayMoreThisTurn) { log(`${p.name} 本回合无法再出牌`); return; }
@@ -1005,14 +1096,14 @@ function playCard(index) {
 
   let executed = false;
   const execFn = () => {
-    if (executed) { console.warn("execFn already executed"); return; }
+    if (executed) return;
     executed = true;
     const p2 = state.players[state.current]; const opp2 = state.players[1 - state.current];
     if (cardObj.key === "steal" && opp2.hand.length > 0) {
       showHandSelectModal(1 - state.current, "偷取 · 选择要偷走的牌", (selIdx) => {
         if (selIdx >= 0) {
           const stolen = opp2.hand.splice(selIdx, 1)[0];
-          if (normalHand(p2).length < HAND_LIMIT) { stolen.isNew = true; p2.hand.push(stolen); log(`${p2.name} 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1); }
+          if (p2.hand.length < HAND_LIMIT + 6) { stolen.isNew = true; p2.hand.push(stolen); log(`${p2.name} 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1); }
           else { opp2.discard.push(stolen.key); onLoseCard(opp2, 1); }
         }
         render();
@@ -1034,13 +1125,13 @@ function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
     case "quick": case "strike": { let base = def.damage + comboBonus; if (isStolenDamage) base = Math.floor(def.damage / 2) + comboBonus; dealDamage(playerIdx, oppIdx, base, { isAttack: true, isAttackCard: true }); break; }
     case "block": gainShield(p, def.shield); break;
     case "heal": heal(p, def.heal); break;
-    case "insight": draw(p, 2); log(`${p.name} 抽 2 张牌`); break;
+    case "insight": draw(p, 2, true); log(`${p.name} 抽 2 张牌`); break;
     case "charge": p.energy = Math.min(MAX_ENERGY, p.energy + 1); log(`${p.name} 能量 +1`); break;
     case "lockdown": opp.locked = true; opp.noSkill = true; log(`${opp.name} 下回合不能出牌也不能用技能`); break;
     case "drain": opp.energy = Math.max(0, opp.energy - 1); opp.noEnergyGain = true; log(`${opp.name} 能量 -1，下回合不获得能量`); break;
     case "trap": p.trap = 4; p.trapTurns = TRAP_TURNS; log(`${p.name} 布置了陷阱（持续 ${TRAP_TURNS} 回合）`); break;
     case "steal":
-      if (normalHand(opp).length > 0 && normalHand(p).length < HAND_LIMIT) {
+      if (normalHand(opp).length > 0) {
         const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
         if (idxs.length > 0) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; p.hand.push(stolen); onLoseCard(opp, 1); log(`${p.name} 偷走 1 张手牌`); }
       } break;
@@ -1055,7 +1146,7 @@ function execCardEffect(playerIdx, cardKey, comboBonus = 0, cardObj = null) {
       if (state.over) return;
       p.hp = Math.max(0, p.hp - 2); log(`${p.name} 自损 2`); floatText(playerIdx, "-2", "damage");
       if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
-    case "overdraft": draw(p, 2); p.hp = Math.max(0, p.hp - 2); log(`${p.name} 透支：抽 2 张，自损 2`); floatText(playerIdx, "-2", "damage"); if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
+    case "overdraft": draw(p, 2, true); p.hp = Math.max(0, p.hp - 2); log(`${p.name} 透支：抽 2 张，自损 2`); floatText(playerIdx, "-2", "damage"); if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(oppIdx); return; } break;
     case "ambush": p.pending.push({ type: "ambush", turns: 2 }); log(`${p.name} 布下埋伏，2 回合后爆发（8 伤）`); break;
     case "curse": opp.pending.push({ type: "curse", turns: 2, from: playerIdx }); log(`${opp.name} 被诅咒，2 回合后爆发`); break;
     case "buildup": {
@@ -1119,7 +1210,7 @@ function useSkill() {
       case "xi": {
         const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se);
         const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
-        if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); }
+        if (idxs.length > 0) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); }
         break;
       }
       case "gu": {
@@ -1150,7 +1241,7 @@ function doZhangxiangSkill(p) {
     const oppP = state.players[1 - idx];
     if (oppP.role === "zhiban") addRes(oppP, 1);
     if (selIdx >= 0) { oppP.hand[selIdx].sealed = true; log(`${p.name} 推演，封印了「${CARDS[oppP.hand[selIdx].key].name}」`); }
-    draw(p, 1);
+    draw(p, 1, true);
     lockBusy(600); playClick(1.3); pulseAvatar(idx);
     banner(sk.name, ROLES[p.role].color);
     render();
@@ -1199,21 +1290,9 @@ function doLujianchengSkill(p, n) {
 
 function doShuangwuLend(p) {
   if (p.lendUsed) { log(`本回合已经交过牌`); return; }
-  const opp = state.players[1 - state.players.indexOf(p)];
-  if (normalHand(opp).length >= HAND_LIMIT) { log(`${opp.name} 手牌已满，无法交牌`); render(); return; }
   if (normalHand(p).length === 0) { log(`没有手牌可交`); render(); return; }
   if (p.resource >= ROLES[p.role].resource.max) { log(`精力已满`); render(); return; }
-  const idx = state.players.indexOf(p);
-  showHandSelectModal(idx, "选择要交给对手的牌（+2 精力）", (selIdx) => {
-    if (selIdx >= 0) {
-      const card = p.hand.splice(selIdx, 1)[0];
-      opp.hand.push(card);
-      p.lendUsed = true;
-      addRes(p, 2);
-      log(`${p.name} 交给 ${opp.name}「${CARDS[card.key].name}」，精力 +2`);
-    }
-    render();
-  }, idx);
+  showLendModal(p, () => {});
 }
 
 function promptOpponentDiscard(opp, count, onDone) {
@@ -1250,7 +1329,7 @@ function useUltimate() {
   const savedRes = p.resource;
   if (p.role === "lujiancheng") { p.energy -= 4; p.resource = 0; }
   else if (p.role === "zhiyuchen") { p.energy -= 3; }
-  else if (p.role === "shuangwu") { p.energy -= 3; p.resource -= 4; }
+  else if (p.role === "shuangwu") { p.energy -= 2; p.resource -= 4; }
   else { p.energy -= 3; p.resource = 0; }
   p.combo = 0;
   if (p.role === "zhiban") doZhibanUlt(p, savedRes);
@@ -1297,11 +1376,13 @@ function doZhibanUlt(p, resCost) {
 function doYangkaidongUlt(p) {
   const idx = state.players.indexOf(p);
   const half = Math.floor(p.hp / 2);
+  const dmg = Math.floor(half * 1.5);
   lockBusy(1200); playClick(1.6); pulseAvatar(idx);
   banner("终极 · 血战", "#fbbf24");
   p.hp -= half; floatText(idx, "-" + half, "damage");
+  log(`${p.name} 血战：自损 ${half} 生命，造成 ${dmg} 伤害（1.5 倍）`);
   setTimeout(() => {
-    dealDamage(idx, 1 - idx, half, { isAttack: true, ignoreShield: true });
+    dealDamage(idx, 1 - idx, dmg, { isAttack: true, ignoreShield: true });
     if (p.hp <= 0 && !tryEmergencyHeal(p)) { endGame(1 - idx); return; }
     render();
   }, 500);
@@ -1314,10 +1395,10 @@ function execUltimate(idx, savedRes) {
       const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0);
       const sorted = idxs.sort((a, b) => CARDS[opp.hand[b].key].cost - CARDS[opp.hand[a].key].cost);
       sorted.slice(0, 2).forEach(i => { opp.hand[i].sealed = true; });
-      dealDamage(idx, oppIdx, 5, { isAttack: true }); draw(p, 2); break;
+      dealDamage(idx, oppIdx, 5, { isAttack: true }); draw(p, 2, true); break;
     }
     case "zhangsien": dealDamage(idx, oppIdx, 5 + savedRes * 2, { isAttack: true }); break;
-    case "zhiyuchen": p.zhiyuchenBuff = 3; gainShield(p, 1); heal(p, 2); p.energy = Math.min(MAX_ENERGY, p.energy + 1); draw(p, 1); break;
+    case "zhiyuchen": p.zhiyuchenBuff = 3; gainShield(p, 1); heal(p, 2); p.energy = Math.min(MAX_ENERGY, p.energy + 1); draw(p, 1, true); break;
     case "lubiao": heal(p, 8); p.damageHalfThisTurn = true; break;
     case "rou": { const marks = opp.rouMarks || 0; const dmg = marks > 0 ? 12 : 8; dealDamage(idx, oppIdx, dmg, { isAttack: true, ignoreShield: true }); opp.rouMarks = 0; break; }
     case "xi": opp.energy = 0; dealDamage(idx, oppIdx, 8, { isAttack: true }); heal(p, 3); break;
@@ -1327,7 +1408,7 @@ function execUltimate(idx, savedRes) {
 }
 
 function endGame(winnerIdx) {
-  state.over = true;
+  state.over = true; state.phase = "idle";
   const w = state.players[winnerIdx];
   log(`🏆 ${w.name} 获胜！`);
   if (state.counterWindow) { clearTimeout(state.counterWindow.timer); state.counterWindow = null; }
@@ -1342,6 +1423,8 @@ function endGame(winnerIdx) {
   }, 500);
 }
 
+const PHASE_NAMES = { idle: "", start: "回合开始", draw: "摸牌阶段", play: "出牌阶段", discard: "弃牌阶段", end: "回合结束" };
+
 function renderSide(i) {
   const p = state.players[i]; const el = document.getElementById("side" + i);
   const role = ROLES[p.role]; const r = role.resource;
@@ -1352,29 +1435,35 @@ function renderSide(i) {
   const isResponsePlayer = counterActive && state.counterWindow.responsePlayer === i;
   const hasEnergyForCounter = p.energy >= 1;
   el.classList.toggle("counter-glow", isResponsePlayer && hasEnergyForCounter);
-  el.classList.toggle("counter-glow", isResponsePlayer && !hasEnergyForCounter);
   if (isResponsePlayer && !hasEnergyForCounter) el.classList.add("counter-glow", "no-energy");
-  if (isResponsePlayer && hasEnergyForCounter) el.classList.remove("no-energy");
+  else el.classList.remove("no-energy");
 
   const isCurrent = state.current === i && !state.over;
-  const ultReady = checkUltReady(p) && isCurrent && !counterActive;
+  const isPlayPhase = isCurrent && state.phase === "play";
+  const ultReady = checkUltReady(p) && isPlayPhase && !counterActive;
   const shieldAmt = totalShield(p);
   const skReady = checkSkillReady(p);
-  const skDis = !isCurrent || !skReady || p.cannotPlayMoreThisTurn || counterActive;
+  const skDis = !isPlayPhase || !skReady || p.cannotPlayMoreThisTurn || counterActive;
   const skillOnCd = p.skillCd > 0;
+
+  const winfo = getWuxieInfo(i);
+  const zinfo = getZhaobiInfo(i);
+  const showZhaobiCounter = counterActive && isResponsePlayer && zinfo.canUse;
 
   let resCostLabel;
   if (p.role === "lujiancheng") resCostLabel = "n能量+n" + r.name;
   else if (role.skill.cost === 0) resCostLabel = r.name + "×" + role.skill.resCost;
   else resCostLabel = role.skill.resCost === "all" ? "全" + r.name : role.skill.resCost + r.name;
   const ultResCost = p.role === "lujiancheng" ? 6 : (p.role === "shuangwu" ? 4 : (p.role === "zhiyuchen" ? 3 : (p.role === "zhangxiang" ? 3 : (p.role === "zhangsien" ? "任意士气" : (p.role === "zhiban" ? 2 : Math.ceil(r.max / 2))))));
-  const ultEnergyCost = p.role === "lujiancheng" ? 4 : 3;
+  const ultEnergyCost = p.role === "lujiancheng" ? 4 : (p.role === "shuangwu" ? 2 : 3);
   const ultResLabel = p.role === "zhiyuchen" ? "护盾" : (p.role === "zhangsien" ? "" : (p.role === "zhiban" ? "论据" : r.name));
   const resRow = p.role === "zhiyuchen" ? "" : `<div class="stats-row"><div class="stat-group"><span class="res-name">${r.icon} ${r.name}</span><div class="res-pips">${Array.from({ length: r.max }, (_, k) => `<span class="rpip ${k < p.resource ? "on" : ""}"></span>`).join("")}</div><span class="stat-num" style="color:${role.color}">${p.resource}</span><button class="info-btn" data-info="${i}">?</button></div></div>`;
 
   const skillCostDisplay = skillOnCd ? "CD " + p.skillCd : (role.skill.cost === 0 ? resCostLabel : `${role.skill.cost}能量 · ${resCostLabel}`);
   const isShuangwu = p.role === "shuangwu";
-  const lendDis = !isCurrent || p.lendUsed || p.resource >= r.max || normalHand(state.players[1 - i]).length >= HAND_LIMIT || normalHand(p).length === 0 || counterActive;
+  const lendDis = !isPlayPhase || p.lendUsed || p.resource >= r.max || normalHand(p).length === 0 || counterActive || p.cannotPlayMoreThisTurn;
+
+  const handOverLimit = p.hand.length > HAND_LIMIT;
 
   el.innerHTML = `
     <div class="hud">
@@ -1384,7 +1473,7 @@ function renderSide(i) {
           <div class="name-line">
             <span class="pname">${p.name}</span>
             <span class="prole">${role.title}</span>
-            <span class="handcount">手牌 ${p.hand.length}</span>
+            <span class="handcount ${handOverLimit ? "over" : ""}">手牌 ${p.hand.length}${handOverLimit ? "/" + HAND_LIMIT : ""}</span>
           </div>
           <div class="hp-bar"><div class="hp-fill" style="width:${p.hp / p.maxHp * 100}%"></div><div class="hp-text">${p.hp} / ${p.maxHp}</div></div>
         </div>
@@ -1403,15 +1492,15 @@ function renderSide(i) {
         <button class="action-btn lend-btn ${lendDis ? "disabled-style" : ""}" id="lendBtn${i}">
           <div class="btn-icon">💪</div>
           <div class="btn-content">
-            <div class="btn-title"><span>交牌</span><span class="cost-badge" style="background:rgba(236,72,153,.15);color:#ec4899;border-color:rgba(236,72,153,.35)">+2 精力</span></div>
-            <div class="btn-desc">交 1 张手牌给对手（每回合限 1 次）</div>
+            <div class="btn-title"><span>交牌</span><span class="cost-badge" style="background:rgba(236,72,153,.15);color:#ec4899;border-color:rgba(236,72,153,.35)">+N 精力</span></div>
+            <div class="btn-desc">交任意张手牌（每张 +1 精力，每回合限 1 次）</div>
           </div>
         </button>
       ` : ""}
-      <button class="action-btn skill-btn ${skDis ? "disabled-style" : ""}">
+      <button class="action-btn skill-btn ${skDis ? "disabled-style" : ""} ${showZhaobiCounter ? "zaobi-counter" : ""}" id="skBtn${i}">
         <div class="btn-icon">⚡</div>
         <div class="btn-content">
-          <div class="btn-title"><span>${role.skill.name}</span><span class="cost-badge">${skillCostDisplay}</span></div>
+          <div class="btn-title"><span>${role.skill.name}${showZhaobiCounter ? " ✨反制" : ""}</span><span class="cost-badge">${skillCostDisplay}</span></div>
           <div class="btn-desc">${role.skill.desc}</div>
         </div>
       </button>
@@ -1423,15 +1512,17 @@ function renderSide(i) {
         </div>
       </button>
     </div>
-    <div class="end-turn-row"><button class="end-turn-btn" id="endBtn${i}">结 束 回 合</button></div>
+    <div class="end-turn-row"><button class="end-turn-btn" id="endBtn${i}">${isPlayPhase ? "结束出牌 · 进入弃牌" : "结 束 回 合"}</button></div>
     <div class="hand-area"></div>
   `;
 
   const sts = [];
   if (counterActive && state.counterWindow.responsePlayer === i) {
-    if (hasEnergyForCounter) {
-      sts.push({ text: `⚡ 反制窗口！点击无懈可击（${COUNTER_WINDOW_MS / 1000}s）`, type: "counter" });
-    } else {
+    if (winfo.hasEnergy && winfo.has) {
+      sts.push({ text: `⚡ 反制窗口！点击无懈可击${zinfo.canUse ? " / 扎啤" : ""}`, type: "counter" });
+    } else if (zinfo.canUse) {
+      sts.push({ text: `⚡ 可用扎啤反制`, type: "counter" });
+    } else if (winfo.has && !winfo.hasEnergy) {
       sts.push({ text: `⚠ 能量不足（${p.energy}/1），无法反制`, type: "counter-warn" });
     }
   }
@@ -1461,6 +1552,7 @@ function renderSide(i) {
   if (p.zhiyuchenBuff > 0) sts.push({ text: `守护领域 ${p.zhiyuchenBuff} 回合`, type: "buff" });
   if (p.emergencyHealUsed) sts.push({ text: "濒死回血已用", type: "debuff" });
   if (isShuangwu && p.lendUsed) sts.push({ text: "已交牌", type: "debuff" });
+  if (isCurrent && state.phase === "discard") sts.push({ text: `弃牌阶段：需弃 ${Math.max(0, p.hand.length - HAND_LIMIT)} 张`, type: "debuff" });
   const sealedOnMe = p.hand.filter(c => c.sealed).length;
   if (sealedOnMe > 0) sts.push({ text: `被封印 ${sealedOnMe} 张`, type: "debuff" });
 
@@ -1482,8 +1574,11 @@ function renderSide(i) {
   const lendBtn = el.querySelector(`#lendBtn${i}`);
   if (lendBtn && !lendDis) onTap(lendBtn, () => { playClick(); doShuangwuLend(p); });
 
-  const skBtn = el.querySelector(".skill-btn");
-  if (i === state.current) {
+  const skBtn = el.querySelector(`#skBtn${i}`);
+  if (showZhaobiCounter) {
+    // 扎啤反制优先
+    bindAction(skBtn, role.color, "⚡", role.skill.name + " ✨反制", `${role.skill.cost}能量`, role.skill.desc, () => { playClick(1.4); doCounterFromWindow("zhaobi"); });
+  } else if (i === state.current && isPlayPhase) {
     if (!skDis) bindAction(skBtn, role.color, "⚡", role.skill.name, skillCostDisplay, role.skill.desc, () => { playClick(); useSkill(); });
     else bindAction(skBtn, role.color, "⚡", role.skill.name, skillCostDisplay, role.skill.desc + "<br><br><span style='color:#6b7a94'>不可用：" + (counterActive ? "反制中" : skillOnCd ? "冷却中（剩余 " + p.skillCd + " 回合）" : p.cannotPlayMoreThisTurn ? "本回合不能再操作" : p.frozen ? "罚站" : p.noSkill ? "被封锁" : "能量或资源不足") + "</span>", () => {});
     const ultBtn = el.querySelector(".ult-btn");
@@ -1493,7 +1588,7 @@ function renderSide(i) {
   }
 
   const endBtn = el.querySelector(`#endBtn${i}`);
-  endBtn.disabled = !isCurrent || state.over || state.busy || counterActive || (state.mode === "ai" && i === 1);
+  endBtn.disabled = !isPlayPhase || state.over || state.busy || counterActive || (state.mode === "ai" && i === 1);
   if (!endBtn.disabled) onTap(endBtn, () => { playClick(); if (i === state.current && !state.busy) endTurn(); });
 
   const handEl = el.querySelector(".hand-area");
@@ -1518,10 +1613,10 @@ function renderSide(i) {
 
         if (revealAll) {
           if (isResponsePlayer && cardObj.key === "cleanse" && !cardObj.sealed) {
-            if (hasEnergyForCounter) {
+            if (winfo.hasEnergy) {
               btn.classList.add("counter-active");
               btn.disabled = false;
-              onTap(btn, () => { playClick(1.4); doCounterFromWindow(); });
+              onTap(btn, () => { playClick(1.4); doCounterFromWindow("wuxie"); });
             } else {
               btn.classList.add("no-energy-counter");
               btn.disabled = true;
@@ -1532,7 +1627,7 @@ function renderSide(i) {
           }
         } else if (isCurrent) {
           const wuxieUnlock = p.locked && cardObj.key === "cleanse" && p.energy >= 1;
-          btn.disabled = p.energy < realCost || state.busy || p.frozen || (p.locked && !wuxieUnlock) || cardObj.sealed || p.cannotPlayMoreThisTurn;
+          btn.disabled = p.energy < realCost || state.busy || p.frozen || (p.locked && !wuxieUnlock) || cardObj.sealed || p.cannotPlayMoreThisTurn || state.phase !== "play";
           if (!btn.disabled) onTap(btn, () => { playClick(); playCard(idx); });
         } else {
           btn.disabled = true;
@@ -1550,6 +1645,15 @@ function render() {
   if (!state.players.length) return;
   const p = state.players[state.current];
   document.getElementById("turnLabel").textContent = state.over ? "对战结束" : `回合 · ${p.name} · 能量 ${p.energy}/${MAX_ENERGY}`;
+  const phaseLabel = document.getElementById("phaseLabel");
+  if (phaseLabel) {
+    if (state.phase && state.phase !== "idle") {
+      phaseLabel.textContent = PHASE_NAMES[state.phase] || "";
+      phaseLabel.hidden = false;
+    } else {
+      phaseLabel.hidden = true;
+    }
+  }
   renderSide(0); renderSide(1); renderLog();
 }
 
@@ -1611,10 +1715,11 @@ function aiStep() {
   if (state.over || state.current !== 1 || state.mode !== "ai") return;
   if (state.busy) { setTimeout(aiStep, 300); return; }
   if (state.counterWindow && state.counterWindow.active) { setTimeout(aiStep, 300); return; }
-  const p = state.players[1]; const role = ROLES[p.role]; const opp = state.players[0];
+  if (state.phase !== "play") { setTimeout(aiStep, 300); return; }
+  const p = state.players[1]; const opp = state.players[0];
   if (p.frozen) { setTimeout(() => endTurnAI(), 500); return; }
   if (p.cannotPlayMoreThisTurn) { setTimeout(() => endTurnAI(), 500); return; }
-  if (p.role === "shuangwu" && !p.lendUsed && p.resource < ROLES[p.role].resource.max && normalHand(opp).length < HAND_LIMIT && normalHand(p).length > 0) {
+  if (p.role === "shuangwu" && !p.lendUsed && p.resource < ROLES[p.role].resource.max && normalHand(p).length > 0) {
     if (Math.random() < 0.9) { aiLend(); return; }
   }
   if (checkUltReady(p) && Math.random() < 0.85) { useUltimateFromAI(); return; }
@@ -1640,14 +1745,18 @@ function aiStep() {
 function aiLend() {
   const p = state.players[1];
   const opp = state.players[0];
-  if (p.lendUsed || normalHand(p).length === 0 || normalHand(opp).length >= HAND_LIMIT || p.resource >= ROLES[p.role].resource.max) return;
+  if (p.lendUsed || normalHand(p).length === 0 || p.resource >= ROLES[p.role].resource.max) return;
+  const maxRes = ROLES[p.role].resource.max - p.resource;
+  const maxCards = Math.min(normalHand(p).length, maxRes);
+  if (maxCards < 1) return;
+  // 交 1 张最差的牌
   const sel = aiPickWorstCard(p.hand);
   if (sel < 0) return;
   const card = p.hand.splice(sel, 1)[0];
   opp.hand.push(card);
   p.lendUsed = true;
-  addRes(p, 2);
-  log(`电脑 交给「${CARDS[card.key].name}」，精力 +2`);
+  addRes(p, 1);
+  log(`电脑 交给「${CARDS[card.key].name}」，精力 +1`);
   render();
   setTimeout(aiStep, 500);
 }
@@ -1655,15 +1764,18 @@ function aiLend() {
 function endTurnAI() {
   if (state.over) return;
   if (state.counterWindow && state.counterWindow.active) return;
+  if (state.phase !== "play") return;
   const p = state.players[1];
-  if (p.role === "gu" && !p.attackPlayedThisTurn) { addRes(p, 1); log(`${p.name} 未出攻击牌，伪装 +1`); }
-  if (p.role === "lubiao" && p.resource >= 2) heal(p, 2);
-  if (p.zeroResAtEndTurn) { p.resource = 0; log(`${p.name} 士气清零`); }
-  const sealedCount = p.hand.filter(c => c.sealed).length;
-  p.hand.forEach(c => c.sealed = false);
-  if (sealedCount > 0) log(`${p.name} 的 ${sealedCount} 张封印牌解封`);
-  p.locked = false; p.noSkill = false; p.firstAtkDebuff = 0; p.combo = 0;
-  startTurn(0);
+  state.phase = "discard";
+  const overflow = p.hand.length - HAND_LIMIT;
+  if (overflow > 0) {
+    for (let k = 0; k < overflow; k++) { const sel = aiPickWorstCard(p.hand); if (sel >= 0) { const card = p.hand.splice(sel, 1)[0]; p.discard.push(card.key); onLoseCard(p, 1); } }
+    log(`电脑 弃掉 ${overflow} 张牌`);
+    render();
+    setTimeout(() => doEndPhase(p), 400);
+  } else {
+    setTimeout(() => doEndPhase(p), 400);
+  }
 }
 
 function playCardFromAI(index) {
@@ -1707,15 +1819,14 @@ function playCardFromAI(index) {
 
   let executed = false;
   const execFn = () => {
-    if (executed) { console.warn("AI execFn already executed"); return; }
+    if (executed) return;
     executed = true;
     const opp2 = state.players[0]; const p2 = state.players[1];
     if (cardObj.key === "steal" && normalHand(opp2).length > 0) {
       const sel = aiPickBestCard(opp2.hand);
       if (sel >= 0) {
         const stolen = opp2.hand.splice(sel, 1)[0];
-        if (normalHand(p2).length < HAND_LIMIT) { stolen.isNew = true; p2.hand.push(stolen); log(`电脑 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1); }
-        else { opp2.discard.push(stolen.key); onLoseCard(opp2, 1); }
+        stolen.isNew = true; p2.hand.push(stolen); log(`电脑 偷走「${CARDS[stolen.key].name}」`); onLoseCard(opp2, 1);
       }
       render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
     }
@@ -1743,7 +1854,7 @@ function useSkillFromAI() {
     p.energy -= sk.cost; subRes(p, sk.resCost); p.skillCd = SKILL_CD;
     const sel = aiPickBestCard(opp.hand);
     if (sel >= 0) opp.hand[sel].sealed = true;
-    draw(p, 1);
+    draw(p, 1, true);
     lockBusy(600); playClick(1.3); pulseAvatar(1); banner(sk.name, role.color);
     log(`电脑 推演，封印了一张牌`);
     render(); setTimeout(() => { if (!state.over) aiStep(); }, 550); return;
@@ -1776,7 +1887,7 @@ function useSkillFromAI() {
       case "yangkaidong": { const dmg = Math.floor((p.maxHp - p.hp) / 2); if (dmg > 0) dealDamage(1, 0, dmg, { isAttack: true, ignoreShield: true }); break; }
       case "lubiao": p.damageHalfThisTurn = true; break;
       case "rou": { const marks = opp.rouMarks || 0; dealDamage(1, 0, 2 + resCost + marks * 2, { isAttack: true }); break; }
-      case "xi": { const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se); const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0); if (idxs.length > 0 && normalHand(p).length < HAND_LIMIT) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); } break; }
+      case "xi": { const se = Math.min(2, opp.energy); opp.energy -= se; p.energy = Math.min(MAX_ENERGY, p.energy + se); const idxs = opp.hand.map((c, i) => c.isExtra ? -1 : i).filter(i => i >= 0); if (idxs.length > 0) { const i = idxs[Math.floor(Math.random() * idxs.length)]; const stolen = opp.hand.splice(i, 1)[0]; stolen.isNew = true; stolen.stolenCostReduce = true; if (CARDS[stolen.key].type === "attack") stolen.stolenDamage = true; p.hand.push(stolen); onLoseCard(opp, 1); } break; }
       case "gu": { let dmg = 0, healAmt = 0; if (resCost >= 3) { dmg = 7; healAmt = 5; } else if (resCost === 2) { dmg = 4; healAmt = 3; } else if (resCost === 1) { dmg = 2; healAmt = 1; } if (dmg > 0) { dealDamage(1, 0, dmg, { isAttack: true }); heal(p, healAmt); } opp.firstAtkDebuff = (opp.firstAtkDebuff || 0) + 2; p.cannotPlayMoreThisTurn = true; break; }
       case "zhiban": p.damageHalfThisTurn = true; p.drawOnHurtThisTurn = true; break;
     }
@@ -1789,14 +1900,14 @@ function useUltimateFromAI() {
   const p = state.players[1]; const role = ROLES[p.role]; const savedRes = p.resource;
   if (p.role === "lujiancheng") { p.energy -= 4; p.resource = 0; }
   else if (p.role === "zhiyuchen") { p.energy -= 3; }
-  else if (p.role === "shuangwu") { p.energy -= 3; p.resource -= 4; }
+  else if (p.role === "shuangwu") { p.energy -= 2; p.resource -= 4; }
   else { p.energy -= 3; p.resource = 0; }
   lockBusy(1200); playClick(1.6); pulseAvatar(1); banner("终极 · " + role.ultimate.name, "#fbbf24");
   log(`电脑 发动终极技「${role.ultimate.name}」`);
   render();
   setTimeout(() => {
     if (p.role === "zhiban") { const dmg = savedRes * 2; dealDamage(1, 0, dmg, { isAttack: true }); if (!state.over) { state.players[0].energy = Math.max(0, state.players[0].energy - 2); } }
-    else if (p.role === "yangkaidong") { const half = Math.floor(p.hp / 2); p.hp -= half; dealDamage(1, 0, half, { isAttack: true, ignoreShield: true }); }
+    else if (p.role === "yangkaidong") { const half = Math.floor(p.hp / 2); const dmg = Math.floor(half * 1.5); p.hp -= half; dealDamage(1, 0, dmg, { isAttack: true, ignoreShield: true }); }
     else if (p.role === "shuangwu") { doShuangwuUlt(p); }
     else { execUltimate(1, savedRes); }
     render();
@@ -1844,7 +1955,7 @@ function createPlayer(roleKey, name) {
 
 function startGame() {
   state.mode = setup.mode; state.over = false; state.logs = []; state.busy = false;
-  state._busyTimer = null; state.current = 0; state.turnCount = 0; state.counterWindow = null;
+  state._busyTimer = null; state.current = 0; state.turnCount = 0; state.counterWindow = null; state.phase = "idle";
   const keys = Object.keys(ROLES);
   const role1 = setup.mode === "ai" ? keys[Math.floor(Math.random() * keys.length)] : setup.p1;
   state.players = [createPlayer(setup.p0, "玩家 1"), createPlayer(role1, setup.mode === "ai" ? "电脑" : "玩家 2")];
@@ -1852,6 +1963,7 @@ function startGame() {
   document.getElementById("setup").hidden = true;
   document.getElementById("game").hidden = false;
   log(`对局开始：${state.players[0].name}（${ROLES[setup.p0].name}） VS ${state.players[1].name}（${ROLES[role1].name}）`);
+  log(`回合分为 4 阶段：回合开始 → 摸牌 → 出牌 → 弃牌 → 结束`);
   startTurn(0);
 }
 
